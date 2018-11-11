@@ -76,11 +76,20 @@ class PlayCanvas extends Component {
         }
 
         this.renderDialog = (timestamp) => {
-            if (!this.textStart) this.textStart = timestamp
+            if (!this.textStart) {
+                this.textCurrentPage = 0
+                this.textStart = timestamp
+            }
             let dt = timestamp - this.textStart
             let canvas = this.base
             let position = this.avatarTileY >= this.world.roomSize / 2 ? 'top' : 'bottom'
-            renderText(canvas, this.text, this.world.font, { position, dt, done: () => { this.textFinished = true } })
+            this.textPageCount = renderText(canvas, this.text, this.world.font, this.textCurrentPage, { position, dt, done: () => { this.textFinished = true } })
+        }
+
+        this.progressDialog = () => {
+            if (!this.textFinished) return
+            this.textCurrentPage++
+            if (this.textCurrentPage === this.textPageCount) this.displayText = 0
         }
 
         this.progressFrames = () => {
@@ -97,8 +106,8 @@ class PlayCanvas extends Component {
         this.onKeyDown = (event) => {
             if (event.repeat) return
 
-            if (this.displayText && this.textFinished) {
-                this.displayText = false
+            if (this.displayText) {
+                this.progressDialog()
                 return
             }
 
@@ -115,8 +124,8 @@ class PlayCanvas extends Component {
         this.onPointerStart = (event) => {
             if (!event.touches) event.preventDefault()
 
-            if (this.displayText && this.textFinished) {
-                this.displayText = false
+            if (this.displayText) {
+                this.progressDialog()
                 return
             }
 

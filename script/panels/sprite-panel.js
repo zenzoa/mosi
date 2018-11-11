@@ -97,7 +97,7 @@ class SpritePanel extends Component {
 
         let avatarButton = !isAvatar && h(Button, {
             onclick: this.props.setAvatarId
-        }, '🟊 set as avatar')
+        }, '★ set as avatar')
 
         let prevFrame = state.frameId > 0 ? state.frameId - 1 : this.sprite.frames.length - 1
 
@@ -150,12 +150,12 @@ class SpritePanel extends Component {
         let addFrameButton = this.sprite.frames.length < this.maxFrames && h(Button, {
             class: 'icon-button',
             onclick: this.addFrame
-        }, '🞣')
+        }, '+')
 
         let removeFrameButton = (this.sprite.frames.length > 1) && h(RemoveButton, {
             class: 'icon-button',
             onclick: this.removeFrame
-        }, '━')
+        }, '-')
 
         let spritePreviewCanvas = h(SpriteCanvas, {
             sprite: this.sprite,

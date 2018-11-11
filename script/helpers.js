@@ -132,40 +132,60 @@ let renderTextLine = (context, text, font, options) => {
     }
 }
 
-let divideText = (text, font, options) => {
-    let width = font.size.width
-    let height = font.size.height
-    let textboxWidth = options.textboxWidth
-    let textboxHeight = options.textboxHeight
+let divideText = (text, charWidth, width) => {
+    let pages = []
 
-    let screens = []
     let lines = []
-    let currentLine = []
-    let pixelsOnLine = 0
+    let lineSoFar = ''
+    let lineWidthSoFar = 0
 
+    let newPage = () => {
+        pages.push(lines)
+        lines = []
+    }
+
+    let newLine = () => {
+        lines.push(lineSoFar)
+        lineSoFar = ''
+        lineWidthSoFar = 0
+        if (lines.length === 2) newPage()
+    }
+
+    let addText = (word) => {
+        if (lineSoFar) lineSoFar += ' '
+        lineSoFar += ' ' + word
+        lineWidthSoFar += charWidth * (word.length + 1)
+    }
+
+    let linebreaks = text.split(/\n/g)
+    text = linebreaks.join(' {br} ')
+    text = text.replace(/{.+?}/g, ' $& ')
     let words = text.split(/\s/g)
 
-    for (let i = 0; i < words.length; i++) {
-        let word = words[i]
-        let wordWidth = word.length * width
-        if (pixelsOnLine + width + wordWidth > textboxWidth) {
-            lines.push(currentLine.join(' '))
-            currentLine = [word]
-            pixelsOnLine = 0
-        } else {
-            currentLine.push(word)
-            pixelsOnLine += width + wordWidth
+    words.forEach(word => {
+        if (word.toLowerCase() === '{br}') {
+            newLine()
         }
-    }
-    lines.push(currentLine.join(' '))
+        else if (word.toLowerCase() === '{p}') {
+            newLine()
+            newPage()
+        }
+        else if (lineWidthSoFar + charWidth * (word.length + 1) > width) {
+            newLine()
+            addText(word)
+        }
+        else {
+            addText(word)
+        }
+    })
 
-    // let lineHeight = height + 2
-    // let linesPerScreen = Math.floor(textboxHeight / lineHeight)
+    if (lineSoFar) newLine()
+    if (lines.length > 0) newPage()
 
-    return lines
+    return pages
 }
 
-let renderText = (canvas, text, font, options) => {
+let renderText = (canvas, text, font, page, options) => {
     let context = canvas.getContext('2d')
     let bgColor = options.bgColor || '#000'
     let color = options.color || '#fff'
@@ -185,16 +205,11 @@ let renderText = (canvas, text, font, options) => {
     let offsetY = options.position === 'top' ? margin : canvas.height - textboxHeight - margin
 
     // prepare text
-    let lines = divideText(text, font, {
-        textboxWidth: textboxWidth - (padding * 2),
-        textboxHeight: textboxHeight - (padding * 2)
-    })
+    let pages = divideText(text, font.size.width, textboxWidth - (padding * 2))
+    if (page > pages.length - 1) page = pages.length - 1
+    let lines = pages[page]
 
     // draw background
-    // context.fillStyle = bgColor
-    // context.fillRect(0, offsetY - 2, textboxWidth + 4, textboxHeight + 4)
-    // context.fillStyle = color
-    // context.fillRect(margin / 2, offsetY - 1, textboxWidth + 2, textboxHeight + 2)
     context.fillStyle = bgColor
     context.fillRect(0, offsetY, textboxWidth, textboxHeight)
 
@@ -213,6 +228,8 @@ let renderText = (canvas, text, font, options) => {
         })
         charactersToShow = Math.max(0, charactersToShow - line.length)
     }
+
+    return pages.length
 }
 
 let findSpriteInWorld = (spriteId, rooms) => {

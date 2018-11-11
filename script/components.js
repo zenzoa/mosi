@@ -30,14 +30,12 @@ class BigTextbox extends Component {
     }
 
     render(props, state) {
-        let textarea = h('textarea', {
-            class: props.class,
-            style: props.style,
-            value: state.text,
-            placeholder: props.placeholder,
-            oninput: (event) => this.handleInput(event.target.value),
-            onchange: (event) => this.handleChange(event.target.value)
-        })
+        props = deepClone(props)
+        props.value = state.text
+        props.oninput = (event) => this.handleInput(event.target.value)
+        props.onchange = (event) => this.handleChange(event.target.value)
+
+        let textarea = h('textarea', props)
         if (!props.label) return textarea
 
         return h('label', null, [
@@ -96,7 +94,7 @@ class CloseButton extends Component {
         return h(Button, {
             class: 'icon-button close-button',
             onclick: props.onclick
-        }, '🞭')
+        }, '×')
     }
 }
 
@@ -105,7 +103,7 @@ class BackButton extends Component {
         return h(Button, {
             class: 'icon-button',
             onclick: props.onclick
-        }, '⯇')
+        }, '←')
     }
 }
 
@@ -161,7 +159,7 @@ class MoreActions extends Component {
     }
 
     render(props, state) {
-        let buttonOpen = h(Button, { class: 'icon-button', onclick: this.open }, '🞴')
+        let buttonOpen = h(Button, { class: 'icon-button', onclick: this.open }, '≡')
         let buttonClose = h(CloseButton, { onclick: this.close })
         let modal = h(Modal, { open: state.open }, [ buttonClose, props.children ])
         return h('div', { class: 'more-actions' }, [ buttonOpen, modal ])
