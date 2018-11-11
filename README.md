@@ -1,5 +1,7 @@
 # môsi
 
+A tiny game engine that lets you make tiny game worlds. Inspired by [Bitsy](https://github.com/le-doux/bitsy).
+
 ## Alpha
 - DONE!
 
