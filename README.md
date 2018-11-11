@@ -1,7 +1,7 @@
 # môsi
 
 ## Alpha
-- Export
+- DONE!
 
 ## Beta
 - More script types
