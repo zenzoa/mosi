@@ -4,6 +4,7 @@ class Editor extends Component {
 
         this.newGame = () => {
             let newWorld = {
+                version: 0.1,
                 worldSize: 8,
                 roomSize: 16,
                 spriteSize: 8,
@@ -304,11 +305,23 @@ class Editor extends Component {
             let id = this.state.paletteId
             let palettes = this.state.world.palettes
             let newPalettes = palettes.slice(0, id).concat(palettes.slice(id + 1))
-
-            // TODO: remove references to palette
+            
+            this.removePaletteReferences(id)
 
             this.setData(['palettes'], newPalettes)
             this.setPaletteId(Math.max(0, id - 1))
+        }
+
+        this.removePaletteReferences = (id) => {
+            let newRooms = this.state.world.rooms.map((room) => {
+                if (!room || !room.tiles) return
+                let newRoom = deepClone(room)
+                if (newRoom.paletteId === id) newRoom.paletteId = 0
+                if (newRoom.paletteId > id) newRoom.paletteId--
+                console.log(room.paletteId, newRoom.paletteId)
+                return newRoom
+            })
+            this.setData(['rooms'], newRooms)
         }
 
         this.state = this.newGame()

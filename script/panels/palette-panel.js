@@ -91,6 +91,7 @@ class PalettePanel extends Component {
         let colors = this.palette.colors
         let sprite = props.getData(['sprites', props.spriteId])
         let lastPanel = this.props.breadcrumbs[this.props.breadcrumbs.length - 1]
+        let isOnlyPalette = props.world.palettes.length <= 1
 
         let colorControls = colors.map((color, id) => {
             let canvas = h(SpriteCanvas, {
@@ -134,7 +135,11 @@ class PalettePanel extends Component {
             onchange: this.setName
         })
 
-        let moreActions = h(MoreActions, null, [])
+        let removeButton = !isOnlyPalette && h(RemoveButton, {
+            onclick: this.props.removePalette
+        }, 'remove')
+
+        let moreActions = removeButton ? h(MoreActions, null, [removeButton]) : null
 
         return h(Panel, {
             header: [backButton, nameTextbox, moreActions],

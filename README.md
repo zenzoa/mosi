@@ -1,40 +1,26 @@
 # môsi
 
-## IDEAS:
-- no endings??
+## Alpha
+- Export
 
-## TODO:
-- reset
-- import
-- export
-- external player (without preact, script and data inside html file)
-- exit/doorway (use choose-room panel)
-- save data to localhost
-- paginate text
-- preview text in script editor
-- copy scripts
-- ability to copy rooms
-- ability to rearrange rooms
-- ability to reorder sprites
-- ability to change world/room size
-- ability to import fonts
-- scripts
-    - branch
-    - sequence
-    - loop
-    - shuffle
-    - variables
-    - ending (??)
-    - give item(s)
-    - take item(s)
-- ability to copy scripts
-- show avatar in palette panel when not choosing a room's palette
-- nicer color selection styling
-- ability to remove palettes
+## Beta
+- More script types
+- Import and reset games
+- Import fonts
+- Change world/room size
+- Save data to localhost
 
-## SCOPE CREEP:
-- integrate sounds/music
-- ability to export individual sprites / all sprites
-- world wrapping
-- change color palette through script
-- screenshots/gifs
+## Polishing
+- Drag-and-drop reordering
+- Preview text in dialog editor
+- Maybe: Drag-tiles instead of draw-tiles as room metaphor
+
+## Refactoring
+- Multiple sketches
+- Export/import individual rooms and sprites
+- Undo/redo
+
+## Future Features
+- Sounds/music
+- Screenshots/gifs/header images
+- World wrapping
