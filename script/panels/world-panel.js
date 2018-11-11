@@ -63,7 +63,7 @@ class WorldPanel extends Component {
         }, 'play')
 
         let exportButton = h(Button, {
-            // TODO: hook this up
+            onclick: props.exportGame
         }, 'export')
 
         let spriteListButton = h(Button, {

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>//TITLE//</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+<style>
+    body {
+        background: black;
+        margin: 0;
+        padding: 20px;
+    }
+    canvas {
+        display: block;
+        width: calc(100vmin - 40px);
+        height: calc(100vmin - 40px);
+        margin: 0 auto;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        image-rendering: -moz-crisp-edges;
+    }
+</style>
+
+<!-- GAME DATA -->
+<script>
+window.GAME_DATA = //GAME_DATA//
+</script>
+
+<!-- HELPER SCRIPTS-->
+<script>
+//HELPER_SCRIPTS//
+</script>
+
+<!-- MAIN SCRIPTS -->
+<script>
+//MAIN_SCRIPTS//
+</script>
+
+<!-- LOADING SCRIPT -->
+<script>
+window.onload = () => {
+    let canvas = document.getElementById('game')
+    let game = new Game(window.GAME_DATA, canvas)
+    game.load()
+}
+</script>
+
+</head>
+
+<body>
+<canvas id="game"></canvas>
+</body>
+
+</html>

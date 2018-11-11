@@ -2,9 +2,15 @@ class Editor extends Component {
     constructor() {
         super()
 
+        this.resources = new ResourceLoader()
+        this.resources.load('exportTemplate.html')
+        this.resources.load('script/helpers.js')
+        this.resources.load('script/play.js')
+
         this.newGame = () => {
             let newWorld = {
                 version: 0.1,
+                name: '',
                 worldSize: 8,
                 roomSize: 16,
                 spriteSize: 8,
@@ -318,10 +324,13 @@ class Editor extends Component {
                 let newRoom = deepClone(room)
                 if (newRoom.paletteId === id) newRoom.paletteId = 0
                 if (newRoom.paletteId > id) newRoom.paletteId--
-                console.log(room.paletteId, newRoom.paletteId)
                 return newRoom
             })
             this.setData(['rooms'], newRooms)
+        }
+
+        this.exportGame = () => {
+            Exporter.exportGame(this.resources, this.state.world)
         }
 
         this.state = this.newGame()
@@ -358,7 +367,9 @@ class Editor extends Component {
 
             getPaletteColors: this.getPaletteColors,
             addPalette: this.addPalette,
-            removePalette: this.removePalette
+            removePalette: this.removePalette,
+
+            exportGame: this.exportGame
         }
 
         let panel = null
