@@ -72,6 +72,7 @@ class ScriptListPanel extends Component {
             let newScripts = this.scripts.slice(0, id).concat(this.scripts.slice(id + 1))
             this.props.setData(['sprites', this.props.spriteId, 'scripts'], newScripts)
             this.setState({ scriptId: null })
+            if (newScripts.length === 0) this.props.back()
         }
     }
 
@@ -79,28 +80,48 @@ class ScriptListPanel extends Component {
         this.sprite = props.getData(['sprites', props.spriteId])
         this.scripts = this.sprite && this.sprite.scripts
 
-        if (this.scripts.length === 0) this.addScript()
-
-        if (state.scriptId != null) {
-            return h(ScriptPanel, {
-                script: this.scripts[state.scriptId],
-                update: (property, value) => this.updateScript(state.scriptId, property, value),
-                remove: () => this.removeScript(state.scriptId),
-                back: () => this.setState({ scriptId: null })
-            })
+        // temporary until multiple pages of dialog are set up
+        let addScript = false
+        if (this.scripts.length === 0) {
+            addScript = true
+            this.scripts = [{ type: 'dialog', text: '' }]
         }
 
-        let scriptList = this.scripts.map(this.renderScript)
-
-        let newScriptButton = h(Button, { onclick: this.addScript }, 'add script')
-
-        let backButton = h(BackButton, { onclick: props.back })
-
-        return h(Panel, {
-            header: [backButton, h(Filler)],
-            content: scriptList,
-            footer: [newScriptButton]
+        return h(ScriptPanel, {
+            script: this.scripts[0],
+            update: (property, value) => {
+                if (addScript) this.props.setData(['sprites', this.props.spriteId, 'scripts'], [{ type: 'dialog', text: '' }])
+                this.updateScript(0, property, value)
+            },
+            remove: () => this.removeScript(0),
+            back: props.back
         })
+
+        // if (this.scripts.length === 0) this.addScript()
+
+        // if (state.scriptId != null) {
+        //     return h(ScriptPanel, {
+        //         script: this.scripts[state.scriptId],
+        //         update: (property, value) => this.updateScript(state.scriptId, property, value),
+        //         remove: () => this.removeScript(state.scriptId),
+        //         back: () => {
+        //             this.setState({ scriptId: null })
+        //             this.props.back()
+        //         }
+        //     })
+        // }
+
+        // let scriptList = this.scripts.map(this.renderScript)
+
+        // let newScriptButton = h(Button, { onclick: this.addScript }, 'add script')
+
+        // let backButton = h(BackButton, { onclick: props.back })
+
+        // return h(Panel, {
+        //     header: [backButton, h(Filler)],
+        //     content: scriptList,
+        //     footer: [newScriptButton]
+        // })
 
     }
 }
@@ -157,8 +178,6 @@ class DialogScriptPanel extends Component {
             onchange: (value) => props.update('text', value)
         })
 
-        let preview
-
         return h('div', null, [dialog])
     }
 }
@@ -171,8 +190,6 @@ class EndingScriptPanel extends Component {
             onchange: (value) => props.update('text', value)
         })
 
-        let preview
-
         return h('div', null, [dialog])
     }
 }
@@ -182,8 +199,6 @@ class DoorwayScriptPanel extends Component {
         let room
         let x
         let y
-
-        let preview
 
         return h('div', null, [])
     }

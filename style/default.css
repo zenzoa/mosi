@@ -120,7 +120,7 @@ button.off {
     height: 100%;
 }
 .canvas-button.avatar:after {
-    content: '🟊';
+    content: '★';
     display: block;
     position: absolute;
     bottom: 0;
@@ -212,6 +212,7 @@ section > footer {
     width: 100%;
     height: 100%;
     margin: 0 !important;
+    border-radius: 10px;
     background: #fafafa;
 }
 .modal-contents {
