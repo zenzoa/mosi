@@ -10,7 +10,6 @@ A tiny game engine that lets you make tiny game worlds. Inspired by [Bitsy](http
 - Import and reset games
 - Import fonts
 - Change world/room size
-- Save data to localhost
 
 ## Polishing
 - Drag-and-drop reordering

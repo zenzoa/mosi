@@ -8,7 +8,27 @@ class Editor extends Component {
         this.resources.load('script/play.js')
 
         this.newGame = () => {
-            let newWorld = {
+            let newWorld
+            let loadedWorld = this.loadData()
+            if (loadedWorld) newWorld = loadedWorld
+            else newWorld = this.newWorld()
+
+            let newState = {
+                panel: 'world',
+                breadcrumbs: [],
+                roomId: 0,
+                spriteId: 0,
+                paletteId: 0,
+                filter: '',
+                gridLines: true,
+                world: newWorld
+            }
+
+            return newState
+        }
+
+        this.newWorld = () => {
+            let world = {
                 version: 0.1,
                 name: '',
                 worldSize: 8,
@@ -22,7 +42,7 @@ class Editor extends Component {
                 font: parseFont(ASCII_4x6)
             }
 
-            newWorld.palettes.push({
+            world.palettes.push({
                 name: '',
                 colors: ['#ddd', '#d43368', '#594D65']
             })
@@ -46,13 +66,13 @@ class Editor extends Component {
                 null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
             ]
 
-            newWorld.rooms[27] = {
+            world.rooms[27] = {
                 name: '',
                 paletteId: 0,
                 tiles: tiles
             }
 
-            newWorld.sprites.push({
+            world.sprites.push({
                 name: 'avatar',
                 colorId: 1,
                 wall: false,
@@ -80,7 +100,7 @@ class Editor extends Component {
                 ]]
             })
 
-            newWorld.sprites.push({
+            world.sprites.push({
                 name: 'wall',
                 colorId: 2,
                 wall: true,
@@ -99,7 +119,7 @@ class Editor extends Component {
                 ]]
             })
 
-            newWorld.sprites.push({
+            world.sprites.push({
                 name: 'hot chocolate',
                 colorId: 1,
                 wall: false,
@@ -118,18 +138,36 @@ class Editor extends Component {
                 ]]
             })
 
-            let newState = {
-                panel: 'world',
-                breadcrumbs: [],
-                roomId: 0,
-                spriteId: 0,
-                paletteId: 0,
-                filter: '',
-                gridLines: true,
-                world: newWorld
-            }
+            return world
+        }
 
-            return newState
+        this.resetGame = () => {
+            let world = this.newWorld()
+            this.setState({ world })
+            localStorage.removeItem('gameData')
+        }
+
+        this.exportGame = () => {
+            Exporter.exportGame(this.resources, this.state.world)
+        }
+
+        this.loadData = () => {
+            try {
+                let gameData = localStorage.getItem('gameData')
+                let world = JSON.parse(gameData)
+                return world
+            } catch(e) {
+                console.error('Failed to load game data from local storage', e)
+            }
+        }
+
+        this.saveData = (world) => {
+            try {
+                let gameData = JSON.stringify(world)
+                localStorage.setItem('gameData', gameData)
+            } catch(e) {
+                console.error('Failed to save game data to local storage', e)
+            }
         }
 
         this.getData = (path) => {
@@ -140,6 +178,7 @@ class Editor extends Component {
             let world = deepClone(this.state.world)
             setDeepValue(world, path, value)
             this.setState({ world })
+            this.saveData(world)
         }
 
         this.back = () => {
@@ -329,10 +368,6 @@ class Editor extends Component {
             this.setData(['rooms'], newRooms)
         }
 
-        this.exportGame = () => {
-            Exporter.exportGame(this.resources, this.state.world)
-        }
-
         this.state = this.newGame()
     }
 
@@ -369,6 +404,7 @@ class Editor extends Component {
             addPalette: this.addPalette,
             removePalette: this.removePalette,
 
+            resetGame: this.resetGame,
             exportGame: this.exportGame
         }
 
