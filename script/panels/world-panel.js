@@ -76,12 +76,12 @@ class WorldPanel extends Component {
             onchange: this.setName
         })
 
-        let moreActions = h(MoreActions, null, [paletteListButton, importButton, resetButton])
+        let moreActions = h(MoreActions, null, [spriteListButton, paletteListButton, exportButton])
 
         return h(Panel, {
             header: [nameTextbox, moreActions],
             content: worldGrid,
-            footer: [spriteListButton, exportButton, playButton],
+            footer: [playButton],
             centered: true
         })
     }
