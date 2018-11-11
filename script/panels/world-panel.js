@@ -35,8 +35,8 @@ class WorldPanel extends Component {
             // TODO: hook this up
         }, 'import')
 
-        let resetButton = h(Button, {
-            // TODO: hook this up
+        let resetButton = h(RemoveButton, {
+            onclick: this.props.resetGame
         }, 'reset')
 
         let worldCanvas = h(WorldCanvas, {
@@ -76,7 +76,7 @@ class WorldPanel extends Component {
             onchange: this.setName
         })
 
-        let moreActions = h(MoreActions, null, [spriteListButton, paletteListButton, exportButton])
+        let moreActions = h(MoreActions, null, [spriteListButton, paletteListButton, h('hr'), resetButton, exportButton])
 
         return h(Panel, {
             header: [nameTextbox, moreActions],
