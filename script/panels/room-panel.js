@@ -1,201 +1,192 @@
-class RoomPanel extends Component {
-    constructor(props) {
-        super()
-
-        this.state = { erasing: false }
-
-        this.setData = (path, value) => {
-            path = ['rooms', this.props.roomId].concat(path)
-            this.props.setData(path, value)
-        }
-
-        this.setName = (name) => {
-            this.setData(['name'], name)
-        }
-    
-        this.getTile = (id) => {
-            return this.room.tiles[id]
-        }
-
-        this.setTile = (id, drawing) => {
-            if (!this.sprite) return
-            let spriteId = this.props.spriteId
-
-            let tile = this.room.tiles[id] || []
-            let newTile = tile.slice()
-            let topTile = tile[tile.length - 1]
-
-            if (this.state.erasing) {
-                newTile = newTile.slice(0, -1)
-            } else if (topTile === spriteId && !drawing) {
-                newTile = newTile.slice(0, -1)
-            } else if (topTile !== spriteId && drawing) {
-                if (this.sprite.unique || spriteId === this.props.world.avatarId) this.props.removeSpriteReferences(spriteId)
-                newTile.push(spriteId)
-            } else {
-                return
-            }
-
-            if (newTile.length === 0) newTile = null
-            this.setData(['tiles', id], newTile)
-        }
-    
-        this.canEraseTile = (id) => {
-            let tile = this.room.tiles[id]
-            if (!tile) return
-            let lastSprite = tile[tile.length - 1]
-            return lastSprite === this.props.spriteId
-        }
-
-        this.setErasing = (value) => {
-            this.setState({ erasing: value })
-        }
-
-        this.changePalette = () => {
-            this.props.setPanel('paletteList')
-        }
-    }
-
-    render(props, state) {
-        this.room = props.getData(['rooms', props.roomId])
-        this.sprite = props.getData(['sprites', props.spriteId])
-
-        let colors = props.getPaletteColors()
-        let backgroundColor = colors[0]
-
-        // let copyButton = h(Button, {
-        //     onclick: () => this.props.copyRoom(props.room)
-        // }, 'copy')
-
-        let removeButton = h(RemoveButton, {
-            onclick: () => this.props.removeRoom(props.room)
-        }, 'remove')
-
-        let changePaletteButton = h(Button, {
-            onclick: this.changePalette
-        }, 'change palette')
-
-        let roomCanvas = h(RoomCanvas, {
-            class: 'canvas-bg',
-            tiles: this.room.tiles,
-            sprites: props.world.sprites,
-            roomSize: props.world.roomSize,
-            spriteSize: props.world.spriteSize,
-            frameRate: props.world.frameRate,
-            colors: colors
-        })
-        
-        let grid = h(DrawingGrid, {
-            size: props.world.roomSize,
-            getCell: this.getTile,
-            setCell: this.setTile,
-            canEraseCell: this.canEraseTile,
-            renderCell: () => ''
-        })
-
-        let roomGrid = h('div', {
-            class: 'canvas-wrapper'
-        }, [roomCanvas, grid])
-
-        let spriteCanvas = this.sprite && h(SpriteCanvas, {
-            sprite: this.sprite,
-            size: props.world.spriteSize,
-            frameRate: props.world.frameRate,
-            backgroundColor: backgroundColor,
-            color: colors[this.sprite.colorId] || colors[colors.length - 1]
-        })
-
-        let spriteButton = this.sprite && h(Button, {
-            class: 'canvas-button',
-            onclick: () => this.props.setPanel('spriteList')
-        }, spriteCanvas)
-
-        let editSpriteButton = this.sprite && h(Button, {
-            onclick: () => this.props.setPanel('sprite')
-        }, 'edit')
-        
-        let addSpriteButton = h(Button, {
-            onclick: this.props.addSprite
-        }, 'add')
-        
-        let eraseButton = h(Toggle, {
-            value: state.erasing,
-            onchange: this.setErasing
-        }, 'erase')
-
-        let backButton = h(BackButton, { onclick: props.back })
-
-        let nameTextbox = h(Textbox, {
-            text: this.room.name,
-            placeholder: 'room',
-            onchange: this.setName
-        })
-
-        let moreActions = h(MoreActions, null, [removeButton, changePaletteButton])
-
-        return h(Panel, {
-            header: [backButton, nameTextbox, moreActions],
-            content: roomGrid,
-            footer: [spriteButton, editSpriteButton, addSpriteButton, eraseButton],
-            centered: true
-        })
-    }
-}
-
-class RoomCanvas extends Component {
+class RoomPanel extends Panel {
     constructor() {
         super()
+        this.state = {
+            drawMode: 'draw',
+            modalMessage: ''
+        }
+    }
 
-        this.frames = []
-        this.animationLoop = null
-        this.animationStart = null
+    render({ world, room, roomId, spriteId, setSpriteId, path, set, undo, redo }) {
+        let palette = world.palettes[room.paletteId] || world.palettes[0]
 
-        this.updateCanvas = (timestamp) => {
-            if (!this.animationStart) this.animationStart = timestamp
-            let dt = timestamp - this.animationStart
-            if (dt >= this.props.frameRate && !this.props.fixed) {
-                this.animationStart = timestamp
-                this.progressFrames()
+        if (this.state.spriteListOpen) {
+            return h(SpriteListPanel, {
+                world, set, undo, redo,
+                selectedId: spriteId,
+                palette: palette,
+                back: () => this.setState({ spriteListOpen: false }),
+                selectSprite: id => {
+                    setSpriteId(id)
+                    this.setState({ spriteListOpen: false, drawMode: 'draw' })
+                }
+            })
+        }
+
+        if (this.state.spritePanelOpen) {
+            return h(SpritePanel, {
+                world, set,
+                sprite: world.sprites[spriteId],
+                spriteId: spriteId,
+                palette: palette,
+                path: 'sprites.' + spriteId,
+                back: () => this.setState({ spritePanelOpen: false })
+            })
+        }
+
+        if (this.state.paletteListOpen) {
+            return h(PaletteListPanel, {
+                world, set, undo, redo,
+                selectedId: room.paletteId,
+                back: () => this.setState({ paletteListOpen: false }),
+                selectPalette: paletteId => {
+                    set(path + '.paletteId', paletteId)
+                    this.setState({ paletteListOpen: false })
+                }
+            })
+        }
+
+        let nameTextbox = textbox({
+            value: room.name,
+            placeholder: 'room',
+            onchange: x => set(path + '.name', x)
+        })
+
+        let paletteButton = button({
+            onclick: () => this.setState({ paletteListOpen: true })
+        }, 'change color palette')
+
+        let clearButton = h(ConfirmComponent, {
+            description: 'clear room?',
+            onconfirm: () => set(path, Room.clear(clone(room)))
+        }, 'clear room')
+
+        let importButton = h(ImportComponent, {
+            description: 'room',
+            filetype: '.mosiroom',
+            onupload: data => {
+                try {
+                    let obj = JSON.parse(data)
+                    let newRoom = Room.import(obj, world.roomWidth, world.roomHeight, world.sprites)
+                    if (newRoom.relatedSprites) {
+                        set([
+                            { path: 'sprites', value: world.sprites.concat(newRoom.relatedSprites) },
+                            { path: path, value: newRoom },
+                        ])
+                        delete newRoom.relatedSprites
+                    } else {
+                        set(path, newRoom)
+                    }
+
+                } catch (e) {
+                    console.error('unable to import room', e)
+                    throw 'unable to import room'
+                }
             }
+        }, 'import room')
+    
+        let exportButton = h(ExportComponent, {
+            description: 'room',
+            getData: () => Room.export(room, world.sprites)
+        }, 'export room')
 
-            clearCanvas(this.base, this.props.colors[0] || '#fff')
+        let spriteButton = button({
+            onclick: () => this.setState({ spriteListOpen: true })
+        },
+            h(SpriteComponent, {
+                sprite: world.sprites[spriteId],
+                palette: palette,
+                frameRate: world.frameRate
+            }),
+            span({}, 'current sprite')
+        )
 
-            let tiles = this.props.tiles || []
-            let sprites = this.props.sprites || []
-            let spriteFrames = this.props.fixed ? null : this.frames
+        let drawModeButton = button({
+            class: 'toggle toggle-' + (this.state.drawMode === 'draw' ? 'on' : 'off'),
+            onclick: () => this.setState({ drawMode: this.state.drawMode === 'draw' ? 'erase' : 'draw' })
+        }, this.state.drawMode === 'draw' ? 'draw' : 'erase')
 
-            renderRoom(this.base, tiles, sprites, {
-                spriteFrames: spriteFrames,
-                roomSize: this.props.roomSize,
-                spriteSize: this.props.spriteSize,
-                colors: this.props.colors
-            })
+        let editSpriteButton = button({
+            onclick: () => this.setState({ spritePanelOpen: true })
+        }, 'edit sprite')
 
-            this.animationLoop = window.requestAnimationFrame(this.updateCanvas)
-        }
+        let tileCanvas = h(TileCanvas, {
+            w: world.roomWidth,
+            h: world.roomHeight,
+            sw: world.spriteWidth,
+            sh: world.spriteHeight,
+            backgroundColor: palette.colors[0] + '99',
+            frameRate: world.frameRate,
+            showGrid: world.showGrid,
+            isErasing: this.state.drawMode === 'erase',
+            draw: (context, progressFrames) => {
+                if (progressFrames) world.sprites = world.sprites.map(sprite => Sprite.nextFrame(sprite))
+                Room.draw(context, { world, room })
+            },
+            move: ({ x, y }, destination) => {
+                if (!world.sprites[spriteId]) return
 
-        this.progressFrames = () => {
-            this.frames = this.props.sprites.map((_, spriteId) => {
-                let sprite = this.props.sprites[spriteId]
-                let frames = sprite.frames
-                let frameId = this.frames[spriteId] || 0
-                let nextFrameId = frameId + 1
-                if (nextFrameId >= frames.length) nextFrameId = 0
-                return nextFrameId
-            })
-        }
-    }
+                let newX = destination.x
+                let newY = destination.y
 
-    componentDidMount() {
-        this.animationLoop = window.requestAnimationFrame(this.updateCanvas)
-    }
+                if (x === newX && y === newY) {
+                    if ((!world.spritesCanStack && Room.isTileEmpty(room, x, y))
+                        || (world.spritesCanStack && !Room.isSpriteAtLocation(room, spriteId, x, y))) {
+                            if (spriteId === world.avatarId && room.spriteLocations.filter(l => l.spriteId === spriteId)) {
+                                let avatarRoom = World.avatarRoom(world)
+                                if (exists(avatarRoom) && avatarRoom !== roomId) {
+                                    this.setState({ modalMessage: 'The avatar is already in another room' })
+                                    return
+                                }
+                                let newRoom = clone(room)
+                                Room.clearSprite(newRoom, spriteId, x, y)
+                                Room.addSpriteLocation(newRoom, spriteId, x, y)
+                                set(path, newRoom)
+                            } else {
+                                set(path, Room.addSpriteLocation(clone(room), spriteId, x, y))
+                            }
+                    }
+                }
+                
+                else {
+                    if ((!world.spritesCanStack && !Room.isTileEmpty(room, x, y) && Room.isTileEmpty(room, newX, newY))
+                        || (world.spritesCanStack && !Room.isTileEmpty(room, x, y) && !Room.isSpriteAtLocation(room, spriteId, newX, newY))) {
+                            set(path, Room.moveSpriteLocation(clone(room), x, y, newX, newY))
+                    }
+                }
+                
+            },
+            erase: ({ x, y }) => {
+                set(path, Room.clearTile(clone(room), x, y))
+            }
+        })
 
-    componentWillUnmount() {
-        window.cancelAnimationFrame(this.animationLoop)
-    }
+        let modalMessage = this.state.modalMessage ? modal([
+            div({}, this.state.modalMessage),
+            button({ onclick: () => this.setState({ modalMessage: '' })}, 'ok')
+        ]) : null
 
-    render(props) {
-        let size = props.roomSize * props.spriteSize
-        return h('canvas', { class: 'room-canvas ' + (props.class || ''), width: size, height: size })
+        return div({ class: 'panel room-panel' }, [
+            buttonRow([
+                this.backButton(),
+                this.undoButton(),
+                this.redoButton(),
+                nameTextbox,
+                this.menu([
+                    paletteButton,
+                    clearButton,
+                    importButton,
+                    exportButton
+                ])
+            ]),
+            tileCanvas,
+            buttonRow([
+                spriteButton,
+                editSpriteButton,
+                div({ class: 'filler' }),
+                drawModeButton
+            ]),
+            modalMessage
+        ])
     }
 }

@@ -1,225 +1,126 @@
-class PaletteListPanel extends Component {
-    constructor() {
-        super()
-
-        this.choosePalette = (id) => {
-            this.props.setPaletteId(id)
-            let lastPanel = this.props.breadcrumbs[this.props.breadcrumbs.length - 1]
-            if (lastPanel === 'room') {
-                this.props.setData(['rooms', this.props.roomId, 'paletteId'], id)
-                this.props.back()
-            } else {
-                this.props.setPanel('palette')
-            }
-        }
-    }
-
-    render(props) {
-        let lastPanel = this.props.breadcrumbs[this.props.breadcrumbs.length - 1]
-
-        let paletteButtons = props.world.palettes.map((palette, id) => {
-            return h(PaletteButton, {
-                palette: palette,
-                id: id,
-                selected: props.paletteId === id && lastPanel === 'room',
-                onclick: () => this.choosePalette(id)
-            })
-        })
-
-        let paletteList = h('div', { class: 'palette-list' }, paletteButtons)
-
-        let addPaletteButton = h(Button, {
-            onclick: this.props.addPalette
-        }, 'add palette')
-
-        let backButton = h(BackButton, { onclick: props.back })
-
-        return h(Panel, {
-            header: [backButton, h(Filler)],
-            content: paletteList,
-            footer: [addPaletteButton]
-        })
-    }
-}
-
-class PalettePanel extends Component {
-    constructor() {
-        super()
-
-        this.state = { colorId: null }
-
-        this.setData = (path, value) => {
-            path = ['palettes', this.props.paletteId].concat(path)
-            this.props.setData(path, value)
-        }
-
-        this.setName = (name) => {
-            this.setData(['name'], name)
-        }
-
-        this.setColor = (id, color) => {
-            this.setData(['colors', id], color)
-        }
-
-        this.addColor = () => {
-            let colors = this.palette.colors
-            let lastColor = colors.length > 0 ? colors[colors.length - 1] : '#000'
-            let newColors = colors.concat([lastColor])
-            this.setData(['colors'], newColors)
-            this.setState({ colorId: newColors.length - 1 })
-        }
-
-        this.removeColor = (id) => {
-            let colors = this.palette.colors
-            let newColors = colors.slice(0, id).concat(colors.slice(id + 1))
-            this.setData(['colors'], newColors)
-        }
-
-        this.chooseColor = (id) => {
-            let lastPanel = this.props.breadcrumbs[this.props.breadcrumbs.length - 1]
-            if (lastPanel === 'sprite') {
-                this.props.setData(['sprites', this.props.spriteId, 'colorId'], id)
-                this.props.back()
-            } else {
-                this.setState({ colorId: id })
-            }
-        }
-    }
-
-    render(props, state) {
-        this.palette = props.getData(['palettes', props.paletteId])
-        let colors = this.palette.colors
-        let sprite = props.getData(['sprites', props.spriteId])
-        let lastPanel = this.props.breadcrumbs[this.props.breadcrumbs.length - 1]
-        let isOnlyPalette = props.world.palettes.length <= 1
-
-        let colorControls = colors.map((color, id) => {
-            let canvas = h(SpriteCanvas, {
-                sprite: sprite,
-                size: props.world.spriteSize,
-                frameId: 0,
-                color: color,
-                backgroundColor: colors[0]
-            })
-
-            return h(Button, {
-                class: 'canvas-button',
-                disabled: id === 0 && lastPanel === 'sprite',
-                onclick: () => this.chooseColor(id)
-            }, canvas)
-        })
-        let divider = h('div', { class: 'divider' })
-        if (colorControls.length > 1) colorControls = [colorControls[0]].concat([divider]).concat(colorControls.slice(1))
-
-        let colorList = h('div', { class: 'color-list button-row' }, colorControls)
-
-        let modal
-        if (state.colorId != null) {
-            modal = h(ColorModal, {
-                open: true,
-                close: () => this.setState({ colorId: null }),
-                color: colors[state.colorId],
-                colorId: state.colorId,
-                setColor: this.setColor,
-                sprite: sprite,
-                spriteSize: props.world.spriteSize,
-                backgroundColor: colors[0]
-            })
-        }
-
-        let backButton = h(BackButton, { onclick: props.back })
-
-        let nameTextbox = h(Textbox, {
-            text: this.palette.name,
-            placeholder: 'palette',
-            onchange: this.setName
-        })
-
-        let removeButton = !isOnlyPalette && h(RemoveButton, {
-            onclick: this.props.removePalette
-        }, 'remove')
-
-        let moreActions = removeButton ? h(MoreActions, null, [removeButton]) : null
-
-        return h(Panel, {
-            header: [backButton, nameTextbox, moreActions],
-            content: [colorList, modal]
-        })
-    }
-}
-
-class PaletteButton extends Component {
-    render(props) {
-        let colorBars = props.palette.colors.map((color) => {
-            return h('div', { class: 'color-bar', style: { backgroundColor: color } })
-        })
-
-        let colorBarContainer = h('div', { class: 'color-bars' }, colorBars)
-
-        return h(Button, {
-            class: 'palette-button canvas-button ' + (props.selected ? 'on' : 'off'),
-            onclick: props.onclick
-        }, colorBarContainer)
-    }
-}
-
-class ColorModal extends Component {
+class PalettePanel extends Panel {
     constructor(props) {
         super()
+        this.state = {
+            tempColor: props.palette.colors[0],
+            currentColorId: 0
+        }
 
-        this.state = { color: props.color }
+        this.hexRegex = /#[0-9a-f]{6}/i
 
-        let hexRegex = /#[0-9a-f]{6}/i
-        this.setColor = (newColor) => {
-            this.setState({ color: newColor })
-            if (hexRegex.test(newColor)) {
-                this.props.setColor(this.props.colorId, newColor)
+        this.setColor = newColor => {
+            if (this.hexRegex.test(newColor)) {
                 this.colorPicker.color.hexString = newColor
             }
+        }
+
+        this.pickColor = color => {
+            let { palette, path, set } = this.props
+            let newColor = color.hexString
+            let oldColor = palette.colors[this.state.currentColorId]
+            if (newColor !== oldColor) {
+                set(path + '.colors.' + this.state.currentColorId, newColor)
+            }
+            this.colorPicker.width = 100
+        }
+
+        this.initColorPicker = () => {
+            let colorPickerContainer = document.getElementById('colorPicker')
+            colorPickerContainer.innerHTML = ''
+            let rect = colorPickerContainer.getBoundingClientRect()
+            let minSize = Math.min(rect.width, rect.height)
+            this.colorPicker = new iro.ColorPicker(colorPickerContainer, {
+                width: minSize,
+                height: minSize,
+                color: this.props.palette.colors[this.state.currentColorId],
+                sliderMargin: 8
+            })
+            this.colorPicker.on('color:change', debounce(this.pickColor, 300))
         }
     }
 
     componentDidMount() {
-        let colorPickerContainer = document.getElementById('colorPicker')
-        let size = colorPickerContainer.offsetWidth
-        this.colorPicker = new iro.ColorPicker(colorPickerContainer, {
-            width: size,
-            height: size,
-            color: this.props.color,
-            sliderMargin: 8
-        })
-        this.colorPicker.on('color:change', (color) => {
-            let newColor = color.hexString
-            this.props.setColor(this.props.colorId, newColor)
-            this.setState({ color: newColor })
-        })
+        window.addEventListener('resize', this.initColorPicker)
+        this.initColorPicker()
     }
 
-    render(props, state) {
-        let buttonClose = h(CloseButton, { onclick: props.close })
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.initColorPicker)
+    }
 
-        let colorPickerContainer = h('div', { class: 'colorPicker', id: 'colorPicker' })
-
-        let canvas = h(SpriteCanvas, {
-            sprite: props.sprite,
-            size: props.spriteSize,
-            frameId: 0,
-            color: props.color,
-            backgroundColor: props.backgroundColor
-        })
-        let spriteButton = h(Button, { class: 'canvas-button' }, canvas)
-
-        let hexColor = h(Textbox, {
-            class: 'color-input',
-            style: { backgroundColor: props.color },
-            text: state.color,
-            onchange: this.setColor,
+    render({ world, palette, paletteId, path, set, undo, redo, back }) {
+        let nameTextbox = textbox({
+            value: palette.name,
+            placeholder: 'palette',
+            onchange: x => set(path + '.name', x)
         })
 
-        let buttonRow = h(ButtonRow, null, [spriteButton, hexColor])
+        let copyButton = button({
+            onclick: () => {
+                set('', World.copyPalette(clone(world), palette))
+                back()
+            }
+        }, 'copy palette')
+        
+        let delButton = h(ConfirmComponent, {
+            description: 'delete palette?',
+            onconfirm: () => {
+                set('', World.delPalette(clone(world), paletteId))
+                back()
+            }
+        }, 'delete palette')
 
-        let modalChildren = [buttonClose, colorPickerContainer, buttonRow]
-        return h(Modal, { open: props.open }, modalChildren)
+        let colorButtons = palette.colors.map((color, colorId) => {
+            return button({
+                class: 'color' + (this.state.currentColorId === colorId ? ' selected' : ''),
+                onclick: () => {
+                    this.setColor(color)
+                    this.setState({ tempColor: color, currentColorId: colorId })
+                }
+            },
+                h(SpriteComponent, {
+                    sprite: world.sprites[world.avatarId],
+                    palette: { colors: [ palette.colors[0], palette.colors[colorId] ] }
+                })
+            )
+        })
+
+        let colorPickerContainer = div({
+            class: 'colorPicker',
+            id: 'colorPicker'
+        })
+
+        let colorCodeTextbox = textbox({
+            class: 'color',
+            style: { backgroundColor: palette.colors[this.state.currentColorId] },
+            value: this.state.tempColor,
+            onchange: tempColor => {
+                this.setState({ tempColor })
+                if (this.hexRegex.test(tempColor)) {
+                    this.setColor(tempColor)
+                    set(path + '.colors.' + this.state.currentColorId, tempColor)
+                }
+            }
+        })
+
+        return div({ class: 'panel palette-panel' }, [
+            buttonRow([
+                this.backButton(),
+                this.undoButton(),
+                this.redoButton(),
+                nameTextbox,
+                this.menu([
+                    copyButton,
+                    delButton
+                ])
+            ]),
+            buttonRow('scroll', [
+                colorButtons[0],
+                vr(),
+                colorButtons.slice(1)
+            ]),
+            colorPickerContainer,
+            colorCodeTextbox
+        ])
     }
 }
-
