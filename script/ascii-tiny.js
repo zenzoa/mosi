@@ -1,4 +1,4 @@
-let ASCII_4x5 = `FONT ascii_tiny_4x5
+window.ASCII_4x5 = `FONT ascii_tiny_4x5
 SIZE 4 5
 CHAR 32
 0000

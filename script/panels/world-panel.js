@@ -1,147 +1,170 @@
-class WorldPanel extends Component {
+class WorldPanel extends Panel {
     constructor() {
         super()
-
-        this.setName = (name) => {
-            this.props.setData(['name'], name)
+        this.state = {
+            currentRoomId: 0,
+            currentSpriteId: 0
         }
+    }
 
-        this.renderCell = (id) => {
-            return h('div', {
-                class: 'grid-cell-contents',
-                onclick: () => this.openRoom(id)
+    render({ world, set, undo, redo }) {
+        if (this.state.roomPanelOpen) {
+            return h(RoomPanel, {
+                world, set, undo, redo,
+                room: world.rooms[this.state.currentRoomId],
+                roomId: this.state.currentRoomId,
+                path: 'rooms.' + this.state.currentRoomId,
+                spriteId: this.state.currentSpriteId,
+                setSpriteId: x => this.setState({ currentSpriteId: x }),
+                back: () => this.setState({ roomPanelOpen: false })
             })
         }
-    
-        this.openRoom = (id) => {
-            let room = this.props.world.rooms[id]
-            if (!room) this.props.addRoom(id)
-            this.props.setRoomId(id)
-            if (room) this.props.setPaletteId(room.paletteId)
-            this.props.setPanel('room')
+
+        if (this.state.spriteListOpen) {
+            return h(SpriteListPanel, {
+                world, set, undo, redo,
+                back: () => this.setState({ spriteListOpen: false })
+            })
         }
-    }
 
-    render(props) {
-        let settingsButton = h(Button, {
-            onclick: () => this.props.setPanel('settings')
-        }, 'settings')
+        if (this.state.paletteListOpen) {
+            return h(PaletteListPanel, {
+                world, set, undo, redo,
+                back: () => this.setState({ paletteListOpen: false })
+            })
+        }
 
-        let paletteListButton = h(Button, {
-            onclick: () => this.props.setPanel('paletteList')
-        }, 'palettes')
+        if (this.state.settingsPanelOpen) {
+            return h(SettingsPanel, {
+                world, set, undo, redo,
+                path: '',
+                back: () => this.setState({ settingsPanelOpen: false })
+            })
+        }
 
-        let importButton = h(Button, {
-            // TODO: hook this up
-        }, 'import')
+        if (this.state.playPanelOpen) {
+            return h(PlayPanel, {
+                world,
+                back: () => this.setState({ playPanelOpen: false })
+            })
+        }
 
-        let resetButton = h(RemoveButton, {
-            onclick: this.props.resetGame
-        }, 'reset')
-
-        let worldCanvas = h(WorldCanvas, {
-            class: 'canvas-bg',
-            rooms: props.world.rooms,
-            sprites: props.world.sprites,
-            palettes: props.world.palettes,
-            worldSize: props.world.worldSize,
-            roomSize: props.world.roomSize,
-            spriteSize: props.world.spriteSize
-        })
-        
-        let grid = h(Grid, {
-            size: props.world.worldSize,
-            cell: this.renderCell
+        let nameTextbox = textbox({
+            value: world.name,
+            placeholder: 'world',
+            onchange: x => set('name', x)
         })
 
-        let worldGrid = h('div', {
-            class: 'canvas-wrapper'
-        }, [worldCanvas, grid])
+        let resetButton = h(ConfirmComponent, {
+            description: 'reset world?',
+            onconfirm: () => {
+                let newWorld = World.new(world.worldWidth, world.worldHeight, world.roomWidth, world.roomHeight, world.spriteWidth, world.spriteHeight)
+                newWorld.name = world.name
+                set('', newWorld)
+            }
+        }, 'reset world')
 
-        let playButton = h(Button, {
-            onclick: () => this.props.setPanel('play')
-        }, 'play')
+        let exportButton = button({
+            onclick: () => this.setState({ exportPanelOpen: true })
+        }, 'export game')
 
-        let exportButton = h(Button, {
-            onclick: props.exportGame
-        }, 'export')
-
-        let spriteListButton = h(Button, {
-            onclick: () => this.props.setPanel('spriteList')
+        let spriteListButton = button({
+            onclick: () => this.setState({ spriteListOpen: true })
         }, 'sprites')
 
-        let nameTextbox = h(Textbox, {
-            text: props.world.name,
-            placeholder: 'world',
-            onchange: this.setName
-        })
+        let paletteListButton = button({
+            onclick: () => this.setState({ paletteListOpen: true })
+        }, 'colors')
 
-        let moreActions = h(MoreActions, null, [spriteListButton, paletteListButton, h('hr'), resetButton, exportButton])
+        let settingsButton = button({
+            onclick: () => this.setState({ settingsPanelOpen: true })
+        }, 'settings')
 
-        return h(Panel, {
-            header: [nameTextbox, moreActions],
-            content: worldGrid,
-            footer: [playButton],
-            centered: true
-        })
-    }
-}
+        let playButton = button({
+            onclick: () => this.setState({ playPanelOpen: true })
+        }, '▶ play')
 
-class WorldCanvas extends Component {
-    constructor() {
-        super()
+        let avatarRoomId = World.avatarRoom(world)
+        let avatarRoom = exists(avatarRoomId) ? {
+            x: Math.floor(avatarRoomId % world.worldWidth),
+            y: Math.floor(avatarRoomId / world.worldWidth)
+        } : null
 
-        this.updateCanvas = () => {
-            let canvas = this.base
-            let worldSize = this.props.worldSize
-            let roomSize = this.props.roomSize
-            let context = canvas.getContext('2d')
-            context.clearRect(0, 0, canvas.width, canvas.height)
-    
-            for (let y = 0; y < worldSize; y++) {
-                for(let x = 0; x < worldSize; x++) {
-                    let roomId = XYtoID(x, y, worldSize)
-                    let room = this.props.rooms[roomId]
-                    let tiles = room && room.tiles
-
-                    if (tiles) {
-                        let palette = this.props.palettes[room.paletteId]
-                        let colors = palette ? palette.colors : []
-                        context.fillStyle = colors[0] || '#fff'
-                        context.fillRect(x * roomSize, y * roomSize, roomSize, roomSize)
-
-                        for (let tileY = 0; tileY < roomSize; tileY++) {
-                            for(let tileX = 0; tileX < roomSize; tileX++) {
-                                let tileId = XYtoID(tileX, tileY, roomSize)
-                                let tile = tiles[tileId]
-
-                                if (tile && tile.length) {
-                                    let spriteId = tile[tile.length - 1]
-                                    let sprite = this.props.sprites[spriteId]
-
-                                    if (sprite) {
-                                        context.fillStyle = colors[sprite.colorId] || colors[colors.length - 1]
-                                        context.fillRect(x * roomSize + tileX, y * roomSize + tileY, 1, 1)
-                                    }
-                                }
-                            }
-                        }
-                    }
+        let tileCanvas = h(TileCanvas, {
+            w: world.worldWidth,
+            h: world.worldHeight,
+            sw: world.roomWidth,
+            sh: world.roomHeight,
+            highlight: avatarRoom,
+            showGrid: world.showGrid,
+            draw: context => World.draw(context, world),
+            move: ({ x, y }, destination) => {
+                let newX = destination.x
+                let newY = destination.y
+                if (x === newX && y === newY) {
+                    let roomId = x + (y * world.worldWidth)
+                    this.setState({ currentRoomId: roomId, roomPanelOpen: true })
+                } else {
+                    let roomId1 = x + (y * world.worldWidth)
+                    let roomId2 = newX + (newY * world.worldWidth)
+                    let newRooms = clone(world.rooms)
+                    newRooms[roomId1] = world.rooms[roomId2]
+                    newRooms[roomId2] = world.rooms[roomId1]
+                    set('rooms', newRooms)
                 }
+            },
+            erase: ({ x, y }) => {
+                this.setState({
+                    confirmErase: true,
+                    onConfirm: () => {
+                        let roomId = x + (y * world.worldWidth)
+                        set('rooms.' + roomId, Room.new(world.roomWidth, world.roomHeight))
+                    }
+                })
             }
-        }
-    }
+        })
 
-    componentDidMount() {
-        this.updateCanvas()
-    }
+        let confirmEraseModal = this.state.confirmErase ? h(ConfirmComponent, {
+            description: 'erase room?',
+            onclose: () => this.setState({ confirmErase: false }),
+            onconfirm: () => {
+                this.state.onConfirm()
+                this.setState({ confirmErase: false })
+            }
+        }) : null
 
-    componentDidUpdate() {
-        this.updateCanvas()
-    }
+        let exportGameModal = this.state.exportPanelOpen ? modal([
+            button({
+                class: 'icon close',
+                onclick: () => this.setState({ exportPanelOpen: false })
+            }, '×'),
+            div({ class: 'export-modal' }, [
+                button({
+                    onclick: () => Exporter.exportGame(window.resources, world)
+                }, 'download game'),
+            ])
+        ]) : null
 
-    render(props) {
-        let size = props.worldSize * props.roomSize
-        return h('canvas', { class: 'world-canvas ' + (props.class || ''), width: size, height: size })
+        return div({ class: 'panel world-panel' }, [
+            buttonRow([
+                this.undoButton(),
+                this.redoButton(),
+                nameTextbox,
+                this.menu([
+                    settingsButton,
+                    resetButton,
+                    exportButton
+                ])
+            ]),
+            tileCanvas,
+            buttonRow([
+                spriteListButton,
+                paletteListButton,
+                div({ class: 'filler' }),
+                playButton
+            ]),
+            confirmEraseModal,
+            exportGameModal
+        ])
     }
 }

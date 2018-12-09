@@ -1,64 +1,87 @@
-class SpriteListPanel extends Component {
+class SpriteListPanel extends Panel {
     constructor() {
         super()
-
-        this.setFilter = (filter) => {
-            this.props.setFilter(filter)
-        }
-
-        this.chooseSprite = (id) => {
-            this.props.setSpriteId(id)
-            let lastPanel = this.props.breadcrumbs[this.props.breadcrumbs.length - 1]
-            if (lastPanel === 'room') this.props.back()
-            else this.props.setPanel('sprite')
+        this.state = {
+            currentSpriteId: 0,
+            spritePanelOpen: false,
+            choosingNewSprite: false,
+            search: ''
         }
     }
 
-    render(props) {
-        let colors = props.getPaletteColors()
-        let backgroundColor = colors[0]
-        let lastPanel = this.props.breadcrumbs[this.props.breadcrumbs.length - 1]
-
-        let spriteButtons = []
-        props.world.sprites.forEach((sprite, spriteId) => {
-            if (props.filter && !(sprite.name && sprite.name.includes(props.filter))) return null
-
-            let spriteCanvas = h(SpriteCanvas, {
-                sprite: sprite,
-                size: props.world.spriteSize,
-                frameRate: props.world.frameRate,
-                color: colors[sprite.colorId] || colors[colors.length - 1],
-                backgroundColor: backgroundColor
+    render({ world, set, undo, redo, selectedId, selectSprite, filter }) {
+        if (this.state.spritePanelOpen && world.sprites[this.state.currentSpriteId]) {
+            return h(SpritePanel, {
+                world, set, undo, redo,
+                sprite: world.sprites[this.state.currentSpriteId],
+                spriteId: this.state.currentSpriteId,
+                path: 'sprites.' + this.state.currentSpriteId,
+                back: () => this.state.choosingNewSprite && selectSprite ?
+                    selectSprite(this.state.currentSpriteId)
+                    : this.setState({ spritePanelOpen: false })
             })
+        }
+        
+        let palette = world.palettes[0]
 
-            let spriteButton = h(Button, {
-                class: 'canvas-button'
-                    + (spriteId === props.spriteId && lastPanel === 'room' ? ' on' : ' off')
-                    + (spriteId === props.world.avatarId ? ' avatar' : ''),
-                onclick: () => this.chooseSprite(spriteId)
-            }, spriteCanvas)
-
-            spriteButtons.push(spriteButton)
+        let searchTextbox = searchBox({
+            placeholder: 'search',
+            value: this.state.search,
+            onchange: search => this.setState({ search })
         })
 
-        let spriteList = h('div', { class: 'grid-list' }, spriteButtons)
+        let addSpriteButton = button({
+            class: 'icon',
+            onclick: () => {
+                set('', World.addSprite(clone(world), world.randomSprites))
+                this.setState({
+                    currentSpriteId: world.sprites.length,
+                    spritePanelOpen: true,
+                    choosingNewSprite: true
+                })
+            }
+        }, '+')
 
-        let addSpriteButton = h(Button, {
-            onclick: this.props.addSprite
-        }, 'add sprite')
+        let avatar = world.sprites[world.avatarId]
+        let avatarComponent = (!filter || filter(world.avatarId)) ? button({
+            class: 'sprite-button avatar-button' + (selectedId === world.avatarId ? ' selected' : ''),
+            onclick: () => {
+                if (selectSprite) selectSprite(world.avatarId)
+                else this.setState({ currentSpriteId: world.avatarId, spritePanelOpen: true })
+            }
+        },
+            h(SpriteComponent, { sprite: avatar, palette })
+        ) : null
 
-        let backButton = h(BackButton, { onclick: props.back })
-
-        let filterTextbox = h(Textbox, {
-            text: props.filter,
-            placeholder: 'filter',
-            onchange: this.setFilter
+        let spriteComponents = world.sprites.map((sprite, spriteId) => {
+            if (filter && !filter(spriteId)) return null
+            if (this.state.search && !sprite.name.includes(this.state.search)) return null
+            if (spriteId === world.avatarId) return null
+            
+            return button({
+                class: 'sprite-button' + (selectedId === spriteId ? ' selected' : ''),
+                onclick: () => {
+                    if (selectSprite) selectSprite(spriteId)
+                    else this.setState({ currentSpriteId: spriteId, spritePanelOpen: true })
+                }
+            },
+                h(SpriteComponent, { sprite, palette, frameId: 0 })
+            )
         })
 
-        return h(Panel, {
-            header: [backButton, filterTextbox],
-            content: spriteList,
-            footer: [addSpriteButton]
-        })
+        return div({ class: 'panel sprite-list-panel' }, [
+            buttonRow([
+                this.backButton(),
+                this.undoButton(),
+                this.redoButton(),
+                searchTextbox,
+                addSpriteButton,
+            ]),
+            buttonRow('wrap', [
+                avatarComponent,
+                vr(),
+                spriteComponents
+            ])
+        ])
     }
 }
