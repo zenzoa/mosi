@@ -2,6 +2,7 @@ class WorldPanel extends Panel {
     constructor() {
         super()
         this.state = {
+            showSplashscreen: true,
             currentRoomId: 0,
             currentSpriteId: 0
         }
@@ -145,6 +146,14 @@ class WorldPanel extends Panel {
             ])
         ]) : null
 
+        let splashscreen = this.state.showSplashscreen ? modal([
+            div({ style: { marginBottom: '16px' } }, 'môsi is still in early release and probably has lots of bugs - please backup your work often!'),
+            div({ style: { marginBottom: '16px' } }, a({ href: 'https://github.com/sarahgould/mosi/issues/new', target: '_blank'}, 'please report bugs here')),
+            button({
+                onclick: () => this.setState({ showSplashscreen: false })
+            }, 'ok, got it!')
+        ]) : null
+
         return div({ class: 'panel world-panel' }, [
             buttonRow([
                 this.undoButton(),
@@ -164,7 +173,8 @@ class WorldPanel extends Panel {
                 playButton
             ]),
             confirmEraseModal,
-            exportGameModal
+            exportGameModal,
+            splashscreen
         ])
     }
 }
