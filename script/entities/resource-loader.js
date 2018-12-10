@@ -5,7 +5,7 @@ class ResourceLoader {
 
     load(filename, onready) {
         let client = new XMLHttpRequest()
-		client.open('GET', './../' + filename)
+		client.open('GET', './' + filename)
 		client.onreadystatechange = () => {
 			this.resources[filename] = client.responseText
 			if (onready) onready()

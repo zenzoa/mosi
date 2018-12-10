@@ -60,7 +60,7 @@ class TriggerComponent extends Component {
 
 class EventComponent extends Component {
     render({ world, event, path, set, delEvent, openSpriteList, openRoomPicker }) {
-        if (!event) return buttonRow([button({
+        if (!event || !event.type) return buttonRow([button({
             class: 'simple',
             onclick: () => set(path, Event.new('dialog'))
         }, 'create event')])
@@ -103,7 +103,7 @@ class EventComponent extends Component {
                     h(DialogComponent, { 
                         font: world.font,
                         string: event.text,
-                        width: 16 * 8
+                        width: world.roomWidth * world.spriteWidth
                     })
                 ])
             ]

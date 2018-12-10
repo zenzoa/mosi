@@ -90,7 +90,7 @@ class Event {
  
     static import(obj, codeMap, overrideType) {
         let event = Event.new(overrideType || obj.type)
-        if (!event) return Event.new('dialog')
+        if (!event || !event.type) return Event.new('dialog')
  
         if (obj.type === 'dialog') {
             if (isStr(obj.text)) event.text = obj.text
@@ -135,10 +135,10 @@ class Event {
             if (isObj(obj.condition)) {
                 event.condition = Condition.import(obj.condition, codeMap)
             }
-            if (isArr(obj.trueEvent)) {
+            if (isObj(obj.trueEvent)) {
                 event.trueEvent = Event.import(obj.trueEvent, codeMap)
             }
-            if (isArr(obj.falseEvent)) {
+            if (isObj(obj.falseEvent)) {
                 event.falseEvent = Event.import(obj.falseEvent, codeMap)
             }
         }
@@ -147,6 +147,7 @@ class Event {
     }
  
     static export(event, codeMap) {
+        if (!event || !event.type) return
         let exportEvent = clone(event)
         if (codeMap && (event.type === 'give_item' || event.type === 'transform_self')) {
             exportEvent.spriteId = codeMap[event.spriteId]
@@ -157,7 +158,7 @@ class Event {
         else if (event.type === 'branch') {
             exportEvent.condition = Condition.export(event.condition, codeMap)
             exportEvent.trueEvent = Event.export(event.trueEvent, codeMap)
-            exportEvent.falseEvent = Event.export(event.trueEvent, codeMap)
+            exportEvent.falseEvent = Event.export(event.falseEvent, codeMap)
         }
         return exportEvent
     }
@@ -219,7 +220,7 @@ class Event {
     }
  
     static run(event, props) {
-        if (!event) return
+        if (!event || !event.type) return
         let { avatarTile, goalTile, spriteLocation, messages, inventory, setDialog, setRoomId } = props
 
         if (event.type === 'dialog') {
@@ -295,8 +296,7 @@ class Event {
             let conditionResult = Condition.eval(event.condition, inventory)
             if (conditionResult) {
                 Event.run(event.trueEvent, props)
-            }
-            else {
+            } else {
                 Event.run(event.falseEvent, props)
             }
         }
