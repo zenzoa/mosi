@@ -11,6 +11,7 @@ class TileCanvas extends Component {
         this.animationStart = null
 
         this.pointerIsDown = false
+        this.lastCoords = null
         this.origin = { x: 0, y: 0 }
         this.temp = { x: 0, y: 0 }
 
@@ -18,6 +19,7 @@ class TileCanvas extends Component {
             event.preventDefault() // prevent both mouse and touch events from triggering
             
             let coords = this.getCoords(event)
+            this.lastCoords = coords
             if (exists(coords)) {
                 this.pointerIsDown = true
                 this.pickUp(coords)
@@ -26,10 +28,10 @@ class TileCanvas extends Component {
         }
 
         this.pointerUp = (event) => {
-            event.preventDefault() // prevent both mouse and touch events from triggering
             if (!this.pointerIsDown) return
+            event.preventDefault() // prevent both mouse and touch events from triggering
 
-            let coords = this.getCoords(event)
+            let coords = this.lastCoords
             if (exists(coords)) {
                 this.drop(coords)
             } else {
@@ -41,10 +43,11 @@ class TileCanvas extends Component {
         }
 
         this.pointerMove = (event) => {
-            event.preventDefault() // prevent both mouse and touch events from triggering
             if (!this.pointerIsDown) return
+            event.preventDefault() // prevent both mouse and touch events from triggering
 
             let coords = this.getCoords(event)
+            this.lastCoords = coords
             if (exists(coords)) {
                 this.moveTemp(this.destTile, coords)
             } else {

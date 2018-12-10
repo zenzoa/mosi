@@ -8,6 +8,7 @@ class DrawingCanvas extends Component {
         }
 
         this.pointerIsDown = false
+        this.lastCoords = null
         this.pixelValue = null
 
         this.pointerDown = (event) => {
@@ -17,16 +18,16 @@ class DrawingCanvas extends Component {
         }
 
         this.pointerUp = (event) => {
+            if (!this.pointerIsDown) return
             event.preventDefault() // prevent both mouse and touch events from triggering
             this.pointerIsDown = false
             this.pixelValue = null
         }
 
         this.pointerMove = (event) => {
+            if (!this.pointerIsDown) return
             event.preventDefault() // prevent both mouse and touch events from triggering
-            if (this.pointerIsDown) {
-                this.draw(event)
-            }
+            this.draw(event)
         }
 
         this.getCoords = (event) => {

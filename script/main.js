@@ -2,15 +2,8 @@ let DEBUG = false
 
 window.onload = () => {
     let main = document.getElementsByTagName('main')[0]
-    try {
-        let editor = h(Editor)
-        render(editor, main)
-    } catch(e) {
-        let errorDiv = document.createElement('div')
-        errorDiv.className = 'error-message'
-        errorDiv.innerText = 'unable to load page: ' + e
-        main.appendChild(errorDiv)
-    }
+    let editor = h(Editor)
+    render(editor, main)
     
     window.resources = new ResourceLoader()
     window.resources.load('exportTemplate.html')
