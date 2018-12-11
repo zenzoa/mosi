@@ -81,7 +81,7 @@ class Game {
             this.keyCodes.push(event.key)
         }
 
-        this.keyUp = () => {
+        this.keyUp = (event) => {
             this.keyCodes = this.keyCodes.filter(keyCode => keyCode !== event.key)
             if (this.keyCodes.length === 0) this.keyActive = false
         }
@@ -100,14 +100,14 @@ class Game {
         }
 
         this.pointerMove = (event) => {
-            event.preventDefault()
             if (!this.pointerIsDown) return
+            event.preventDefault()
             this.pointerPos = this.getPointerPos(event)
         }
 
         this.pointerUp = (event) => {
-            event.preventDefault()
             if (!this.pointerIsDown) return
+            event.preventDefault()
             this.pointerIsDown = false
         }
 
@@ -147,7 +147,7 @@ class Game {
                 let dx = this.pointerPos.x - this.pointerOrigin.x
                 let dy = this.pointerPos.y - this.pointerOrigin.y
 
-                if (dx * dx + dy * dy > 80 ** 2) {
+                if (dx * dx + dy * dy > 20 ** 2) {
                     let angle = Math.atan2(dy, dx) * 180 / Math.PI + 180
                     if (angle > 45 && angle <= 135) this.moveAvatar(0, -1) // up
                     else if (angle > 135 && angle <= 225) this.moveAvatar(1, 0) // right
@@ -234,16 +234,13 @@ class Game {
                                 messages: this.messages,
                                 inventory: this.inventory,
                                 setRoomId: x => { roomId = x },
-                                setDialog: text => {
-                                    if (!this.text) {
-                                        this.textStart = null
-                                        this.text = new Text(world.font, text, 1, 1, world.roomWidth * world.spriteWidth - 2)
-                                    }
-                                }
+                                setDialog: x => this.setDialog(x, l)
                             })
                         })
                     }
-                    if (sprite.wall) blockAvatar = true
+                    if (sprite.wall) {
+                        blockAvatar = true
+                    }
                     if (sprite.item) {
                         this.inventory[l.spriteId] = (this.inventory[l.spriteId] || 0) + 1
                         stopMovement = true
@@ -283,6 +280,16 @@ class Game {
             this.avatarGoal = {
                 x: goalTile.x * this.world.spriteWidth,
                 y: goalTile.y * this.world.spriteHeight
+            }
+        }
+
+        this.setDialog = (text, spritePos) => {
+            if (!this.text) {
+                this.textStart = null
+                this.text = new Text(world.font, text, 1, 1, this.canvas.width - 2)
+                if (spritePos.y < world.roomHeight / 2) {
+                    this.text.y = this.canvas.height - this.text.h - 1
+                }
             }
         }
 

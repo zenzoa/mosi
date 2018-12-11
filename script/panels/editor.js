@@ -58,9 +58,11 @@ class Editor extends Component {
         }
 
         this.resize = () => {
+            let body = document.getElementsByTagName('body')[0]
+            let rect = body.getBoundingClientRect()
             let el = document.getElementsByTagName('main')[0]
-            el.style.width = window.innerWidth + 'px'
-            el.style.height = window.innerHeight + 'px'
+            el.style.width = rect.width + 'px'
+            el.style.height = rect.height + 'px'
         }
 
         this.state = {

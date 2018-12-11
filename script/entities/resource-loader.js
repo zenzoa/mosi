@@ -5,12 +5,16 @@ class ResourceLoader {
 
     load(filename, onready) {
         let client = new XMLHttpRequest()
-		client.open('GET', './' + filename)
-		client.onreadystatechange = () => {
-			this.resources[filename] = client.responseText
-			if (onready) onready()
-		}
-		client.send()
+        
+        client.open('GET', './' + filename)
+        client.responseType = 'text'
+
+        client.onreadystatechange = () => {
+            this.resources[filename] = client.responseText
+            if (onready) onready()
+        }
+
+        client.send()
     }
 
     get(filename) {
