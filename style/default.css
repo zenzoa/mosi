@@ -536,6 +536,13 @@ button.color div {
 /* IMPORT/EXPORT MODAL */
 .import-modal > * + *,
 .export-modal > * + * {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #ccc;
+}
+
+.import-modal > div > * + *,
+.export-modal > div > * + * {
     margin-top: 8px;
 }
 

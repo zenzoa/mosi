@@ -19,41 +19,43 @@ class ImportComponent extends Component {
             div({ class: 'import-modal' }, [
                 errorDiv,
 
-                div({}, 'upload a ' + filetype + ' file'),
-                fileInput({
-                    filetype,
-                    onupload: data => {
-                        if (data) {
+                div({}, [
+                    div({}, h('strong', {}, 'UPLOAD DATA')),
+                    div({}, 'upload a ' + filetype + ' file'),
+                    fileInput({
+                        filetype,
+                        onupload: data => {
+                            if (data) {
+                                try {
+                                    onupload(data)
+                                    this.setState({ modalOpen: false })
+                                } catch (e) {
+                                    this.setState({ errorMessage: e })
+                                }
+                            } else {
+                                this.setState({ errorMessage: 'unable to load file' })
+                            }
+                        }
+                    })
+                ]),
+
+                div({}, [
+                    div({}, h('strong', {}, 'PASTE DATA')),
+                    textarea({
+                        value: this.state.textData,
+                        onchange: textData => this.setState({ textData })
+                    }),
+                    button({
+                        onclick: () => {
                             try {
-                                onupload(data)
+                                onupload(this.state.textData)
                                 this.setState({ modalOpen: false })
                             } catch (e) {
                                 this.setState({ errorMessage: e })
                             }
-                            
-                        } else {
-                            this.setState({ errorMessage: 'unable to load file' })
                         }
-                    }
-                }),
-    
-                div({}, '-OR-'),
-    
-                div({}, 'paste ' + description + ' data'),
-                textarea({
-                    value: this.state.textData,
-                    onchange: textData => this.setState({ textData })
-                }),
-                button({
-                    onclick: () => {
-                        try {
-                            onupload(this.state.textData)
-                            this.setState({ modalOpen: false })
-                        } catch (e) {
-                            this.setState({ errorMessage: e })
-                        }
-                    }
-                }, 'import from text')
+                    }, 'import ' + description + ' from text')
+                ])
             ])
         ])
 

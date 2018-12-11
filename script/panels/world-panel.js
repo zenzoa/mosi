@@ -65,9 +65,26 @@ class WorldPanel extends Panel {
             }
         }, 'reset world')
 
-        let exportButton = button({
-            onclick: () => this.setState({ exportPanelOpen: true })
-        }, 'export game')
+        let importButton = h(ImportComponent, {
+            description: 'world',
+            filetype: '.mosi',
+            onupload: data => {
+                try {
+                    let obj = JSON.parse(data)
+                    let newWorld = World.import(obj)
+                    set('', newWorld)
+                } catch (e) {
+                    console.error('unable to import world', e)
+                    throw 'unable to import world'
+                }
+            }
+        }, 'import world')
+    
+        let exportButton = h(ExportComponent, {
+            description: 'world',
+            getData: () => World.export(world),
+            exportGame: () => Exporter.exportGame(window.resources, world)
+        }, 'export world')
 
         let spriteListButton = button({
             onclick: () => this.setState({ spriteListOpen: true })
@@ -134,18 +151,6 @@ class WorldPanel extends Panel {
             }
         }) : null
 
-        let exportGameModal = this.state.exportPanelOpen ? modal([
-            button({
-                class: 'icon close',
-                onclick: () => this.setState({ exportPanelOpen: false })
-            }, '×'),
-            div({ class: 'export-modal' }, [
-                button({
-                    onclick: () => Exporter.exportGame(window.resources, world)
-                }, 'download game'),
-            ])
-        ]) : null
-
         let splashscreen = this.state.showSplashscreen ? modal([
             div({ style: { marginBottom: '16px' } }, 'môsi is still in early release and probably has lots of bugs - please backup your work often!'),
             div({ style: { marginBottom: '16px' } }, a({ href: 'https://github.com/sarahgould/mosi/issues/new', target: '_blank'}, 'please report bugs here')),
@@ -162,6 +167,7 @@ class WorldPanel extends Panel {
                 this.menu([
                     settingsButton,
                     resetButton,
+                    importButton,
                     exportButton
                 ])
             ]),
@@ -173,7 +179,6 @@ class WorldPanel extends Panel {
                 playButton
             ]),
             confirmEraseModal,
-            exportGameModal,
             splashscreen
         ])
     }

@@ -1,5 +1,5 @@
 class ExportComponent extends Component {
-    render({ getData, description, children }) {
+    render({ exportGame, getData, description, children }) {
         let modalOpenButton = button({
             onclick: () => this.setState({ modalOpen: true })
         }, children)
@@ -15,19 +15,28 @@ class ExportComponent extends Component {
                 modalCloseButton,
 
                 div({ class: 'export-modal' }, [
-                    button({
-                        onclick: () => Exporter.exportEntity(data)
-                    }, 'download ' + description + ' file'),
-    
-                    div({}, '-OR-'),
-    
-                    textarea({ value: JSON.stringify(data) }),
-                    button({
-                        onclick: () => {
-                            this.base.querySelector('textarea').select()
-                            document.execCommand('copy')
-                        }
-                    }, 'copy ' + description + ' data')
+                    exportGame ? div({}, [
+                        div({}, h('strong', {}, 'DOWNLOAD GAME')),
+                        button({ onclick: exportGame }, 'download HTML file')
+                    ]) : null,
+
+                    div({}, [
+                        div({}, h('strong', {}, 'DOWNLOAD DATA')),
+                        button({
+                            onclick: () => Exporter.exportEntity(data)
+                        }, 'download ' + description + ' file')
+                    ]),
+
+                    div({}, [
+                        div({}, h('strong', {}, 'COPY DATA')),
+                        textarea({ value: JSON.stringify(data) }),
+                        button({
+                            onclick: () => {
+                                this.base.querySelector('textarea').select()
+                                document.execCommand('copy')
+                            }
+                        }, 'copy ' + description + ' data')
+                    ])
                 ])
             ])
         }
