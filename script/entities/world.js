@@ -27,7 +27,6 @@ class World {
 
         world.showGrid = true
         world.randomSprites = true
-        world.spritesCanStack = false
 
         return world
     }

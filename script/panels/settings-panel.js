@@ -42,15 +42,6 @@ class SettingsPanel extends Panel {
             option({ value: 'wrap_all' }, 'wrap all sides')
         ])
 
-        let stackButton = toggle({
-            value: world.spritesCanStack,
-            onclick: x => {
-                world.spritesCanStack = x
-                set('', world)
-                this.forceUpdate()
-            }
-        }, 'sprites can stack')
-
         let randomSpritesButton = toggle({
             value: world.randomSprites,
             onclick: x => {
@@ -109,7 +100,6 @@ class SettingsPanel extends Panel {
             ]),
             buttonRow(wrapButton),
             buttonRow(fontFileInput),
-            buttonRow(stackButton),
             buttonRow(randomSpritesButton),
             div({ class: 'settings-section'}, [
                 buttonRow(worldSize),

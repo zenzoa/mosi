@@ -130,28 +130,25 @@ class RoomPanel extends Panel {
                 let newY = destination.y
 
                 if (x === newX && y === newY) {
-                    if ((!world.spritesCanStack && Room.isTileEmpty(room, x, y))
-                        || (world.spritesCanStack && !Room.isSpriteAtLocation(room, spriteId, x, y))) {
-                            if (spriteId === world.avatarId && room.spriteLocations.filter(l => l.spriteId === spriteId)) {
-                                let avatarRoom = World.avatarRoom(world)
-                                if (exists(avatarRoom) && avatarRoom !== roomId) {
-                                    this.setState({ modalMessage: 'The avatar is already in another room' })
-                                    return
-                                }
-                                let newRoom = clone(room)
-                                Room.clearSprite(newRoom, spriteId, x, y)
-                                Room.addSpriteLocation(newRoom, spriteId, x, y)
-                                set(path, newRoom)
-                            } else {
-                                set(path, Room.addSpriteLocation(clone(room), spriteId, x, y))
+                    if (Room.isTileEmpty(room, x, y)) {
+                        if (spriteId === world.avatarId && room.spriteLocations.filter(l => l.spriteId === spriteId)) {
+                            let avatarRoom = World.avatarRoom(world)
+                            if (exists(avatarRoom) && avatarRoom !== roomId) {
+                                this.setState({ modalMessage: 'The avatar is already in another room' })
+                                return
                             }
+                            let newRoom = clone(room)
+                            Room.clearSprite(newRoom, spriteId, x, y)
+                            Room.addSpriteLocation(newRoom, spriteId, x, y)
+                            set(path, newRoom)
+                        } else {
+                            set(path, Room.addSpriteLocation(clone(room), spriteId, x, y))
+                        }
                     }
-                }
-                
-                else {
-                    if ((!world.spritesCanStack && !Room.isTileEmpty(room, x, y) && Room.isTileEmpty(room, newX, newY))
-                        || (world.spritesCanStack && !Room.isTileEmpty(room, x, y) && !Room.isSpriteAtLocation(room, spriteId, newX, newY))) {
-                            set(path, Room.moveSpriteLocation(clone(room), x, y, newX, newY))
+                    
+                } else {
+                    if (!Room.isTileEmpty(room, x, y) && !Room.isSpriteAtLocation(room, spriteId, newX, newY)) {
+                        set(path, Room.moveSpriteLocation(clone(room), x, y, newX, newY))
                     }
                 }
                 
