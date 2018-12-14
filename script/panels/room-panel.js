@@ -7,17 +7,17 @@ class RoomPanel extends Panel {
         }
     }
 
-    render({ world, room, roomId, spriteId, setSpriteId, path, set, undo, redo }) {
+    render({ world, room, roomId, path, set, undo, redo }) {
         let palette = world.palettes[room.paletteId] || world.palettes[0]
 
         if (this.state.spriteListOpen) {
             return h(SpriteListPanel, {
                 world, set, undo, redo,
-                selectedId: spriteId,
+                selectedId: world.currentSpriteId,
                 palette: palette,
                 back: () => this.setState({ spriteListOpen: false }),
                 selectSprite: id => {
-                    setSpriteId(id)
+                    set('currentSpriteId', id)
                     this.setState({ spriteListOpen: false, drawMode: 'draw' })
                 }
             })
@@ -26,10 +26,10 @@ class RoomPanel extends Panel {
         if (this.state.spritePanelOpen) {
             return h(SpritePanel, {
                 world, set,
-                sprite: world.sprites[spriteId],
-                spriteId: spriteId,
+                sprite: world.sprites[world.currentSpriteId],
+                spriteId: world.currentSpriteId,
                 palette: palette,
-                path: 'sprites.' + spriteId,
+                path: 'sprites.' + world.currentSpriteId,
                 back: () => this.setState({ spritePanelOpen: false })
             })
         }
@@ -94,7 +94,7 @@ class RoomPanel extends Panel {
             onclick: () => this.setState({ spriteListOpen: true })
         },
             h(SpriteComponent, {
-                sprite: world.sprites[spriteId],
+                sprite: world.sprites[world.currentSpriteId],
                 palette: palette,
                 frameRate: world.frameRate
             }),
@@ -124,30 +124,30 @@ class RoomPanel extends Panel {
                 Room.draw(context, { world, room })
             },
             move: ({ x, y }, destination) => {
-                if (!world.sprites[spriteId]) return
+                if (!world.sprites[world.currentSpriteId]) return
 
                 let newX = destination.x
                 let newY = destination.y
 
                 if (x === newX && y === newY) {
                     if (Room.isTileEmpty(room, x, y)) {
-                        if (spriteId === world.avatarId && room.spriteLocations.filter(l => l.spriteId === spriteId)) {
+                        if (world.currentSpriteId === world.avatarId && room.spriteLocations.filter(l => l.spriteId === world.currentSpriteId)) {
                             let avatarRoom = World.avatarRoom(world)
                             if (exists(avatarRoom) && avatarRoom !== roomId) {
                                 this.setState({ modalMessage: 'The avatar is already in another room' })
                                 return
                             }
                             let newRoom = clone(room)
-                            Room.clearSprite(newRoom, spriteId, x, y)
-                            Room.addSpriteLocation(newRoom, spriteId, x, y)
+                            Room.clearSprite(newRoom, world.currentSpriteId, x, y)
+                            Room.addSpriteLocation(newRoom, world.currentSpriteId, x, y)
                             set(path, newRoom)
                         } else {
-                            set(path, Room.addSpriteLocation(clone(room), spriteId, x, y))
+                            set(path, Room.addSpriteLocation(clone(room), world.currentSpriteId, x, y))
                         }
                     }
-                    
+
                 } else {
-                    if (!Room.isTileEmpty(room, x, y) && !Room.isSpriteAtLocation(room, spriteId, newX, newY)) {
+                    if (!Room.isTileEmpty(room, x, y) && !Room.isSpriteAtLocation(room, world.currentSpriteId, newX, newY)) {
                         set(path, Room.moveSpriteLocation(clone(room), x, y, newX, newY))
                     }
                 }

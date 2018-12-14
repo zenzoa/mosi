@@ -10,14 +10,14 @@ class SpriteListPanel extends Panel {
     }
 
     render({ world, set, undo, redo, selectedId, selectSprite, filter }) {
-        if (this.state.spritePanelOpen && world.sprites[this.state.currentSpriteId]) {
+        if (this.state.spritePanelOpen && world.sprites[world.currentSpriteId]) {
             return h(SpritePanel, {
                 world, set, undo, redo,
-                sprite: world.sprites[this.state.currentSpriteId],
-                spriteId: this.state.currentSpriteId,
-                path: 'sprites.' + this.state.currentSpriteId,
+                sprite: world.sprites[world.currentSpriteId],
+                spriteId: world.currentSpriteId,
+                path: 'sprites.' + world.currentSpriteId,
                 back: () => this.state.choosingNewSprite && selectSprite ?
-                    selectSprite(this.state.currentSpriteId)
+                    selectSprite(world.currentSpriteId)
                     : this.setState({ spritePanelOpen: false })
             })
         }
@@ -34,11 +34,7 @@ class SpriteListPanel extends Panel {
             class: 'icon',
             onclick: () => {
                 set('', World.addSprite(clone(world), world.randomSprites))
-                this.setState({
-                    currentSpriteId: world.sprites.length,
-                    spritePanelOpen: true,
-                    choosingNewSprite: true
-                })
+                this.setState({ spritePanelOpen: true, choosingNewSprite: true })
             }
         }, '+')
 
@@ -46,8 +42,12 @@ class SpriteListPanel extends Panel {
         let avatarComponent = (!filter || filter(world.avatarId)) ? button({
             class: 'sprite-button avatar-button' + (selectedId === world.avatarId ? ' selected' : ''),
             onclick: () => {
-                if (selectSprite) selectSprite(world.avatarId)
-                else this.setState({ currentSpriteId: world.avatarId, spritePanelOpen: true })
+                if (selectSprite) {
+                    selectSprite(world.avatarId)
+                } else {
+                    set('currentSpriteId', world.avatarId)
+                    this.setState({ spritePanelOpen: true })
+                }
             }
         },
             h(SpriteComponent, { sprite: avatar, palette })
@@ -61,8 +61,12 @@ class SpriteListPanel extends Panel {
             return button({
                 class: 'sprite-button' + (selectedId === spriteId ? ' selected' : ''),
                 onclick: () => {
-                    if (selectSprite) selectSprite(spriteId)
-                    else this.setState({ currentSpriteId: spriteId, spritePanelOpen: true })
+                    if (selectSprite) {
+                        selectSprite(spriteId)
+                    } else {
+                        set('currentSpriteId', spriteId)
+                        this.setState({ spritePanelOpen: true })
+                    }
                 }
             },
                 h(SpriteComponent, { sprite, palette, frameId: 0 })

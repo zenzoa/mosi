@@ -25,8 +25,10 @@ class World {
         world.wrapLeftRight = false
         world.wrapTopBottom = false
 
+        // editor-only properties
         world.showGrid = true
         world.randomSprites = true
+        world.currentSpriteId = 0
 
         return world
     }
@@ -97,6 +99,7 @@ class World {
     static addSprite(world, random) {
         let newSprite = Sprite.new(world.spriteWidth, world.spriteHeight, random)
         world.sprites.push(newSprite)
+        world.currentSpriteId = world.sprites.length - 1
         return world
     }
 
@@ -104,6 +107,7 @@ class World {
         let newSprite = Sprite.clone(sprite)
         if (newSprite.name) newSprite.name += ' copy'
         world.sprites.push(newSprite)
+        world.currentSpriteId = world.sprites.length - 1
         return world
     }
 
@@ -114,7 +118,9 @@ class World {
 
         world.sprites = world.sprites.map(sprite => Sprite.bumpSpriteId(sprite, spriteId))
         world.rooms = world.rooms.map(room => Room.bumpSpriteId(room, spriteId))
-        if (world.avatarId > spriteId) world.avatarId--
+        
+        if (world.avatarId >= spriteId) Math.max(0, world.avatarId--)
+        if (world.currentSpriteId >= spriteId) Math.max(0, world.currentSpriteId--)
         
         return world
     }

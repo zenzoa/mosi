@@ -3,8 +3,7 @@ class WorldPanel extends Panel {
         super()
         this.state = {
             showSplashscreen: true,
-            currentRoomId: 0,
-            currentSpriteId: 0
+            currentRoomId: 0
         }
     }
 
@@ -15,8 +14,6 @@ class WorldPanel extends Panel {
                 room: world.rooms[this.state.currentRoomId],
                 roomId: this.state.currentRoomId,
                 path: 'rooms.' + this.state.currentRoomId,
-                spriteId: this.state.currentSpriteId,
-                setSpriteId: x => this.setState({ currentSpriteId: x }),
                 back: () => this.setState({ roomPanelOpen: false })
             })
         }
