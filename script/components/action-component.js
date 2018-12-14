@@ -40,7 +40,7 @@ class TriggerComponent extends Component {
         }
         else if (trigger.type === 'receive_message') {
             triggerSettings.push(
-                input({
+                textbox({
                     value: trigger.message,
                     onchange: x => set(path + '.message', x)
                 })
