@@ -16,7 +16,7 @@ class Font {
                 }
 
             } else if (parts[0] === 'char' && parts.length === 2 && size) {
-                let char = parts[1]
+                let char = parseInt(parts[1])
                 let data = Array(size.width * size.height).fill(0)
                 for (let y = 0; y < size.height; y++) {
                     i++
