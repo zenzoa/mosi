@@ -147,7 +147,7 @@ class TileCanvas extends Component {
         document.addEventListener('touchmove', this.pointerMove, { passive: false })
 
         window.addEventListener('resize', this.resize)
-        this.resize()
+        setTimeout(this.resize, 1)
 
         if (this.props.frameRate) {
             this.animationLoop = window.requestAnimationFrame(this.update)
@@ -182,6 +182,7 @@ class TileCanvas extends Component {
         let style = { width: w * tw, height: h * th }
 
         let canvasEl = canvas({
+            key: props.key,
             width: w * sw,
             height: h * sh,
             style,

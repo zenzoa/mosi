@@ -19,6 +19,7 @@ class RoomPicker extends Panel {
 
         if (!this.state.roomChosen) {
             tileCanvas = h(TileCanvas, {
+                key: 'room-picker',
                 w: world.worldWidth,
                 h: world.worldHeight,
                 sw: world.roomWidth,
@@ -43,6 +44,7 @@ class RoomPicker extends Panel {
             let room = world.rooms[this.state.roomId]
             let palette = world.palettes[room.paletteId]
             tileCanvas = h(TileCanvas, {
+                key: 'tile-picker',
                 w: world.roomWidth,
                 h: world.roomHeight,
                 sw: world.spriteWidth,

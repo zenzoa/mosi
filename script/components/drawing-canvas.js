@@ -90,7 +90,7 @@ class DrawingCanvas extends Component {
         document.addEventListener('touchmove', this.pointerMove, { passive: false })
 
         window.addEventListener('resize', this.resize)
-        this.resize()
+        setTimeout(this.resize, 1)
     }
 
     componentWillUnmount() {
