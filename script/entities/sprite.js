@@ -102,7 +102,7 @@ class Sprite {
     static nextFrame(sprite) {
         if (sprite.frames.length === 0) return sprite // can't progress if no frames
         sprite.currentFrameId++
-        if (sprite.currentFrameId === sprite.frames.length) sprite.currentFrameId = 0
+        if (sprite.currentFrameId >= sprite.frames.length) sprite.currentFrameId = 0
         return sprite
     }
 
@@ -143,7 +143,8 @@ class Sprite {
     }
 
     static draw(sprite, context, { x, y, frameId, palette, clear, background }) {
-        if (!exists(frameId)) frameId = sprite.currentFrameId        
+        if (!exists(frameId)) frameId = sprite.currentFrameId
+        if (frameId >= sprite.frames.length) frameId = 0      
         if (!exists(sprite.frames[frameId])) return // can't draw frame that doesn't exist
 
         x = x || 0
