@@ -15,9 +15,10 @@ class RoomPicker extends Panel {
             y: Math.floor(this.state.roomId / world.worldWidth)
         }
 
-        let tileCanvas, backButton
+        let tileCanvas, title, backButton
 
         if (!this.state.roomChosen) {
+            title = div({ class: 'panel-title' }, 'choose room')
             tileCanvas = h(TileCanvas, {
                 key: 'room-picker',
                 w: world.worldWidth,
@@ -41,6 +42,7 @@ class RoomPicker extends Panel {
             backButton = this.backButton()
 
         } else {
+            title = div({ class: 'panel-title' }, 'choose tile')
             let room = world.rooms[this.state.roomId]
             let palette = world.palettes[room.paletteId]
             tileCanvas = h(TileCanvas, {
@@ -69,7 +71,10 @@ class RoomPicker extends Panel {
         }
 
         return div({ class: 'panel room-picker' }, [
-            buttonRow([ backButton ]),
+            buttonRow([
+                backButton,
+                title
+            ]),
             tileCanvas
         ])
     }
