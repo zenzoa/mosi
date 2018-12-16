@@ -135,7 +135,6 @@ class Game {
                     else if (key === 'ArrowRight') this.moveAvatar(1, 0)
                     else if (key === 'ArrowUp') this.moveAvatar(0, -1)
                     else if (key === 'ArrowDown') this.moveAvatar(0, 1)
-
                 }
             }
 
@@ -147,7 +146,7 @@ class Game {
                 let dx = this.pointerPos.x - this.pointerOrigin.x
                 let dy = this.pointerPos.y - this.pointerOrigin.y
 
-                if (dx * dx + dy * dy > 20 ** 2) {
+                if (dx * dx + dy * dy > 20 * 20) {
                     let angle = Math.atan2(dy, dx) * 180 / Math.PI + 180
                     if (angle > 45 && angle <= 135) this.moveAvatar(0, -1) // up
                     else if (angle > 135 && angle <= 225) this.moveAvatar(1, 0) // right

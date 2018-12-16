@@ -2,8 +2,28 @@ class RoomPanel extends Panel {
     constructor() {
         super()
         this.state = {
-            drawMode: 'draw',
-            modalMessage: ''
+            drawLock: false
+        }
+
+        this.isDrawing = false
+
+        this.drawSprite = (x, y) => {
+            let { world, room, roomId, path, set } = this.props
+            if (!Room.isSpriteAtLocation(room, world.currentSpriteId, x, y)) {
+                if (world.currentSpriteId === world.avatarId) {
+                    let newWorld = clone(world)
+                    newWorld = World.clearSprite(newWorld, world.avatarId)
+                    newWorld.rooms[roomId] = Room.addSpriteLocation(newWorld.rooms[roomId], world.currentSpriteId, x, y)
+                    set('', newWorld)
+                } else {
+                    set(path, Room.addSpriteLocation(clone(this.props.room), world.currentSpriteId, x, y))
+                }
+            }
+        }
+
+        this.eraseSprite = (x, y) => {
+            let { room, path, set } = this.props
+            set(path, Room.clearTopSprite(clone(room), x, y))
         }
     }
 
@@ -56,6 +76,16 @@ class RoomPanel extends Panel {
             onclick: () => this.setState({ paletteListOpen: true })
         }, 'change color palette')
 
+        let drawModeButton = toggle({
+            value: world.drawMode === 'drag',
+            onclick: x => set('drawMode', x ? 'drag' : 'draw')
+        }, 'cursor mode')
+
+        let drawLockButton = toggle({
+            value: this.state.drawLock,
+            onclick: x => this.setState({ drawLock: x })
+        }, 'draw only')
+
         let clearButton = h(ConfirmComponent, {
             description: 'clear room?',
             onconfirm: () => set(path, Room.clear(clone(room)))
@@ -101,16 +131,11 @@ class RoomPanel extends Panel {
             span({}, 'current sprite')
         )
 
-        let drawModeButton = button({
-            class: 'toggle toggle-' + (this.state.drawMode === 'draw' ? 'on' : 'off'),
-            onclick: () => this.setState({ drawMode: this.state.drawMode === 'draw' ? 'erase' : 'draw' })
-        }, this.state.drawMode === 'draw' ? 'draw' : 'erase')
-
         let editSpriteButton = button({
             onclick: () => this.setState({ spritePanelOpen: true })
         }, 'edit sprite')
 
-        let tileCanvas = h(TileCanvas, {
+        let drawingCanvas = h(DrawingCanvas, {
             w: world.roomWidth,
             h: world.roomHeight,
             sw: world.spriteWidth,
@@ -118,50 +143,21 @@ class RoomPanel extends Panel {
             backgroundColor: palette.colors[0] + '99',
             frameRate: world.frameRate,
             showGrid: world.showGrid,
-            isErasing: this.state.drawMode === 'erase',
-            draw: (context, progressFrames) => {
+            mode: world.drawMode,
+            update: (context, progressFrames) => {
                 if (progressFrames) world.sprites = world.sprites.map(sprite => Sprite.nextFrame(sprite))
                 Room.draw(context, { world, room })
             },
-            move: ({ x, y }, destination) => {
-                if (!world.sprites[world.currentSpriteId]) return
-
-                let newX = destination.x
-                let newY = destination.y
-
-                if (x === newX && y === newY) {
-                    if (Room.isTileEmpty(room, x, y)) {
-                        if (world.currentSpriteId === world.avatarId && room.spriteLocations.filter(l => l.spriteId === world.currentSpriteId)) {
-                            let avatarRoom = World.avatarRoom(world)
-                            if (exists(avatarRoom) && avatarRoom !== roomId) {
-                                this.setState({ modalMessage: 'The avatar is already in another room' })
-                                return
-                            }
-                            let newRoom = clone(room)
-                            Room.clearSprite(newRoom, world.currentSpriteId, x, y)
-                            Room.addSpriteLocation(newRoom, world.currentSpriteId, x, y)
-                            set(path, newRoom)
-                        } else {
-                            set(path, Room.addSpriteLocation(clone(room), world.currentSpriteId, x, y))
-                        }
-                    }
-
+            draw: (x, y, isMoving) => {
+                if (!isMoving) this.isDrawing = Room.isTileEmpty(room, x, y)
+                if (this.isDrawing || this.state.drawLock) {
+                    if (!this.state.drawLock && isMoving && !Room.isTileEmpty(room, x, y)) return
+                    this.drawSprite(x, y)
                 } else {
-                    if (!Room.isTileEmpty(room, x, y) && !Room.isSpriteAtLocation(room, world.currentSpriteId, newX, newY)) {
-                        set(path, Room.moveSpriteLocation(clone(room), x, y, newX, newY))
-                    }
+                    this.eraseSprite(x, y)
                 }
-                
-            },
-            erase: ({ x, y }) => {
-                set(path, Room.clearTile(clone(room), x, y))
             }
         })
-
-        let modalMessage = this.state.modalMessage ? modal([
-            div({}, this.state.modalMessage),
-            button({ onclick: () => this.setState({ modalMessage: '' })}, 'ok')
-        ]) : null
 
         return div({ class: 'panel room-panel' }, [
             buttonRow([
@@ -170,20 +166,21 @@ class RoomPanel extends Panel {
                 this.redoButton(),
                 nameTextbox,
                 this.menu([
+                    drawModeButton,
+                    drawLockButton,
+                    hr(),
                     paletteButton,
+                    hr(),
                     clearButton,
                     importButton,
                     exportButton
                 ])
             ]),
-            tileCanvas,
+            drawingCanvas,
             buttonRow([
                 spriteButton,
-                editSpriteButton,
-                div({ class: 'filler' }),
-                drawModeButton
+                editSpriteButton
             ]),
-            modalMessage
         ])
     }
 }

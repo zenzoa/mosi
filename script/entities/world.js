@@ -26,6 +26,7 @@ class World {
         world.wrapTopBottom = false
 
         // editor-only properties
+        world.drawMode = ('ontouchstart' in window) ? 'drag' : 'draw'
         world.showGrid = true
         world.randomSprites = true
         world.currentSpriteId = 0

@@ -122,6 +122,18 @@ class Room {
         return room
     }
 
+    static clearTopSprite(room, x, y) {
+        let ids = []
+        room.spriteLocations.forEach((l, id) => {
+            if (l.x === x && l.y === y) ids.push(id)
+        })
+        if (ids.length) {
+            let lastId = ids[ids.length - 1]
+            room.spriteLocations.splice(lastId, 1)
+        }
+        return room
+    }
+
     static clearSprite(room, spriteId) {
         room.spriteLocations = room.spriteLocations.filter(l => !(l.spriteId === spriteId))
         return room

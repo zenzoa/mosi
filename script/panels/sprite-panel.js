@@ -4,6 +4,8 @@ class SpritePanel extends Panel {
         this.state = {
             currentFrameId: 0
         }
+
+        this.isDrawing = true
     }
 
     componentWillUpdate(_, nextState) {
@@ -99,6 +101,11 @@ class SpritePanel extends Panel {
             getData: () => Sprite.export(sprite, spriteId, world.sprites)
         }, 'export sprite')
 
+        let drawModeButton = toggle({
+            value: world.drawMode === 'drag',
+            onclick: x => set('drawMode', x ? 'drag' : 'draw')
+        }, 'cursor mode')
+
         let addFrameButton = sprite.frames.length < 4 ? button({
             class: 'icon',
             onclick: () => {
@@ -147,25 +154,30 @@ class SpritePanel extends Panel {
         })
 
         let frame = sprite.frames[Math.min(this.state.currentFrameId, sprite.frames.length - 1)]
-        let frameCanvas = h(DrawingCanvas, {
-            w: frame.w,
-            h: frame.h,
+
+        let drawingCanvas = h(DrawingCanvas, {
+            w: sprite.w,
+            h: sprite.h,
             backgroundColor: palette.colors[0],
             showGrid: world.showGrid,
-            getPixel: (x, y) => Frame.getPixel(frame, x, y),
-            setPixel: (x, y, value) => set(
-                path + '.frames.' + this.state.currentFrameId,
-                Frame.setPixel(clone(frame), x, y, value),
-                true
-            ),
-            draw: context => {
+            mode: world.drawMode,
+            update: context => {
                 Sprite.draw(sprite, context, { frameId: this.state.currentFrameId, palette, background: true })
             },
-            drawOnion: (sprite.frames.length > 1) ? context => {
+            updateOnion: (sprite.frames.length > 1) ? context => {
                 let onionFrameId = this.state.currentFrameId - 1
                 if (onionFrameId < 0) onionFrameId = sprite.frames.length - 1
                 Sprite.draw(sprite, context, { frameId: onionFrameId, palette, clear: true })
-            } : null
+            } : null,
+            draw: (x, y, isMoving) => {
+                if (!isMoving) this.isDrawing = (Frame.getPixel(frame, x, y) === 0)
+                let pixelPath = path + '.frames.' + this.state.currentFrameId
+                if (this.isDrawing) {
+                    set(pixelPath, Frame.setPixel(clone(frame), x, y, 1), true)
+                } else {
+                    set(pixelPath, Frame.setPixel(clone(frame), x, y, 0), true)
+                }
+            }
         })
 
         let spritePreview = h(SpriteComponent, { sprite, palette, frameRate: world.frameRate })
@@ -188,8 +200,9 @@ class SpritePanel extends Panel {
                 this.redoButton(),
                 nameTextbox,
                 this.menu([
+                    drawModeButton,
+                    hr(),
                     setAvatarButton,
-                    setAvatarButton ? hr() : null,
                     importButton,
                     exportButton,
                     copyButton,
@@ -205,9 +218,10 @@ class SpritePanel extends Panel {
                 wallToggle,
                 itemToggle,
                 actionButton,
+                div({ class: 'filler' }),
                 colorButton
             ]),
-            frameCanvas,
+            drawingCanvas,
             buttonRow([
                 frameButtons,
                 addFrameButton,
