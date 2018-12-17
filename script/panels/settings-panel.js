@@ -5,7 +5,8 @@ class SettingsPanel extends Panel {
             currentRoomId: 0,
             worldSize: props.world.worldWidth,
             roomSize: props.world.roomWidth,
-            spriteSize: props.world.spriteWidth
+            spriteSize: props.world.spriteWidth,
+            paletteSize: props.world.palettes[0].colors.length
         }
     }
 
@@ -87,8 +88,24 @@ class SettingsPanel extends Panel {
                 let ws = this.state.worldSize
                 let rs = this.state.roomSize
                 let ss = this.state.spriteSize
-                console.log(ws, rs, ss)
                 set('', World.changeSize(clone(world), ws, ws, rs, rs, ss, ss))
+            }
+        }, 'change sizes')
+
+        let paletteSize = label({}, [
+            span({}, 'colors per palette: '),
+            numbox({
+                value: this.state.paletteSize,
+                min: 2,
+                max: 16,
+                onchange: x => this.setState({ paletteSize: x })
+            })
+        ])
+
+        let changePaletteSizeButton = h(ConfirmComponent, {
+            description: 'change how many colors are in a palette?',
+            onconfirm: () => {
+                set('', World.changePaletteSize(clone(world), this.state.paletteSize))
             }
         }, 'change sizes')
 
@@ -106,6 +123,10 @@ class SettingsPanel extends Panel {
                 buttonRow(roomSize),
                 buttonRow(spriteSize),
                 buttonRow(changeSizeButton)
+            ]),
+            div({ class: 'settings-section'}, [
+                buttonRow(paletteSize),
+                buttonRow(changePaletteSizeButton)
             ])
         ])
     }

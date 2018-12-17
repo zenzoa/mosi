@@ -62,13 +62,13 @@ class PalettePanel extends Panel {
             }
         }, 'copy palette')
         
-        let delButton = h(ConfirmComponent, {
+        let delButton = world.palettes.length > 1 ? h(ConfirmComponent, {
             description: 'delete palette?',
             onconfirm: () => {
                 set('', World.delPalette(clone(world), paletteId))
                 back()
             }
-        }, 'delete palette')
+        }, 'delete palette') : null
 
         let colorButtons = palette.colors.map((color, colorId) => {
             return button({

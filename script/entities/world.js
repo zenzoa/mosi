@@ -138,7 +138,8 @@ class World {
     }
 
     static addPalette(world) {
-        let newPalette = Palette.new()
+        let lastPalette = world.palettes[world.palettes.length - 1]
+        let newPalette = Palette.clone(lastPalette)
         world.palettes.push(newPalette)
         return world
     }
@@ -183,6 +184,20 @@ class World {
         world.sprites = [Sprite.new(sw, sh, true)]
         world.avatarId = 0
 
+        return world
+    }
+
+    static changePaletteSize(world, paletteSize) {
+        world.palettes.forEach(palette => {
+            if (palette.colors.length > paletteSize) {
+                palette.colors = palette.colors.slice(0, paletteSize)
+            } else {
+                loopUpTo(paletteSize - palette.colors.length, () => {
+                    let newColor = chroma.random().hex()
+                    palette.colors.push(newColor)
+                })
+            }
+        })
         return world
     }
 
