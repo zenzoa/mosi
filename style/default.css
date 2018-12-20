@@ -571,6 +571,28 @@ button.color div {
     font-weight: bold;
 }
 
+/* DRAG LIST */
+.drag-el {
+    z-index: 100;
+    position: absolute;
+    border: 2px solid white;
+    border-radius: 6px;
+    mix-blend-mode: difference;
+    cursor: pointer;
+}
+
+.insert-el {
+    z-index: 99;
+    position: absolute;
+    width: 2px;
+    border-radius: 10px;
+    background: #444;
+}
+
+.drag-source {
+    opacity: 0.33;
+}
+
 /* ACTIONS */
 .action-list {
     height: 100%;

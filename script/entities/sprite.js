@@ -77,8 +77,8 @@ class Sprite {
         return Sprite.import(sprite, sprite.w, sprite.h)
     }
 
-    static bumpSpriteId(sprite, spriteId) {
-        sprite.actions = sprite.actions.map(action => Action.bumpSpriteId(action, spriteId))
+    static changeSpriteIndex(sprite, start, end, change) {
+        sprite.actions = sprite.actions.map(action => Action.changeSpriteIndex(action, start, end, change))
         return sprite
     }
 

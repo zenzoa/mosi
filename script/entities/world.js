@@ -114,20 +114,72 @@ class World {
 
     static delSprite(world, spriteId) {
         if (spriteId === world.avatarId) return world // can't delete avatar
-        World.clearSprite(world, spriteId)
+        world = World.clearSprite(world, spriteId)
         world.sprites.splice(spriteId, 1)
 
-        world.sprites = world.sprites.map(sprite => Sprite.bumpSpriteId(sprite, spriteId))
-        world.rooms = world.rooms.map(room => Room.bumpSpriteId(room, spriteId))
-        
-        if (world.avatarId >= spriteId) Math.max(0, world.avatarId--)
-        if (world.currentSpriteId >= spriteId) Math.max(0, world.currentSpriteId--)
+        world = World.changeSpriteIndex(world, spriteId, spriteId + 1, x => x - 1)
         
         return world
     }
 
     static clearSprite(world, spriteId) {
         world.rooms = world.rooms.map(room => Room.clearSprite(room, spriteId))
+        return world
+    }
+
+    static changeSpriteIndex(world, start, end, change) {
+        world.sprites = world.sprites.map(sprite => Sprite.changeSpriteIndex(sprite, start, end, change))
+        world.rooms = world.rooms.map(room => Room.changeSpriteIndex(room, start, end, change))
+        
+        if (world.avatarId >= start && world.avatarId < end) {
+            world.avatarId = Math.min(Math.max(0, change(world.avatarId)), world.sprites.length - 1)
+        }
+
+        if (world.currentSpriteId >= start && world.currentSpriteId < end) {
+            world.currentSpriteId = Math.min(Math.max(0, change(world.currentSpriteId)), world.sprites.length - 1)
+        }
+
+        return world
+    }
+
+    static reorderSprites(world, spriteId, insertId) {
+        let spriteToMove = world.sprites[spriteId]
+
+        if (insertId === 0) {
+            world.sprites.splice(spriteId, 1)
+            world.sprites = [spriteToMove].concat(world.sprites)
+            world = World.changeSpriteIndex(
+                world, 0, world.sprites.length,
+                x => x === spriteId ? 0 : x + 1
+            )
+
+        } else if (insertId < spriteId) {
+            let beforeSprites = world.sprites.slice(0, insertId)
+            let middleSprites = world.sprites.slice(insertId, spriteId)
+            let afterSprites = world.sprites.slice(spriteId + 1)
+            world.sprites = beforeSprites
+                .concat([spriteToMove])
+                .concat(middleSprites)
+                .concat(afterSprites)
+            world = World.changeSpriteIndex(
+                world, insertId, spriteId + 1,
+                x => x === spriteId ? insertId : x + 1
+            )
+
+        } else if (spriteId < insertId) {
+            let beforeSprites = world.sprites.slice(0, spriteId)
+            let middleSprites = world.sprites.slice(spriteId + 1, insertId)
+            let afterSprites = world.sprites.slice(insertId)
+            world.sprites = beforeSprites
+                .concat(middleSprites)
+                .concat([spriteToMove])
+                .concat(afterSprites)
+            world = World.changeSpriteIndex(
+                world, spriteId, insertId,
+                x => x === spriteId ? insertId - 1 : x - 1
+            )
+        }
+
         return world
     }
 

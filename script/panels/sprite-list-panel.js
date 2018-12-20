@@ -7,6 +7,23 @@ class SpriteListPanel extends Panel {
             choosingNewSprite: false,
             search: ''
         }
+
+        this.selectSprite = (spriteId) => {
+            if (this.props.selectSprite) {
+                this.props.selectSprite(spriteId)
+            } else {
+                this.props.set('currentSpriteId', spriteId)
+                this.setState({ spritePanelOpen: true })
+            }
+        }
+
+        this.renderSprite = (spriteId) => {
+            return h(SpriteComponent, {
+                sprite: this.props.world.sprites[spriteId],
+                palette: this.props.world.palettes[0],
+                frameId: 0
+            })
+        }
     }
 
     render({ world, set, undo, redo, selectedId, selectSprite, filter }) {
@@ -21,8 +38,6 @@ class SpriteListPanel extends Panel {
                     : this.setState({ spritePanelOpen: false })
             })
         }
-        
-        let palette = world.palettes[0]
 
         let searchTextbox = searchBox({
             placeholder: 'search',
@@ -38,39 +53,27 @@ class SpriteListPanel extends Panel {
             }
         }, '+')
 
-        let avatar = world.sprites[world.avatarId]
         let avatarComponent = (!filter || filter(world.avatarId)) ? button({
             class: 'sprite-button avatar-button' + (selectedId === world.avatarId ? ' selected' : ''),
-            onclick: () => {
-                if (selectSprite) {
-                    selectSprite(world.avatarId)
-                } else {
-                    set('currentSpriteId', world.avatarId)
-                    this.setState({ spritePanelOpen: true })
-                }
-            }
-        },
-            h(SpriteComponent, { sprite: avatar, palette })
-        ) : null
+            onclick: () => this.selectSprite(world.avatarId)
+        }, this.renderSprite(world.avatarId)) : null
 
-        let spriteComponents = world.sprites.map((sprite, spriteId) => {
-            if (filter && !filter(spriteId)) return null
-            if (this.state.search && !sprite.name.includes(this.state.search)) return null
+        let items = []
+        world.sprites.forEach((sprite, spriteId) => {
+            if (filter && !filter(spriteId)) return
+            if (this.state.search && !sprite.name.includes(this.state.search)) return
             if (spriteId === world.avatarId) return null
-            
-            return button({
+            items.push({
                 class: 'sprite-button' + (selectedId === spriteId ? ' selected' : ''),
-                onclick: () => {
-                    if (selectSprite) {
-                        selectSprite(spriteId)
-                    } else {
-                        set('currentSpriteId', spriteId)
-                        this.setState({ spritePanelOpen: true })
-                    }
-                }
-            },
-                h(SpriteComponent, { sprite, palette, frameId: 0 })
-            )
+                index: spriteId,
+                render: this.renderSprite,
+                select: this.selectSprite
+            })
+        })
+
+        let spriteList = h(DragList, {
+            items,
+            moveItem: (spriteId, insertId) => set('', World.reorderSprites(clone(world), spriteId, insertId))
         })
 
         return div({ class: 'panel sprite-list-panel' }, [
@@ -81,11 +84,8 @@ class SpriteListPanel extends Panel {
                 searchTextbox,
                 addSpriteButton,
             ]),
-            buttonRow('wrap', [
-                avatarComponent,
-                vr(),
-                spriteComponents
-            ])
+            avatarComponent,
+            spriteList
         ])
     }
 }

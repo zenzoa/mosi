@@ -24,8 +24,8 @@ class Action {
         return Event.relatedSpriteIds(action.event)
     }
 
-    static bumpSpriteId(action, spriteId) {
-        action.event = Event.bumpSpriteId(action.event, spriteId)
+    static changeSpriteIndex(action, start, end, change) {
+        action.event = Event.changeSpriteIndex(action.event, start, end, change)
         return action
     }
 }
@@ -189,17 +189,19 @@ class Event {
         return ids
     }
 
-    static bumpSpriteId(event, spriteId) {
+    static changeSpriteIndex(event, start, end, change) {
         if (event.type === 'give_item' || event.type === 'transform_self') {
-            if (event.spriteId > spriteId) event.spriteId--
+            if (event.spriteId >= start && event.spriteId < end) {
+                event.spriteId = change(event.spriteId)
+            }
         }
         else if (event.type === 'sequence') {
-            event.events = event.events.map(e => Event.bumpSpriteId(e, spriteId))
+            event.events = event.events.map(e => Event.changeSpriteIndex(e, start, end, change))
         }
         else if (event.type === 'branch') {
-            event.condition = Condition.bumpSpriteId(event.condition, spriteId)
-            event.trueEvent = Event.bumpSpriteId(event.trueEvent, spriteId)
-            event.falseEvent = Event.bumpSpriteId(event.falseEvent, spriteId)
+            event.condition = Condition.changeSpriteIndex(event.condition, start, end, change)
+            event.trueEvent = Event.changeSpriteIndex(event.trueEvent, start, end, change)
+            event.falseEvent = Event.changeSpriteIndex(event.falseEvent, start, end, change)
         }
         return event
     }
@@ -352,13 +354,17 @@ class Condition {
         return exportCondition
     }
 
-    static bumpSpriteId(condition, spriteId) {
+    static changeSpriteIndex(condition, start, end, change) {
         if (condition.type === 'item_comparison') {
-            if (condition.spriteId > spriteId) condition.spriteId--
-            if (condition.valueIsSprite && condition.value > spriteId) condition.value--
+            if (condition.spriteId >= start && condition.spriteId < end) {
+                condition.spriteId = change(condition.spriteId)
+            }
+            if (condition.valueIsSprite && condition.value >= start && condition.value < end) {
+                condition.value = change(condition.value)
+            }
         }
         else if (condition.type === 'all' || condition.type === 'any' || condition.type === 'none') {
-            condition.conditions = condition.conditions.map(c => bumpSpriteId.export(c, spriteId))
+            condition.conditions = condition.conditions.map(c => Condition.changeSpriteIndex(c, start, end, change))
         }
         return condition
     }

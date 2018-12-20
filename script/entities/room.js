@@ -105,9 +105,9 @@ class Room {
         else return null
     }
 
-    static bumpSpriteId(room, spriteId) {
+    static changeSpriteIndex(room, start, end, change) {
         room.spriteLocations.forEach(l => {
-            if (l.spriteId > spriteId) l.spriteId--
+            if (l.spriteId >= start && l.spriteId < end) l.spriteId = change(l.spriteId)
         })
         return room
     }
