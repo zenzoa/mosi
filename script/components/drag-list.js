@@ -6,7 +6,7 @@ class DragList extends Component {
 
         this.pointerIsDown = false
         this.pointerPos = { x: 0, y: 0 }
-        this.currentItemIndex = 0
+        this.currentIndex = 0
         this.insertIndex = 0
 
         this.isDragging = false
@@ -20,7 +20,7 @@ class DragList extends Component {
             this.pointerIsDown = true
             this.pointerPos = this.getPointerPos(event)
 
-            this.currentItemIndex = itemIndex
+            this.currentIndex = itemIndex
             this.sourceEl = this.refs[itemIndex]
         }
 
@@ -80,12 +80,14 @@ class DragList extends Component {
             event.preventDefault()
 
             if (this.isDragging) {
-                this.props.moveItem(this.currentItemIndex, this.insertIndex)
+                this.props.moveItem(this.currentIndex, this.insertIndex)
                 this.isDragging = false
+                this.delDragEl()
+            } else {
+                this.props.selectItem(this.currentIndex)
             }
 
             this.pointerIsDown = false
-            this.delDragEl()
         }
 
         this.getPointerPos = (event) => {
@@ -172,7 +174,7 @@ class DragList extends Component {
         document.removeEventListener('touchmove', this.pointerMove)
     }
 
-    render({ items, before, after }) {
+    render({ items, renderItem, selectItem, before, after }) {
         let itemComponents = items.map(item => {
             return button({
                 class: item.class,
@@ -180,9 +182,9 @@ class DragList extends Component {
                 onmousedown: event => this.pointerDown(event, item.index),
                 ontouchstart: event => this.pointerDown(event, item.index),
                 onclick: () => {
-                    if (!this.isDragging) item.select(item.index)
+                    if (!this.isDragging) selectItem(item.index)
                 }
-            }, item.render(item.index))
+            }, renderItem(item.index))
         })
         return buttonRow('wrap', [before, itemComponents, after])
     }

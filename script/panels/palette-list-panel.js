@@ -52,15 +52,15 @@ class PaletteListPanel extends Panel {
         world.palettes.forEach((palette, paletteId) => {
             items.push({
                 class: 'color-button' + (selectedId === paletteId ? ' selected' : ''),
-                index: paletteId,
-                render: this.renderPalette,
-                select: this.selectPalette
+                index: paletteId
             })
         })
 
         let paletteList = h(DragList, {
             vertical: true,
             items,
+            renderItem: this.renderPalette,
+            selectItem: this.selectPalette,
             moveItem: (paletteId, insertId) => set('', World.reorderPalettes(clone(world), paletteId, insertId))
         })
 

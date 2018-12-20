@@ -69,15 +69,15 @@ class SpriteListPanel extends Panel {
             if (spriteId === world.avatarId) return null
             items.push({
                 class: 'sprite-button' + (selectedId === spriteId ? ' selected' : ''),
-                index: spriteId,
-                render: this.renderSprite,
-                select: this.selectSprite
+                index: spriteId
             })
         })
 
         let spriteList = h(DragList, {
             before: avatarComponent,
             items,
+            renderItem: this.renderSprite,
+            selectItem: this.selectSprite,
             moveItem: (spriteId, insertId) => set('', World.reorderSprites(clone(world), spriteId, insertId))
         })
 
