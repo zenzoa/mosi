@@ -53,10 +53,17 @@ class SpriteListPanel extends Panel {
             }
         }, '+')
 
-        let avatarComponent = (!filter || filter(world.avatarId)) ? button({
-            class: 'sprite-button avatar-button' + (selectedId === world.avatarId ? ' selected' : ''),
-            onclick: () => this.selectSprite(world.avatarId)
-        }, this.renderSprite(world.avatarId)) : null
+        let avatar = world.sprites[world.avatarId]
+        let avatarOutsideFilter = filter && !filter(world.avatarId)
+        let avatarOutsideSearch = this.state.search && !avatar.name.includes(this.state.search)
+        let avatarComponent = (avatarOutsideFilter || avatarOutsideSearch) ? null :
+            buttonRow([
+                button({
+                    class: 'sprite-button avatar-button' + (selectedId === world.avatarId ? ' selected' : ''),
+                    onclick: () => this.selectSprite(world.avatarId)
+                }, this.renderSprite(world.avatarId)),
+                div({}, 'player avatar')
+            ])
 
         let items = []
         world.sprites.forEach((sprite, spriteId) => {
