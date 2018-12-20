@@ -112,6 +112,11 @@ class Room {
         return room
     }
 
+    static changePaletteIndex(room, start, end, change) {
+        if (room.paletteId >= start && room.paletteId < end) room.paletteId = change(room.paletteId)
+        return room
+    }
+
     static clear(room) {
         room.spriteLocations = []
         return room

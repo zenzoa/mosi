@@ -40,8 +40,10 @@ class DragList extends Component {
                     if (!ref) return
 
                     let rect = ref.getBoundingClientRect()
-                    let dx = Math.abs(this.pointerPos.x - (rect.x + rect.width))
-                    let dy = Math.abs(this.pointerPos.y - (rect.y + rect.height / 2))
+                    let midx = this.props.vertical ? rect.x + rect.width / 2: rect.x + rect.width
+                    let midy = this.props.vertical ? rect.y + rect.height : rect.y + rect.height / 2
+                    let dx = Math.abs(this.pointerPos.x - midx)
+                    let dy = Math.abs(this.pointerPos.y - midy)
                     let dist = dx * dx + dy * dy
 
                     if (dist < closestDist) {
@@ -51,9 +53,10 @@ class DragList extends Component {
                         insertBefore = false
 
                         if (isFirst) {
-                            if (this.pointerPos.x < (rect.x + rect.width / 2)) {
-                                insertBefore = true
-                                this.insertIndex--
+                            if ((this.props.vertical && this.pointerPos.y < (rect.y + rect.height / 2)) ||
+                                (!this.props.vertical && this.pointerPos.x < (rect.x + rect.width / 2))) {
+                                    insertBefore = true
+                                    this.insertIndex--
                             }
                             isFirst = false
                         }
@@ -105,7 +108,13 @@ class DragList extends Component {
 
             this.insertEl = document.createElement('div')
             this.insertEl.className = 'insert-el'
-            this.insertEl.style.height = rect.height + 'px'
+            if (this.props.vertical) {
+                this.insertEl.style.width = rect.width + 'px'
+                this.insertEl.style.height = '2px'
+            } else {
+                this.insertEl.style.width = '2px'
+                this.insertEl.style.height = rect.height + 'px'
+            }
             document.body.appendChild(this.insertEl)
 
             this.sourceEl.className += ' drag-source'
@@ -121,9 +130,15 @@ class DragList extends Component {
             this.dragEl.style.top = y + 'px'
 
             let rect2 = insertRef.getBoundingClientRect()
-            if (insertBefore) this.insertEl.style.left = rect2.x - 3 + 'px'
-            else this.insertEl.style.left = rect2.x + rect2.width + 1 + 'px'
-            this.insertEl.style.top = rect2.y + 'px'
+            if (this.props.vertical) {
+                if (insertBefore) this.insertEl.style.top = rect2.y - 3 + 'px'
+                else this.insertEl.style.top = rect2.y + rect2.height + 1 + 'px'
+                this.insertEl.style.left = rect2.x + 'px'
+            } else {
+                if (insertBefore) this.insertEl.style.left = rect2.x - 3 + 'px'
+                else this.insertEl.style.left = rect2.x + rect2.width + 1 + 'px'
+                this.insertEl.style.top = rect2.y + 'px'
+            }
         }
 
         this.delDragEl = () => {
@@ -157,7 +172,7 @@ class DragList extends Component {
         document.removeEventListener('touchmove', this.pointerMove)
     }
 
-    render({ items }) {
+    render({ items, before, after }) {
         let itemComponents = items.map(item => {
             return button({
                 class: item.class,
@@ -169,6 +184,6 @@ class DragList extends Component {
                 }
             }, item.render(item.index))
         })
-        return buttonRow('wrap', itemComponents)
+        return buttonRow('wrap', [before, itemComponents, after])
     }
 }

@@ -57,13 +57,10 @@ class SpriteListPanel extends Panel {
         let avatarOutsideFilter = filter && !filter(world.avatarId)
         let avatarOutsideSearch = this.state.search && !avatar.name.includes(this.state.search)
         let avatarComponent = (avatarOutsideFilter || avatarOutsideSearch) ? null :
-            buttonRow([
-                button({
-                    class: 'sprite-button avatar-button' + (selectedId === world.avatarId ? ' selected' : ''),
-                    onclick: () => this.selectSprite(world.avatarId)
-                }, this.renderSprite(world.avatarId)),
-                div({}, 'player avatar')
-            ])
+            div({ class: 'avatar-component' }, button({
+                class: 'sprite-button avatar-button' + (selectedId === world.avatarId ? ' selected' : ''),
+                onclick: () => this.selectSprite(world.avatarId)
+            }, this.renderSprite(world.avatarId)))
 
         let items = []
         world.sprites.forEach((sprite, spriteId) => {
@@ -79,6 +76,7 @@ class SpriteListPanel extends Panel {
         })
 
         let spriteList = h(DragList, {
+            before: avatarComponent,
             items,
             moveItem: (spriteId, insertId) => set('', World.reorderSprites(clone(world), spriteId, insertId))
         })
@@ -91,7 +89,6 @@ class SpriteListPanel extends Panel {
                 searchTextbox,
                 addSpriteButton,
             ]),
-            avatarComponent,
             spriteList
         ])
     }

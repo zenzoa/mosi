@@ -315,6 +315,11 @@ button.color div {
 }
 
 /* AVATAR STAR */
+.avatar-component:not(:last-child) {
+    border-right: 1px solid #ccc;
+    padding-right: 4px;
+}
+
 .avatar-button::after,
 .world-panel .tile-canvas .highlight-tile::after {
     content: '★';
@@ -584,7 +589,6 @@ button.color div {
 .insert-el {
     z-index: 99;
     position: absolute;
-    width: 2px;
     border-radius: 10px;
     background: #444;
 }

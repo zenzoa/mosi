@@ -6,6 +6,21 @@ class PaletteListPanel extends Panel {
             palettePanelOpen: false,
             choosingNewPalette: false
         }
+
+        this.selectPalette = (paletteId) => {
+            if (this.props.selectPalette) this.props.selectPalette(paletteId)
+            this.setState({ currentPaletteId: paletteId, palettePanelOpen: true })
+        }
+
+        this.renderPalette = (paletteId) => {
+            let palette = this.props.world.palettes[paletteId]
+            return [
+                palette.colors.map(color =>
+                    div({ class: 'color-box', style: { backgroundColor: color }})
+                ),
+                div({ class: 'color-name' }, palette.name)
+            ]
+        }
     }
 
     render({ world, set, undo, redo, selectedId, selectPalette }) {
@@ -33,19 +48,20 @@ class PaletteListPanel extends Panel {
             }
         }, '+')
 
-        let paletteComponents = world.palettes.map((palette, paletteId) => {
-            return button({
+        let items = []
+        world.palettes.forEach((palette, paletteId) => {
+            items.push({
                 class: 'color-button' + (selectedId === paletteId ? ' selected' : ''),
-                onclick: () => {
-                    if (selectPalette) selectPalette(paletteId)
-                    this.setState({ currentPaletteId: paletteId, palettePanelOpen: true })
-                }
-            }, [
-                palette.colors.map(color =>
-                    div({ class: 'color-box', style: { backgroundColor: color }})
-                ),
-                div({ class: 'color-name' }, palette.name)
-            ])
+                index: paletteId,
+                render: this.renderPalette,
+                select: this.selectPalette
+            })
+        })
+
+        let paletteList = h(DragList, {
+            vertical: true,
+            items,
+            moveItem: (paletteId, insertId) => set('', World.reorderPalettes(clone(world), paletteId, insertId))
         })
 
         return div({ class: 'panel palette-list-panel' }, [
@@ -56,9 +72,7 @@ class PaletteListPanel extends Panel {
                 div({ class: 'filler' }),
                 addPaletteButton,
             ]),
-            buttonRow('wrap',
-                paletteComponents
-            )
+            paletteList
         ])
     }
 }

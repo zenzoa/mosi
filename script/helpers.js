@@ -28,6 +28,39 @@ let uniqueList = list => {
     return newList
 }
 
+let reorderList = (list, sourceId, insertId) => {
+    let itemToMove = list[sourceId]
+
+    if (insertId === 0) {
+        let beforeItems = list.slice(0, sourceId)
+        let afterItems = list.slice(sourceId + 1)
+        return [itemToMove]
+            .concat(beforeItems)
+            .concat(afterItems)
+
+    } else if (insertId < sourceId) {
+        let beforeItems = list.slice(0, insertId)
+        let middleItems = list.slice(insertId, sourceId)
+        let afterItems = list.slice(sourceId + 1)
+        return beforeItems
+            .concat([itemToMove])
+            .concat(middleItems)
+            .concat(afterItems)
+
+    } else if (sourceId < insertId) {
+        let beforeItems = list.slice(0, sourceId)
+        let middleItems = list.slice(sourceId + 1, insertId)
+        let afterItems = list.slice(insertId)
+        return beforeItems
+            .concat(middleItems)
+            .concat([itemToMove])
+            .concat(afterItems)
+            
+    } else {
+        return list
+    }
+}
+
 let randomInt = (min, max) => {
     return min + Math.floor(Math.random() * (max - min))
 }

@@ -143,37 +143,20 @@ class World {
     }
 
     static reorderSprites(world, spriteId, insertId) {
-        let spriteToMove = world.sprites[spriteId]
+        insertId = Math.min(Math.max(0, insertId), world.sprites.length)
+        world.sprites = reorderList(world.sprites, spriteId, insertId)
 
         if (insertId === 0) {
-            world.sprites.splice(spriteId, 1)
-            world.sprites = [spriteToMove].concat(world.sprites)
             world = World.changeSpriteIndex(
                 world, 0, world.sprites.length,
                 x => x === spriteId ? 0 : x + 1
             )
-
         } else if (insertId < spriteId) {
-            let beforeSprites = world.sprites.slice(0, insertId)
-            let middleSprites = world.sprites.slice(insertId, spriteId)
-            let afterSprites = world.sprites.slice(spriteId + 1)
-            world.sprites = beforeSprites
-                .concat([spriteToMove])
-                .concat(middleSprites)
-                .concat(afterSprites)
             world = World.changeSpriteIndex(
                 world, insertId, spriteId + 1,
                 x => x === spriteId ? insertId : x + 1
             )
-
         } else if (spriteId < insertId) {
-            let beforeSprites = world.sprites.slice(0, spriteId)
-            let middleSprites = world.sprites.slice(spriteId + 1, insertId)
-            let afterSprites = world.sprites.slice(insertId)
-            world.sprites = beforeSprites
-                .concat(middleSprites)
-                .concat([spriteToMove])
-                .concat(afterSprites)
             world = World.changeSpriteIndex(
                 world, spriteId, insertId,
                 x => x === spriteId ? insertId - 1 : x - 1
@@ -214,6 +197,35 @@ class World {
         world.rooms.forEach(room => {
             if (room.paletteId === paletteId) room.paletteId = 0
         })
+        return world
+    }
+
+    static changePaletteIndex(world, start, end, change) {
+        world.rooms = world.rooms.map(room => Room.changePaletteIndex(room, start, end, change))
+        return world
+    }
+
+    static reorderPalettes(world, paletteId, insertId) {
+        insertId = Math.min(Math.max(0, insertId), world.palettes.length)
+        world.palettes = reorderList(world.palettes, paletteId, insertId)
+
+        if (insertId === 0) {
+            world = World.changePaletteIndex(
+                world, 0, world.palettes.length,
+                x => x === paletteId ? 0 : x + 1
+            )
+        } else if (insertId < paletteId) {
+            world = World.changePaletteIndex(
+                world, insertId, paletteId + 1,
+                x => x === paletteId ? insertId : x + 1
+            )
+        } else if (paletteId < insertId) {
+            world = World.changePaletteIndex(
+                world, paletteId, insertId,
+                x => x === paletteId ? insertId - 1 : x - 1
+            )
+        }
+
         return world
     }
 
