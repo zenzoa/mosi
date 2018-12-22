@@ -8,18 +8,24 @@ class SpriteComponent extends Component {
         this.update = timestamp => {
             let { sprite, palette, frameRate } = this.props
 
-            if (!this.animationStart) this.animationStart = timestamp
-            let dt = timestamp - this.animationStart
-            
-            if ((dt >= frameRate || !timestamp) && sprite && this.canvas) {
-                this.animationStart = timestamp
-                this.frameId = (this.frameId >= sprite.frames.length - 1) ? 0 : this.frameId + 1
+            let context = this.canvas && this.canvas.getContext('2d')
 
-                let context = this.canvas.getContext('2d')
+            if (frameRate && context) {
+                if (!this.animationStart) this.animationStart = timestamp
+                let dt = timestamp - this.animationStart
+                
+                if (dt >= frameRate && sprite && this.canvas) {
+                    this.animationStart = timestamp
+                    this.frameId = (this.frameId >= sprite.frames.length - 1) ? 0 : this.frameId + 1
+                    Sprite.draw(sprite, context, { frameId: this.frameId, palette, background: true })
+                }
+
+            } else if (context) {
                 Sprite.draw(sprite, context, { frameId: this.frameId, palette, background: true })
             }
 
-            if (this.props.frameRate) this.animationLoop = window.requestAnimationFrame(this.update)
+
+            if (frameRate) this.animationLoop = window.requestAnimationFrame(this.update)
         }
     }
 
