@@ -177,6 +177,12 @@ class SpritePanel extends Panel {
                 } else {
                     set(pixelPath, Frame.setPixel(clone(frame), x, y, 0), true)
                 }
+            },
+            cursorX: this.cursorX,
+            cursorY: this.cursorY,
+            saveCursor: (x, y) => {
+                this.cursorX = x,
+                this.cursorY = y
             }
         })
 

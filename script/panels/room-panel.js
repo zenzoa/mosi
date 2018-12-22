@@ -6,6 +6,19 @@ class RoomPanel extends Panel {
         }
 
         this.isDrawing = false
+        this.maxSpriteButtons = 100
+
+        this.selectSprite = (spriteId) => {
+            let { world, set } = this.props
+            let recentSpriteIds = world.recentSpriteIds.filter(id => id !== spriteId)
+            recentSpriteIds.unshift(spriteId)
+            recentSpriteIds = recentSpriteIds.slice(0, this.maxSpriteButtons)
+            set([
+                { path: 'currentSpriteId', value: spriteId },
+                { path: 'recentSpriteIds', value: recentSpriteIds}
+            ])
+            this.setState({ spriteListOpen: false })
+        }
 
         this.drawSprite = (x, y) => {
             let { world, room, roomId, path, set } = this.props
@@ -25,6 +38,24 @@ class RoomPanel extends Panel {
             let { room, path, set } = this.props
             set(path, Room.clearTopSprite(clone(room), x, y))
         }
+
+        this.resize = () => {
+            let { world, set } = this.props
+            let rect = this.base.getBoundingClientRect()
+            this.maxSpriteButtons = Math.floor((rect.width - 12) / 44) - 1
+            if (world.recentSpriteIds.length > this.maxSpriteButtons) {
+                set('recentSpriteIds', world.recentSpriteIds.slice(0, this.maxSpriteButtons))
+            }
+        }
+    }
+
+    componentDidMount() {
+        window.addEventListener('resize', this.resize)
+        setTimeout(this.resize, 1)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.resize)
     }
 
     render({ world, room, roomId, path, set, undo, redo }) {
@@ -36,10 +67,7 @@ class RoomPanel extends Panel {
                 selectedId: world.currentSpriteId,
                 palette: palette,
                 back: () => this.setState({ spriteListOpen: false }),
-                selectSprite: id => {
-                    set('currentSpriteId', id)
-                    this.setState({ spriteListOpen: false, drawMode: 'draw' })
-                }
+                selectSprite: this.selectSprite
             })
         }
 
@@ -120,20 +148,20 @@ class RoomPanel extends Panel {
             getData: () => Room.export(room, world.sprites)
         }, 'export room')
 
-        let spriteButton = button({
-            onclick: () => this.setState({ spriteListOpen: true })
-        },
-            h(SpriteComponent, {
-                sprite: world.sprites[world.currentSpriteId],
-                palette: palette,
-                frameRate: world.frameRate
-            }),
-            span({}, 'current sprite')
-        )
+        // let spriteButton = button({
+        //     onclick: () => this.setState({ spriteListOpen: true })
+        // },
+        //     h(SpriteComponent, {
+        //         sprite: world.sprites[world.currentSpriteId],
+        //         palette: palette,
+        //         frameRate: world.frameRate
+        //     }),
+        //     span({}, 'current sprite')
+        // )
 
-        let editSpriteButton = button({
-            onclick: () => this.setState({ spritePanelOpen: true })
-        }, 'edit sprite')
+        // let editSpriteButton = button({
+        //     onclick: () => this.setState({ spritePanelOpen: true })
+        // }, 'edit sprite')
 
         let drawingCanvas = h(DrawingCanvas, {
             w: world.roomWidth,
@@ -156,8 +184,33 @@ class RoomPanel extends Panel {
                 } else {
                     this.eraseSprite(x, y)
                 }
+            },
+            cursorX: this.cursorX,
+            cursorY: this.cursorY,
+            saveCursor: (x, y) => {
+                this.cursorX = x,
+                this.cursorY = y
             }
         })
+
+        let recentSpriteButtons = world.recentSpriteIds.map(spriteId => {
+            return button({
+                class: 'sprite-button'
+                    + (world.currentSpriteId === spriteId ? ' selected' : '')
+                    + (spriteId === world.avatarId ? ' avatar-button' : ''),
+                onclick: () => set('currentSpriteId', spriteId)
+            },
+                h(SpriteComponent, {
+                    sprite: world.sprites[spriteId],
+                    palette
+                })
+            )
+        })
+
+        let addSpriteButton = button({
+            class: 'icon',
+            onclick: () => this.setState({ spriteListOpen: true })
+        }, '⋯')
 
         return div({ class: 'panel room-panel' }, [
             buttonRow([
@@ -178,9 +231,10 @@ class RoomPanel extends Panel {
             ]),
             drawingCanvas,
             buttonRow([
-                spriteButton,
-                editSpriteButton
-            ]),
+                recentSpriteButtons,
+                div({ class: 'filler' }),
+                addSpriteButton
+            ])
         ])
     }
 }

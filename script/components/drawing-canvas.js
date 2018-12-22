@@ -5,8 +5,8 @@ class DrawingCanvas extends Component {
         this.state = {
             tw: 64,
             th: 64,
-            cursorX: Math.floor(props.w / 2),
-            cursorY: Math.floor(props.h / 2)
+            cursorX: exists(props.cursorX) ? props.cursorX : Math.floor(props.w / 2),
+            cursorY: exists(props.cursorY) ? props.cursorY : Math.floor(props.h / 2)
         }
 
         this.animationLoop = null
@@ -222,6 +222,8 @@ class DrawingCanvas extends Component {
         document.removeEventListener('touchmove', this.pointerMove)
 
         window.removeEventListener('resize', this.resize)
+
+        if (this.props.saveCursor) this.props.saveCursor(this.state.cursorX, this.state.cursorY)
     }
 
     render({ key, w, h, sw = 1, sh = 1, showGrid, backgroundColor, highlight, updateOnion }) {

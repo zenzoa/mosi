@@ -30,6 +30,7 @@ class World {
         world.showGrid = true
         world.randomSprites = true
         world.currentSpriteId = 0
+        world.recentSpriteIds = [0]
 
         return world
     }
