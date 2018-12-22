@@ -119,13 +119,13 @@ class SettingsPanel extends Panel {
             buttonRow(fontFileInput),
             buttonRow(randomSpritesButton),
             div({ class: 'settings-section'}, [
-                buttonRow(worldSize),
-                buttonRow(roomSize),
-                buttonRow(spriteSize),
+                worldSize,
+                roomSize,
+                spriteSize,
                 buttonRow(changeSizeButton)
             ]),
             div({ class: 'settings-section'}, [
-                buttonRow(paletteSize),
+                paletteSize,
                 buttonRow(changePaletteSizeButton)
             ])
         ])

@@ -2,7 +2,7 @@ class RoomPanel extends Panel {
     constructor() {
         super()
         this.state = {
-            drawLock: false
+            cursorMode: 'draw'
         }
 
         this.isDrawing = false
@@ -10,13 +10,17 @@ class RoomPanel extends Panel {
 
         this.selectSprite = (spriteId) => {
             let { world, set } = this.props
-            let recentSpriteIds = world.recentSpriteIds.filter(id => id !== spriteId)
-            recentSpriteIds.unshift(spriteId)
-            recentSpriteIds = recentSpriteIds.slice(0, this.maxSpriteButtons)
-            set([
-                { path: 'currentSpriteId', value: spriteId },
-                { path: 'recentSpriteIds', value: recentSpriteIds}
-            ])
+            if (world.recentSpriteIds.includes(spriteId)) {
+                set('currentSpriteId', spriteId)
+            } else {
+                let recentSpriteIds = [spriteId]
+                    .concat(world.recentSpriteIds.filter(id => id !== spriteId))
+                    .slice(0, this.maxSpriteButtons)
+                set([
+                    { path: 'currentSpriteId', value: spriteId },
+                    { path: 'recentSpriteIds', value: recentSpriteIds}
+                ])
+            }
             this.setState({ spriteListOpen: false })
         }
 
@@ -114,10 +118,24 @@ class RoomPanel extends Panel {
             onclick: x => set('drawMode', x ? 'drag' : 'draw')
         }, 'cursor mode')
 
-        let drawLockButton = toggle({
-            value: this.state.drawLock,
-            onclick: x => this.setState({ drawLock: x })
-        }, 'draw only')
+        let cursorModeButtons = multiButton([
+            button({
+                class: this.state.cursorMode === 'draw' ? 'selected' : undefined,
+                onclick: () => this.setState({ cursorMode: 'draw'})
+            }, 'draw'),
+            button({
+                class: this.state.cursorMode === 'stack' ? 'selected' : undefined,
+                onclick: () => this.setState({ cursorMode: 'stack'})
+            }, 'stack'),
+            button({
+                class: this.state.cursorMode === 'pick' ? 'selected' : undefined,
+                onclick: () => this.setState({ cursorMode: 'pick'})
+            }, 'pick')
+        ])
+
+        let editSpriteButton = button({
+            onclick: () => this.setState({ spritePanelOpen: true })
+        }, 'edit sprite')
 
         let clearButton = h(ConfirmComponent, {
             description: 'clear room?',
@@ -153,21 +171,6 @@ class RoomPanel extends Panel {
             getData: () => Room.export(room, world.sprites)
         }, 'export room')
 
-        // let spriteButton = button({
-        //     onclick: () => this.setState({ spriteListOpen: true })
-        // },
-        //     h(SpriteComponent, {
-        //         sprite: world.sprites[world.currentSpriteId],
-        //         palette: palette,
-        //         frameRate: world.frameRate
-        //     }),
-        //     span({}, 'current sprite')
-        // )
-
-        // let editSpriteButton = button({
-        //     onclick: () => this.setState({ spritePanelOpen: true })
-        // }, 'edit sprite')
-
         let drawingCanvas = h(DrawingCanvas, {
             w: world.roomWidth,
             h: world.roomHeight,
@@ -182,12 +185,17 @@ class RoomPanel extends Panel {
                 Room.draw(context, { world, room })
             },
             draw: (x, y, isMoving) => {
-                if (!isMoving) this.isDrawing = Room.isTileEmpty(room, x, y)
-                if (this.isDrawing || this.state.drawLock) {
-                    if (!this.state.drawLock && isMoving && !Room.isTileEmpty(room, x, y)) return
-                    this.drawSprite(x, y)
+                if (!isMoving && this.state.cursorMode === 'pick') {
+                    let spriteId = Room.lastSpriteAtLocation(room, x, y)
+                    if (exists(spriteId)) this.selectSprite(spriteId)
                 } else {
-                    this.eraseSprite(x, y)
+                    if (!isMoving) this.isDrawing = Room.isTileEmpty(room, x, y)
+                    if (this.isDrawing || this.state.cursorMode === 'stack') {
+                        if (!this.state.cursorMode !== 'stack' && isMoving && !Room.isTileEmpty(room, x, y)) return
+                        this.drawSprite(x, y)
+                    } else {
+                        this.eraseSprite(x, y)
+                    }
                 }
             },
             cursorX: this.cursorX,
@@ -226,7 +234,6 @@ class RoomPanel extends Panel {
                 this.menu([
                     showGridButton,
                     drawModeButton,
-                    drawLockButton,
                     hr(),
                     paletteButton,
                     hr(),
@@ -234,6 +241,11 @@ class RoomPanel extends Panel {
                     importButton,
                     exportButton
                 ])
+            ]),
+            buttonRow([
+                cursorModeButtons,
+                div({ class: 'filler' }),
+                editSpriteButton
             ]),
             drawingCanvas,
             buttonRow([

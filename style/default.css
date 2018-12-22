@@ -263,6 +263,31 @@ button.color div {
     border-radius: 2px;
 }
 
+/* MULTI BUTTON */
+.multi-button {
+    display: flex;
+    flex-direction: row;
+}
+
+.multi-button button {
+    margin: 0;
+    border-radius: 0;
+}
+
+.multi-button button:first-child {
+    border-top-left-radius: 6px;
+    border-bottom-left-radius: 6px;
+}
+
+.multi-button button:last-child {
+    border-top-right-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.multi-button button + button {
+    border-left: 1px solid #eee;
+}
+
 /* BUTTON ROW */
 .button-row {
     display: flex;
@@ -369,6 +394,26 @@ button.color div {
     text-shadow: 1px 1px rgba(0,0,0,0.6);
 }
 
+/* LABEL */
+label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 4px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    background: #ddd;
+}
+
+label > span {
+    flex-basis: 100px;
+    margin: 0 8px;
+}
+
+label > input {
+    flex-grow: 1;
+}
+
 /* DRAWING CANVAS */
 .drawing-canvas {
     flex-grow: 1;
@@ -462,6 +507,10 @@ button.color div {
     border: 1px solid #ccc;
     border-radius: 6px;
     background: #ccc;
+}
+
+.settings-section :last-child {
+    margin-bottom: 0;
 }
 
 /* COLOR PICKER */

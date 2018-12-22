@@ -71,6 +71,10 @@ let toggle = (props, contents) => {
     }, contents)
 }
 
+let multiButton = contents => {
+    return div({ class: 'multi-button' }, contents)
+}
+
 let dropdown = (props, contents) => {
     return select({
         value: props.value,
