@@ -101,6 +101,11 @@ class SpritePanel extends Panel {
             getData: () => Sprite.export(sprite, spriteId, world.sprites)
         }, 'export sprite')
 
+        let showGridButton = toggle({
+            value: world.showGrid,
+            onclick: x => set('showGrid', x)
+        }, 'grid')
+
         let drawModeButton = toggle({
             value: world.drawMode === 'drag',
             onclick: x => set('drawMode', x ? 'drag' : 'draw')
@@ -206,6 +211,7 @@ class SpritePanel extends Panel {
                 this.redoButton(),
                 nameTextbox,
                 this.menu([
+                    showGridButton,
                     drawModeButton,
                     hr(),
                     setAvatarButton,

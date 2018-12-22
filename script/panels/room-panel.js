@@ -104,6 +104,11 @@ class RoomPanel extends Panel {
             onclick: () => this.setState({ paletteListOpen: true })
         }, 'change color palette')
 
+        let showGridButton = toggle({
+            value: world.showGrid,
+            onclick: x => set('showGrid', x)
+        }, 'grid')
+
         let drawModeButton = toggle({
             value: world.drawMode === 'drag',
             onclick: x => set('drawMode', x ? 'drag' : 'draw')
@@ -219,6 +224,7 @@ class RoomPanel extends Panel {
                 this.redoButton(),
                 nameTextbox,
                 this.menu([
+                    showGridButton,
                     drawModeButton,
                     drawLockButton,
                     hr(),
