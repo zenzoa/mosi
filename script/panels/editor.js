@@ -40,9 +40,13 @@ class Editor extends Component {
             try {
                 let worldString = window.localStorage.getItem('world')
                 if (worldString) {
-                    let newWorld = World.new() // get any new properties
-                    let oldWorld = JSON.parse(worldString)
-                    return merge(newWorld, oldWorld)
+                    let world = JSON.parse(worldString)
+                    if (!exists(world.drawMode)) world.drawMode = ('ontouchstart' in window) ? 'drag' : 'draw'
+                    if (!exists(world.showGrid)) world.showGrid = true
+                    if (!exists(world.randomSprites)) world.randomSprites = true
+                    if (!exists(world.currentSpriteId)) world.currentSpriteId = 0
+                    if (!exists(world.recentSpriteIds)) world.recentSpriteIds = [0]
+                    return world
                 }
             } catch(e) {
                 console.error('unable to load world', e)

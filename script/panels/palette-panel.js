@@ -20,6 +20,7 @@ class PalettePanel extends Panel {
             let oldColor = palette.colors[this.state.currentColorId]
             if (newColor !== oldColor) {
                 set(path + '.colors.' + this.state.currentColorId, newColor)
+                this.setState({ tempColor: newColor })
             }
             this.colorPicker.width = 100
         }
