@@ -3,13 +3,11 @@
 A tiny game engine that lets you make tiny game worlds. Inspired by [Bitsy](https://github.com/le-doux/bitsy).
 
 ## Planned features
-- Customize number of colors
-- Undo/redo
 - Keyboard shortcuts
-- Import worlds
-- Reordering of sprites, frames, palettes, colors, and actions
+- Reordering of frames, colors, and actions
 
 ## Stretch goals
+- Undo/redo
 - Additional scripts
 - Multiple sketches (like a notebook!)
 - Sounds/music (ugh WebAudio)
