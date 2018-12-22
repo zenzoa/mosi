@@ -39,7 +39,11 @@ class Editor extends Component {
         this.load = () => {
             try {
                 let worldString = window.localStorage.getItem('world')
-                if (worldString) return JSON.parse(worldString)
+                if (worldString) {
+                    let newWorld = World.new() // get any new properties
+                    let oldWorld = JSON.parse(worldString)
+                    return merge(newWorld, oldWorld)
+                }
             } catch(e) {
                 console.error('unable to load world', e)
             }
