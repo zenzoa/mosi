@@ -41,11 +41,15 @@ class Editor extends Component {
                 let worldString = window.localStorage.getItem('world')
                 if (worldString) {
                     let world = JSON.parse(worldString)
+
+                    // additions to add to older world data
                     if (!exists(world.drawMode)) world.drawMode = ('ontouchstart' in window) ? 'drag' : 'draw'
                     if (!exists(world.showGrid)) world.showGrid = true
                     if (!exists(world.randomSprites)) world.randomSprites = true
                     if (!exists(world.currentSpriteId)) world.currentSpriteId = 0
                     if (!exists(world.recentSpriteIds)) world.recentSpriteIds = [0]
+                    if (!exists(world.textScale)) world.textScale = 1
+
                     return world
                 }
             } catch(e) {

@@ -21,7 +21,17 @@ class SettingsPanel extends Panel {
                 } catch (e) {
                     throw 'unable to import font'
                 }
-            }
+            },
+            after: div({}, [
+                div({}, h('strong', {}, 'TEXT RESOLUTION')),
+                div({}, 'display text at a higher resolution'),
+                numbox({
+                    value: world.textScale,
+                    min: 1,
+                    max: 4,
+                    onchange: x => set('textScale', x)
+                })
+            ])
         }, 'change font')
 
         let wrapValue

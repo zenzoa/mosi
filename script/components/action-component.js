@@ -103,7 +103,7 @@ class EventComponent extends Component {
                     h(DialogComponent, { 
                         font: world.font,
                         string: event.text,
-                        width: world.roomWidth * world.spriteWidth
+                        width: world.roomWidth * world.spriteWidth * (world.textScale || 1)
                     })
                 ])
             ]

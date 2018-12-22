@@ -5,6 +5,16 @@ class Game {
         this.canvas = canvas
         this.context = canvas.getContext('2d')
 
+        this.textCanvas = document.createElement('canvas')
+        this.canvas.parentNode.appendChild(this.textCanvas)
+        this.textCanvas.style.position = 'absolute'
+        this.textCanvas.style.top = '0'
+        this.textCanvas.style.left = '0'
+        this.textCanvas.style.width = '100%'
+        this.textContext = this.textCanvas.getContext('2d')
+
+        this.canvas.parentNode.style.position = 'relative'
+
         this.animationLoop = null
         this.animationStart = null
 
@@ -40,7 +50,12 @@ class Game {
         this.load = () => {
             this.canvas.width = this.world.roomWidth * this.world.spriteWidth
             this.canvas.height = this.world.roomHeight * this.world.spriteHeight
+
+            this.textCanvas.width = this.canvas.width * (this.world.textScale || 1)
+            this.textCanvas.height = this.canvas.height * (this.world.textScale || 1)
+
             this.addEventListeners()
+            this.resize()
         }
 
         this.addEventListeners = () => {
@@ -49,14 +64,16 @@ class Game {
             document.addEventListener('keydown', this.keyDown)
             document.addEventListener('keyup', this.keyUp)
 
-            this.canvas.addEventListener('mousedown', this.pointerDown)
+            this.canvas.parentNode.addEventListener('mousedown', this.pointerDown)
             document.addEventListener('mouseup', this.pointerUp)
             document.addEventListener('mousemove', this.pointerMove)
     
-            this.canvas.addEventListener('touchstart', this.pointerDown, { passive: false })
+            this.canvas.parentNode.addEventListener('touchstart', this.pointerDown, { passive: false })
             document.addEventListener('touchend', this.pointerUp, { passive: false })
             document.addEventListener('touchcancel', this.pointerUp, { passive: false })
             document.addEventListener('touchmove', this.pointerMove, { passive: false })
+
+            window.addEventListener('resize', this.resize)
         }
     
         this.removeEventListeners = () => {
@@ -65,14 +82,31 @@ class Game {
             document.removeEventListener('keydown', this.keyDown)
             document.removeEventListener('keyup', this.keyUp)
 
-            this.canvas.removeEventListener('mousedown', this.pointerDown)
+            this.canvas.parentNode.removeEventListener('mousedown', this.pointerDown)
             document.removeEventListener('mouseup', this.pointerUp)
             document.removeEventListener('mousemove', this.pointerMove)
     
-            this.canvas.removeEventListener('touchstart', this.pointerDown)
+            this.canvas.parentNode.removeEventListener('touchstart', this.pointerDown)
             document.removeEventListener('touchend', this.pointerUp)
             document.removeEventListener('touchcancel', this.pointerUp)
             document.removeEventListener('touchmove', this.pointerMove)
+            
+            window.removeEventListener('resize', this.resize)
+        }
+
+        this.resize = () => {
+            let rect = this.canvas.parentNode.parentNode.getBoundingClientRect()
+            let minSize = Math.min(rect.width, rect.height)
+
+            let baseWidth = this.world.roomWidth * this.world.spriteWidth
+            let baseHeight = this.world.roomHeight * this.world.spriteHeight
+
+            let pixelSize = Math.floor(minSize / Math.min(baseWidth, baseHeight))
+            let width = pixelSize * baseWidth
+            let height = pixelSize * baseHeight
+
+            this.canvas.parentNode.style.width = width + 'px'
+            this.canvas.parentNode.style.height = height + 'px'
         }
 
         this.keyDown = (event) => {
@@ -94,7 +128,7 @@ class Game {
 
             if (this.text) {
                 let isAtEnd = this.text.nextPage()
-                if (isAtEnd) this.text = null
+                if (isAtEnd) this.endDialog()
                 this.textStart = null
             }
         }
@@ -126,7 +160,7 @@ class Game {
 
                 if (this.text && key) {
                     let isAtEnd = this.text.nextPage()
-                    if (isAtEnd) this.text = null
+                    if (isAtEnd) this.endDialog()
                     this.textStart = null
                     this.keyCodes.pop()
 
@@ -284,12 +318,20 @@ class Game {
 
         this.setDialog = (text, spritePos) => {
             if (!this.text) {
+                let scale = this.world.textScale || 1
+                let padding = 1 * scale
+
                 this.textStart = null
-                this.text = new Text(world.font, text, 1, 1, this.canvas.width - 2)
+                this.text = new Text(world.font, text, padding, padding, this.textCanvas.width - (2 * padding))
                 if (spritePos.y < world.roomHeight / 2) {
-                    this.text.y = this.canvas.height - this.text.h - 1
+                    this.text.y = (this.canvas.height * scale) - this.text.h - padding
                 }
             }
+        }
+
+        this.endDialog = () => {
+            this.textContext.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height)
+            this.text = null
         }
 
         this.checkMessages = () => {
@@ -355,7 +397,7 @@ class Game {
         this.drawText = (timestamp) => {
             if (!this.textStart) this.textStart = timestamp
             let dt = timestamp - this.textStart
-            this.text.drawPage(this.context, dt)
+            this.text.drawPage(this.textContext, dt)
         }
     }
 }

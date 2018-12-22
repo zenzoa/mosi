@@ -1,5 +1,5 @@
 class ImportComponent extends Component {
-    render({ onupload, filetype, description, children }) {
+    render({ onupload, filetype, description, children, after }) {
         let modalOpenButton = button({
             onclick: () => this.setState({ modalOpen: true })
         }, children)
@@ -55,7 +55,9 @@ class ImportComponent extends Component {
                             }
                         }
                     }, 'import ' + description + ' from text')
-                ])
+                ]),
+
+                after
             ])
         ])
 

@@ -8,16 +8,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
 
 <style>
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
     body {
         background: black;
         margin: 0;
-        padding: 20px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    main {
+        width: calc(100vmin - 40px);
+        height: calc(100vmin - 40px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    @media (max-width: 800px) {
+        main {
+            width: calc(100vmin - 20px);
+            height: calc(100vmin - 20px);
+        }
     }
     canvas {
         display: block;
-        width: calc(100vmin - 40px);
-        height: calc(100vmin - 40px);
-        margin: 0 auto;
+        width: 100%;
         border-radius: 4px;
         image-rendering: pixelated;
         image-rendering: crisp-edges;
@@ -64,7 +82,11 @@ window.onload = () => {
 </head>
 
 <body>
-<canvas id="game"></canvas>
+    <main>
+        <div>
+            <canvas id="game"></canvas>
+        </div>
+    </main>
 </body>
 
 </html>

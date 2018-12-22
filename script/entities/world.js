@@ -20,6 +20,7 @@ class World {
         
         world.palettes = [Palette.new()]
         world.font = window.ASCII_4x5 ? Font.parse(window.ASCII_4x5) : null
+        world.textScale = 1
 
         world.frameRate = 400
         world.wrapLeftRight = false
@@ -61,6 +62,7 @@ class World {
         }
         if (isInt(obj.avatarId) && world.sprites[obj.avatarId]) world.avatarId = obj.avatarId
         if (isObj(obj.font)) world.font = clone(obj.font)
+        if (isInt(obj.textScale)) world.textScale = obj.textScale
         if (isInt(obj.frameRate)) world.frameRate = obj.frameRate
         if (isBool(obj.wrapLeftRight)) world.wrapLeftRight = obj.wrapLeftRight
         if (isBool(obj.wrapTopBottom)) world.wrapTopBottom = obj.wrapTopBottom
@@ -87,6 +89,7 @@ class World {
 
             palettes: world.palettes.map(palette => Palette.export(palette)),
             font: world.font,
+            textScale: world.textScale,
 
             frameRate: world.frameRate,
             wrapLeftRight: world.wrapLeftRight,
