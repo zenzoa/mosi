@@ -20,7 +20,7 @@ class PalettePanel extends Panel {
             let oldColor = palette.colors[this.state.currentColorId]
             if (newColor !== oldColor) {
                 set(path + '.colors.' + this.state.currentColorId, newColor)
-                this.setState({ tempColor: newColor })
+                if (this.state.tempColor !== newColor) this.setState({ tempColor: newColor })
             }
             this.colorPicker.width = 100
         }
@@ -38,6 +38,26 @@ class PalettePanel extends Panel {
             })
             this.colorPicker.on('color:change', debounce(this.pickColor, 300))
         }
+
+        this.selectColor = (colorId) => {
+            this.setState({ currentColorId: colorId })
+        }
+
+        this.renderColor = (colorId) => {
+            let { world, palette } = this.props
+            return h(SpriteComponent, {
+                sprite: world.sprites[world.avatarId],
+                palette: { colors: [ palette.colors[0], palette.colors[colorId] ] }
+            })
+        }
+
+        this.moveColor = (colorId, insertId) => {
+            let { palette, path, set } = this.props
+            set(path, Palette.reorderColors(clone(palette), colorId, insertId))
+
+            let currentColorId = (colorId > insertId) ? insertId : insertId - 1
+            setTimeout(() => this.setState({ currentColorId }), 1)
+        }
     }
 
     componentDidMount() {
@@ -47,6 +67,15 @@ class PalettePanel extends Panel {
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.initColorPicker)
+    }
+
+    componentDidUpdate(_, prevState) {
+        if (prevState.currentColorId !== this.state.currentColorId) {
+            this.setState({ tempColor: this.props.palette.colors[this.state.currentColorId] })
+        }
+        if (prevState.tempColor !== this.state.tempColor) {
+            this.setColor(this.state.tempColor)
+        }
     }
 
     render({ world, palette, paletteId, path, set, undo, redo, back }) {
@@ -71,19 +100,20 @@ class PalettePanel extends Panel {
             }
         }, 'delete palette') : null
 
-        let colorButtons = palette.colors.map((color, colorId) => {
-            return button({
+        let items = []
+        palette.colors.forEach((color, colorId) => {
+            items.push({
                 class: 'color' + (this.state.currentColorId === colorId ? ' selected' : ''),
-                onclick: () => {
-                    this.setColor(color)
-                    this.setState({ tempColor: color, currentColorId: colorId })
-                }
-            },
-                h(SpriteComponent, {
-                    sprite: world.sprites[world.avatarId],
-                    palette: { colors: [ palette.colors[0], palette.colors[colorId] ] }
-                })
-            )
+                index: colorId
+            })
+        })
+
+        let colorList = h(DragList, {
+            class: 'scroll',
+            items,
+            renderItem: this.renderColor,
+            selectItem: this.selectColor,
+            moveItem: this.moveColor
         })
 
         let colorPickerContainer = div({
@@ -115,11 +145,7 @@ class PalettePanel extends Panel {
                     delButton
                 ])
             ]),
-            buttonRow('scroll', [
-                colorButtons[0],
-                vr(),
-                colorButtons.slice(1)
-            ]),
+            colorList,
             colorPickerContainer,
             colorCodeTextbox
         ])

@@ -4,7 +4,7 @@ A tiny game engine that lets you make tiny game worlds. Inspired by [Bitsy](http
 
 ## Planned features
 - Keyboard shortcuts
-- Reordering of frames, colors, and actions
+- Reordering of actions
 
 ## Stretch goals
 - Undo/redo
