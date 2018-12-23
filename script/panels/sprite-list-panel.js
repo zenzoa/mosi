@@ -74,6 +74,7 @@ class SpriteListPanel extends Panel {
         })
 
         let spriteList = h(DragList, {
+            class: 'wrap',
             before: avatarComponent,
             items,
             renderItem: this.renderSprite,

@@ -106,6 +106,12 @@ class Sprite {
         return sprite
     }
 
+    static reorderFrames(sprite, frameId, insertId) {
+        insertId = Math.min(Math.max(0, insertId), sprite.frames.length)
+        sprite.frames = reorderList(sprite.frames, frameId, insertId)
+        return sprite
+    }
+
     static addAction(sprite) {
         let newAction = Action.new()
         sprite.actions.push(newAction)

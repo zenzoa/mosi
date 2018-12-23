@@ -6,6 +6,20 @@ class SpritePanel extends Panel {
         }
 
         this.isDrawing = true
+
+        this.selectFrame = (frameId) => {
+            this.setState({ currentFrameId: frameId })
+        }
+
+        this.renderFrame = (frameId) => {
+            let { world, sprite, palette } = this.props
+            palette = palette || world.palettes[0]
+            return h(CanvasComponent, {
+                w: sprite.w,
+                h: sprite.h,
+                draw: context => Sprite.draw(sprite, context, { frameId, palette, background: true })
+            })
+        }
     }
 
     componentWillUpdate(_, nextState) {
@@ -147,15 +161,27 @@ class SpritePanel extends Panel {
             onconfirm: () => set(framePath, Frame.clear(clone(frame)))
         }, 'clear frame')
 
-        let frameButtons = sprite.frames.map((frame, frameId) => {
-            return button({
-                class: 'sprite-button ' + (this.state.currentFrameId === frameId ? 'selected' : ''),
-                onclick: () => this.setState({ currentFrameId: frameId})
-            }, h(CanvasComponent, {
-                w: frame.w,
-                h: frame.h,
-                draw: context => Sprite.draw(sprite, context, { frameId, palette, background: true })
-            }))
+        let items = []
+        sprite.frames.forEach((frame, frameId) => {
+            items.push({
+                class: 'sprite-button' + (this.state.currentFrameId === frameId ? ' selected' : ''),
+                index: frameId
+            })
+        })
+
+        let frameList = h(DragList, {
+            items,
+            renderItem: this.renderFrame,
+            selectItem: this.selectFrame,
+            moveItem: (frameId, insertId) => {
+                set(path, Sprite.reorderFrames(clone(sprite), frameId, insertId))
+                if (frameId > insertId) this.setState({ currentFrameId: insertId })
+                else this.setState({ currentFrameId: insertId - 1 })
+            },
+            after: [
+                addFrameButton,
+                delFrameButton
+            ]
         })
 
         let frame = sprite.frames[Math.min(this.state.currentFrameId, sprite.frames.length - 1)]
@@ -234,11 +260,7 @@ class SpritePanel extends Panel {
                 colorButton
             ]),
             drawingCanvas,
-            buttonRow([
-                frameButtons,
-                addFrameButton,
-                delFrameButton
-            ])
+            frameList
         ])
     }
 }

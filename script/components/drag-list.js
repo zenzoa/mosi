@@ -186,6 +186,6 @@ class DragList extends Component {
                 }
             }, renderItem(item.index))
         })
-        return buttonRow('wrap', [before, itemComponents, after])
+        return buttonRow(this.props.class, [before, itemComponents, after])
     }
 }

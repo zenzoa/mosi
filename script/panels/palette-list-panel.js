@@ -57,6 +57,7 @@ class PaletteListPanel extends Panel {
         })
 
         let paletteList = h(DragList, {
+            class: 'wrap',
             vertical: true,
             items,
             renderItem: this.renderPalette,
