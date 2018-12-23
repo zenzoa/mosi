@@ -142,6 +142,13 @@ select:focus {
     font-weight: bold;
 }
 
+select.simple {
+    padding: 0;
+    background: none;
+    color: inherit;
+    text-decoration: underline;
+}
+
 /* BUTTON */
 button {
     position: relative;
@@ -296,6 +303,10 @@ button.color div {
     flex-shrink: 0;
     width: 100%;
     margin-bottom: 4px;
+}
+
+.button-row:only-child {
+    margin-bottom: 0;
 }
 
 .button-row > * + * {
@@ -657,52 +668,47 @@ label > input {
 }
 
 .action {
+    padding: 6px 12px 12px;
     border-radius: 8px;
     border-bottom: 4px solid #444;
-    background: #ccc;
-    overflow: hidden;
+    border-left: 4px solid #444;
+    background: #ddd;
 }
 
-.trigger {
-    margin: 0;
-    padding: 6px;
-    background: #444;
-    color: white;
+.action .del-button {
+    margin-right: -6px;
 }
 
-.event > :first-child {
-    margin: 0;
-    padding: 6px;
-    background: #bbb;
+.event + .event {
+    margin-top: 8px;
 }
 
-.event > :not(:first-child) {
-    padding: 6px;
+.event select,
+.event input {
+    flex-grow: 1;
 }
 
-.event > :not(.button-row) > * + * {
+.event > :first-child > .filler:last-child {
+    display: none;
+}
+
+.event > * + * {
+    margin-top: 6px;
+}
+
+.event > :not(:first-child) > * + * {
     margin-top: 4px;
+}
+
+.event-list > .event {
+    padding: 6px 12px 12px;
+    border-radius: 6px;
+    border-bottom: 2px solid #666;
+    border-left: 2px solid #666;
+    background: rgba(0,0,0,0.1);
 }
 
 .event .dialog-component {
     width: 100%;
     border-radius: 6px;
-}
-
-.event-list {
-    padding: 4px;
-    border-radius: 8px;
-    background: #eaeaea;
-    overflow: hidden;
-}
-
-.event-list > .event {
-    border-radius: 8px;
-    border: 2px solid #444;
-    border-bottom-width: 4px;
-    overflow: hidden;
-}
-
-.event-list > .event + .event {
-    margin-top: 4px;
 }

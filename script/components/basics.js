@@ -77,6 +77,7 @@ let multiButton = contents => {
 
 let dropdown = (props, contents) => {
     return select({
+        class: props.class,
         value: props.value,
         onchange: props.onchange ? e => props.onchange(e.target.value) : null
     }, contents)

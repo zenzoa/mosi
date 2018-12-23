@@ -22,6 +22,7 @@ class ActionComponent extends Component {
 class TriggerComponent extends Component {
     render({ trigger, path, set, delAction }) {
         let triggerTypeDropdown = dropdown({
+            class: 'simple',
             value: trigger.type,
             onchange: x => set(path, Trigger.setType(trigger, x))
         }, [
@@ -48,10 +49,10 @@ class TriggerComponent extends Component {
         }
 
         let delButton = delAction ? h(ConfirmComponent, {
-            class: 'icon',
+            class: 'icon del-button',
             description: 'delete action?',
             onconfirm: delAction
-        }, '×') : null
+        }, '-') : null
         triggerSettings.push(delButton)
 
         return div({ class: 'trigger button-row' }, triggerSettings)
@@ -66,12 +67,13 @@ class EventComponent extends Component {
         }, 'create event')])
 
         let delButton = delEvent ? h(ConfirmComponent, {
-            class: 'icon',
+            class: 'icon del-button',
             description: 'delete event?',
             onconfirm: delEvent
-        }, '×') : null
+        }, '-') : null
 
         let eventTypeDropdown = dropdown({
+            class: 'simple',
             value: event.type,
             onchange: x => set(path, Event.setType(event, x))
         }, [
