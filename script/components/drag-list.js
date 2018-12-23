@@ -84,7 +84,7 @@ class DragList extends Component {
                 this.isDragging = false
                 this.delDragEl()
             } else {
-                this.props.selectItem(this.currentIndex)
+                if (this.props.selectItem) this.props.selectItem(this.currentIndex)
             }
 
             this.pointerIsDown = false
@@ -174,18 +174,27 @@ class DragList extends Component {
         document.removeEventListener('touchmove', this.pointerMove)
     }
 
-    render({ items, renderItem, selectItem, before, after }) {
+    render({ items, renderItem, selectItem, before, after, noButtons }) {
         let itemComponents = items.map(item => {
-            return button({
-                class: item.class,
-                ref: node => this.refs[item.index] = node,
-                onmousedown: event => this.pointerDown(event, item.index),
-                ontouchstart: event => this.pointerDown(event, item.index),
-                onclick: () => {
-                    if (!this.isDragging) selectItem(item.index)
-                }
-            }, renderItem(item.index))
+            let ref = node => this.refs[item.index] = node
+            let onmousedown = event => this.pointerDown(event, item.index)
+            let ontouchstart = event => this.pointerDown(event, item.index)
+            let onclick = () => { if (!this.isDragging && selectItem) selectItem(item.index) }
+
+            if (noButtons) {
+                return renderItem(
+                    item.index,
+                    { ref, onmousedown, ontouchstart, onclick }
+                )
+
+            } else {
+                return button({
+                    ref, onmousedown, ontouchstart, onclick,
+                    class: item.class
+                }, renderItem(item.index))
+            }
         })
-        return buttonRow(this.props.class, [before, itemComponents, after])
+        if (noButtons) return div({ class: this.props.class }, itemComponents)
+        else return buttonRow(this.props.class, [before, itemComponents, after])
     }
 }

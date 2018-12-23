@@ -50,14 +50,25 @@ class ActionListPanel extends Panel {
             })
         }
 
-        let actionComponents = sprite.actions.map((action, actionId) => {
-            return h(ActionComponent, {
-                world, action, set, undo, redo,
-                path: path + '.actions.' + actionId,
-                delAction: () => set(path, Sprite.delAction(clone(sprite), actionId)),
-                openSpriteList: this.openSpriteList,
-                openRoomPicker: this.openRoomPicker
-            })
+        let actionList = h(DragList, {
+            class: 'action-list',
+            noButtons: true,
+            vertical: true,
+            items: sprite.actions.map((action, actionId) => ({ index: actionId })),
+            renderItem: (actionId, nodeSettings) => {
+                let action = sprite.actions[actionId]
+                return h(ActionComponent, {
+                    world, action, set, undo, redo,
+                    path: path + '.actions.' + actionId,
+                    delAction: () => set(path, Sprite.delAction(clone(sprite), actionId)),
+                    openSpriteList: this.openSpriteList,
+                    openRoomPicker: this.openRoomPicker,
+                    nodeSettings
+                })
+            },
+            moveItem: (actionId, insertId) => {
+                set(path + '.actions', reorderList(sprite.actions, actionId, insertId))
+            }
         })
 
         let addActionButton = button({
@@ -76,9 +87,7 @@ class ActionListPanel extends Panel {
                 div({ class: 'filler' }),
                 addActionButton
             ]),
-            div({ class: 'action-list'},
-                actionComponents
-            )
+            actionList
         ])
     }
 }

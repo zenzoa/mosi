@@ -29,6 +29,7 @@ let uniqueList = list => {
 }
 
 let reorderList = (list, sourceId, insertId) => {
+    insertId = Math.min(Math.max(0, insertId), list.length)
     let itemToMove = list[sourceId]
 
     if (insertId === 0) {

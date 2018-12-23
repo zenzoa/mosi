@@ -144,6 +144,7 @@ select:focus {
 
 select.simple {
     padding: 0;
+    margin-right: 6px;
     background: none;
     color: inherit;
     text-decoration: underline;
@@ -668,11 +669,28 @@ label > input {
 }
 
 .action {
-    padding: 6px 12px 12px;
+    padding: 6px 12px;
+    margin-left: 2px;
+    margin-bottom: 2px;
     border-radius: 8px;
-    border-bottom: 4px solid #444;
-    border-left: 4px solid #444;
+    box-shadow: -2px 2px #444;
     background: #ddd;
+}
+
+.action .drag-handle {
+    padding: 6px;
+    margin-left: -6px;
+    font-size: 24px;
+
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.action > .event > :first-child > .drag-handle {
+    display: none;
 }
 
 .action .del-button {
@@ -688,27 +706,26 @@ label > input {
     flex-grow: 1;
 }
 
+.event .dialog-component {
+    width: 100%;
+    border-radius: 6px;
+}
+
 .event > :first-child > .filler:last-child {
     display: none;
 }
 
-.event > * + * {
-    margin-top: 6px;
+.event > * {
+    margin-bottom: 6px;
 }
 
-.event > :not(:first-child) > * + * {
-    margin-top: 4px;
+.event > :not(:first-child) > * {
+    margin-bottom: 4px;
 }
 
 .event-list > .event {
-    padding: 6px 12px 12px;
+    padding: 6px 12px;
     border-radius: 6px;
-    border-bottom: 2px solid #666;
-    border-left: 2px solid #666;
+    box-shadow: -2px 2px rgba(0,0,0,0.5);
     background: rgba(0,0,0,0.1);
-}
-
-.event .dialog-component {
-    width: 100%;
-    border-radius: 6px;
 }

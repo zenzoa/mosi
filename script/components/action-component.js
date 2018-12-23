@@ -1,18 +1,25 @@
 class ActionComponent extends Component {
-    render({ world, action, path, set, delAction, openSpriteList, openRoomPicker }) {
+    render({ world, action, path, set, delAction, openSpriteList, openRoomPicker, nodeSettings }) {
         let triggerComponent = h(TriggerComponent, {
             set, delAction,
             trigger: action.trigger,
-            path: path + '.trigger'
+            path: path + '.trigger',
+            compact: this.state.compact,
+            toggleCompact: () => this.setState({ compact: !this.state.compact }),
+            nodeSettings
         })
 
-        let eventComponent = h(EventComponent, {
-            world, set, openSpriteList, openRoomPicker,
-            event: action.event,
-            path: path + '.event'
-        })
+        let eventComponent = this.state.compact ? null :
+            h(EventComponent, {
+                world, set, openSpriteList, openRoomPicker,
+                event: action.event,
+                path: path + '.event'
+            })
 
-        return div({ class: 'action' }, [
+        return div({
+            class: 'action' + (this.state.compact ? ' compact' : ''),
+            ref: nodeSettings.ref
+        }, [
             triggerComponent,
             eventComponent
         ])
@@ -20,17 +27,25 @@ class ActionComponent extends Component {
 }
 
 class TriggerComponent extends Component {
-    render({ trigger, path, set, delAction }) {
+    render({ trigger, path, set, delAction, compact, toggleCompact, nodeSettings }) {
+        let dragHandle = div({
+            class: 'drag-handle',
+            onmousedown: nodeSettings.onmousedown,
+            ontouchstart: nodeSettings.ontouchstart,
+            onclick: toggleCompact
+        }, compact ? '●' : '○')
+
         let triggerTypeDropdown = dropdown({
             class: 'simple',
             value: trigger.type,
             onchange: x => set(path, Trigger.setType(trigger, x))
         }, [
             option({ value: 'push' }, 'when pushed'),
-            option({ value: 'receive_message' }, 'when message received')
+            option({ value: 'receive_message' }, 'when messaged')
         ])
 
         let triggerSettings = [
+            dragHandle,
             triggerTypeDropdown
         ]
 
@@ -60,11 +75,18 @@ class TriggerComponent extends Component {
 }
 
 class EventComponent extends Component {
-    render({ world, event, path, set, delEvent, openSpriteList, openRoomPicker }) {
+    render({ world, event, path, set, delEvent, openSpriteList, openRoomPicker, nodeSettings }) {
         if (!event || !event.type) return buttonRow([button({
             class: 'simple',
             onclick: () => set(path, Event.new('dialog'))
         }, 'create event')])
+
+        let dragHandle = div({
+            class: 'drag-handle',
+            onmousedown: nodeSettings ? nodeSettings.onmousedown : null,
+            ontouchstart: nodeSettings ? nodeSettings.ontouchstart : null,
+            onclick: () => this.setState({ compact: !this.state.compact })
+        }, this.state.compact ? '●' : '○')
 
         let delButton = delEvent ? h(ConfirmComponent, {
             class: 'icon del-button',
@@ -75,7 +97,10 @@ class EventComponent extends Component {
         let eventTypeDropdown = dropdown({
             class: 'simple',
             value: event.type,
-            onchange: x => set(path, Event.setType(event, x))
+            onchange: x => {
+                set(path, Event.setType(event, x))
+                this.setState({ compact: false })
+            }
         }, [
             option({ value: 'dialog' }, 'say something'),
             option({ value: 'give_item' }, 'give/take an item'),
@@ -88,13 +113,17 @@ class EventComponent extends Component {
         ])
 
         let standardHeader = buttonRow([
+            dragHandle,
             eventTypeDropdown,
             div({ class: 'filler' }),
             delButton
         ])
 
         let eventSettings
-        if (event.type === 'dialog') {
+        if (this.state.compact) {
+            eventSettings = buttonRow([ dragHandle, eventTypeDropdown ])
+        }
+        else if (event.type === 'dialog') {
             eventSettings = [
                 standardHeader,
                 div({}, [
@@ -140,7 +169,7 @@ class EventComponent extends Component {
             eventSettings = [
                 standardHeader,
                 buttonRow([
-                    div({}, 'to'),
+                    div({}, 'to... '),
                     button({ onclick: () => openRoomPicker(
                         event.roomId,
                         event.x,
@@ -157,35 +186,35 @@ class EventComponent extends Component {
             ]
         }
         else if (event.type === 'transform_self') {
-            eventSettings = buttonRow([
-                eventTypeDropdown,
-                div({}, 'into'),
-                button({
-                    class: 'sprite-button',
-                    onclick: () => openSpriteList(event.spriteId, id => set(path + '.spriteId', id))
-                },
-                    h(SpriteComponent, {
-                        sprite: world.sprites[event.spriteId],
-                        palette: world.palettes[0]
-                    })
-                ),
-                div({ class: 'filler' }),
-                delButton
-            ])
+            eventSettings = [
+                standardHeader,
+                buttonRow([
+                    div({}, 'into... '),
+                    button({
+                        class: 'sprite-button',
+                        onclick: () => openSpriteList(event.spriteId, id => set(path + '.spriteId', id))
+                    },
+                        h(SpriteComponent, {
+                            sprite: world.sprites[event.spriteId],
+                            palette: world.palettes[0]
+                        })
+                    )
+                ])
+            ]
         }
         else if (event.type === 'remove_self') {
             eventSettings = standardHeader
         }
         else if (event.type === 'send_message') {
-            eventSettings = buttonRow([
-                eventTypeDropdown,
-                textbox({
-                    value: event.message,
-                    onchange: x => set(path + '.message', x)
-                }),
-                div({ class: 'filler' }),
-                delButton
-            ])
+            eventSettings = [
+                standardHeader,
+                buttonRow([
+                    textbox({
+                        value: event.message,
+                        onchange: x => set(path + '.message', x)
+                    })
+                ])
+            ]
         }
         else if (event.type === 'sequence') {
             let sequenceTypeDropdown = dropdown({
@@ -197,27 +226,42 @@ class EventComponent extends Component {
                 option({ value: 'shuffle' }, 'shuffle'),
                 option({ value: 'simultaneous'}, 'all at once')
             ])
+
             let addEventButton = button({
                 class: 'simple wide',
                 onclick: () => set(path, Event.addEvent(clone(event), 'events'))
             }, 'add event')
-            let eventList = event.events.map((e, i) =>
-                h(EventComponent, {
-                    world, set, openSpriteList, openRoomPicker,
-                    event: e,
-                    path: path + '.events.' + i,
-                    delEvent: () => set(path, Event.delEvent(clone(event), 'events', i))
-                })
-            )
+
+            let eventList = h(DragList, {
+                class: 'event-list',
+                noButtons: true,
+                vertical: true,
+                items: event.events.map((e, i) => ({ index: i })),
+                renderItem: (i, nodeSettings) => {
+                    let e = event.events[i]
+                    return h(EventComponent, {
+                        world, set, openSpriteList, openRoomPicker,
+                        event: e,
+                        path: path + '.events.' + i,
+                        delEvent: () => set(path, Event.delEvent(clone(event), 'events', i)),
+                        nodeSettings
+                    })
+                },
+                moveItem: (eventId, insertId) => {
+                    set(path + '.events', reorderList(event.events, eventId, insertId))
+                }
+            })
+
             eventSettings = [
                 buttonRow([
+                    dragHandle,
                     eventTypeDropdown,
                     sequenceTypeDropdown,
                     div({ class: 'filler' }),
                     delButton
                 ]),
                 div({}, [
-                    div({ class: 'event-list' }, eventList),
+                    eventList,
                     addEventButton
                 ])
             ]
@@ -249,7 +293,10 @@ class EventComponent extends Component {
             ]
         }
         
-        return div({ class: 'event' },
+        return div({
+            class: 'event' + (this.state.compact ? ' compact' : ''),
+            ref: nodeSettings ? nodeSettings.ref : undefined
+        },
             eventSettings
         )
     }

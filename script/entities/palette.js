@@ -39,7 +39,6 @@ class Palette {
     }
 
     static reorderColors(palette, colorId, insertId) {
-        insertId = Math.min(Math.max(0, insertId), palette.colors.length)
         palette.colors = reorderList(palette.colors, colorId, insertId)
         return palette
     }
