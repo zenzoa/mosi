@@ -189,4 +189,51 @@ class Room {
             context.fillRect(x + l.x, y + l.y, 1, 1)
         })
     }
+
+    static exportGIF(world, room, scale, callback) {
+        let palette = world.palettes[room.paletteId]
+        let colors = palette.colors
+
+        // initialize data
+        let w = world.roomWidth * world.spriteWidth * scale
+        let h = world.roomWidth * world.spriteHeight * scale
+
+        // calculate number of frames needed for room
+        let spriteIds = []
+        room.spriteLocations.forEach(l => {
+            if (!spriteIds.includes(l.spriteId)) spriteIds.push(l.spriteId)
+        })
+        let frameCount = 1
+        spriteIds.forEach(id => {
+            let numFrames = world.sprites[id].frames.length
+            frameCount = lcm(frameCount, numFrames)
+        })
+
+        // initialize frames
+        let frames = Array(frameCount).fill(0).map(() =>
+            Array(w * h).fill(0)
+        )
+
+        // draw sprites
+        frames.forEach((pixelData, currentFrame) => {
+            room.spriteLocations.forEach(l => {
+                let sprite = world.sprites[l.spriteId]
+                let frameId = currentFrame % sprite.frames.length
+                let spritePixelData = sprite.frames[frameId].pixels
+                let sx = l.x * world.spriteWidth * scale
+                let sy = l.y * world.spriteHeight * scale
+                spritePixelData.forEach((pixel, i) => {
+                    if (pixel === 0) return
+                    let x = sx + Math.floor(i % world.spriteWidth) * scale
+                    let y = sy + Math.floor(i / world.spriteWidth) * scale
+                    loopUpTo(scale, scaleX => loopUpTo(scale, scaleY => {
+                        pixelData[x + scaleX + ((y + scaleY) * w)] = sprite.colorId
+                    }))
+                })
+            })
+        })
+
+        // encode gif
+        GIF.encode(w, h, frames, world.frameRate, colors, callback)
+    }
 }

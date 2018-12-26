@@ -637,6 +637,17 @@ label > input {
     font-weight: bold;
 }
 
+/* IMAGE CONTAINER */
+.image-container {
+    margin-top: 8px;
+    text-align: center;
+}
+
+.image-container img {
+    max-width: 100%;
+    height: auto;
+}
+
 /* DRAG LIST */
 .drag-el {
     z-index: 100;

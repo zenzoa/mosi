@@ -171,6 +171,13 @@ class RoomPanel extends Panel {
             getData: () => Room.export(room, world.sprites)
         }, 'export room')
 
+        let exportImageButton = h(ExportImageComponent, {
+            encodeImage: (imageScale, callback) => Room.exportGIF(world, room, imageScale, blob => {
+                let imageUri = URL.createObjectURL(blob)
+                callback(imageUri)
+            })
+        }, 'export gif')
+
         let drawingCanvas = h(DrawingCanvas, {
             w: world.roomWidth,
             h: world.roomHeight,
@@ -239,7 +246,8 @@ class RoomPanel extends Panel {
                     hr(),
                     clearButton,
                     importButton,
-                    exportButton
+                    exportButton,
+                    exportImageButton
                 ])
             ]),
             buttonRow([

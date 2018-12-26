@@ -196,3 +196,11 @@ let getFileData = (event, callback) => {
 
     reader.readAsText(file)
 }
+
+let gcd = (a, b) => {
+    return !b ? a : gcd(b, a % b)
+}
+
+let lcm = (a, b) => {
+    return (a * b) / gcd(a, b)
+}

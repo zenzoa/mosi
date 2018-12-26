@@ -3,6 +3,7 @@ let { h, render, Component } = preact
 let div = (...args) => h('div', ...args)
 let span = (...args) => h('span', ...args)
 let a = (...args) => h('a', ...args)
+let img = (...args) => h('img', ...args)
 let button = (...args) => h('button', ...args)
 let input = (...args) => h('input', ...args)
 let canvas = (...args) => h('canvas', ...args)
