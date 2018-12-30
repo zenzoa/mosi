@@ -109,13 +109,17 @@ class Room {
 
     static changeSpriteIndex(room, start, end, change) {
         room.spriteLocations.forEach(l => {
-            if (l.spriteId >= start && l.spriteId < end) l.spriteId = change(l.spriteId)
+            if (l.spriteId >= start && l.spriteId < end) {
+                l.spriteId = change(l.spriteId)
+            }
         })
         return room
     }
 
     static changePaletteIndex(room, start, end, change) {
-        if (room.paletteId >= start && room.paletteId < end) room.paletteId = change(room.paletteId)
+        if (room.paletteId >= start && room.paletteId < end) {
+            room.paletteId = change(room.paletteId)
+        }
         return room
     }
 
@@ -161,7 +165,7 @@ class Room {
         x = x || 0
         y = y || 0
 
-        let palette = world.palettes[room.paletteId]
+        let palette = world.palettes[room.paletteId] || world.palettes[0]
 
         context.fillStyle = palette.colors[0]
         context.fillRect(x, y, world.roomWidth * world.spriteWidth, world.roomWidth * world.spriteHeight)
@@ -180,7 +184,7 @@ class Room {
         x = x || 0
         y = y || 0
 
-        let palette = world.palettes[room.paletteId]
+        let palette = world.palettes[room.paletteId] || world.palettes[0]
 
         context.fillStyle = palette.colors[0]
         context.fillRect(x, y, world.roomWidth, world.roomWidth)
@@ -193,7 +197,7 @@ class Room {
     }
 
     static exportGIF(world, room, scale, callback) {
-        let palette = world.palettes[room.paletteId]
+        let palette = world.palettes[room.paletteId] || world.palettes[0]
         let colors = palette.colors
 
         // initialize data

@@ -121,7 +121,10 @@ class World {
         world = World.clearSprite(world, spriteId)
         world.sprites.splice(spriteId, 1)
 
-        world = World.changeSpriteIndex(world, spriteId, spriteId + 1, x => x - 1)
+        world = World.changeSpriteIndex(world, spriteId + 1, world.sprites.length + 1, x => x - 1)
+
+        world.recentSpriteIds = world.recentSpriteIds.filter(spriteId => spriteId !== spriteId)
+        if (world.recentSpriteIds.length === 0) world.recentSpriteIds = [world.currentSpriteId]
         
         return world
     }
@@ -142,6 +145,13 @@ class World {
         if (world.currentSpriteId >= start && world.currentSpriteId < end) {
             world.currentSpriteId = Math.min(Math.max(0, change(world.currentSpriteId)), world.sprites.length - 1)
         }
+
+        world.recentSpriteIds = world.recentSpriteIds.map(spriteId => {
+            if (spriteId >= start && spriteId < end) {
+                return Math.min(Math.max(0, change(spriteId)), world.sprites.length - 1)
+            }
+            return spriteId
+        })
 
         return world
     }
@@ -194,6 +204,9 @@ class World {
         if (world.palettes.length === 1) return world // can't delete last palette
         World.clearPalette(world, paletteId)
         world.palettes.splice(paletteId, 1)
+
+        world = World.changePaletteIndex(world, paletteId + 1, world.palettes.length + 1, x => x - 1)
+
         return world
     }
 
