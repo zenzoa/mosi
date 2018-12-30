@@ -24,7 +24,8 @@ let textbox = props => {
         type: props.type || 'text',
         value: props.value,
         placeholder: props.placeholder,
-        onkeydown: debounce(update, 500)
+        onkeydown: debounce(update, 500),
+        onchange: update
     })
 }
 
@@ -32,7 +33,8 @@ let textarea = props => {
     let update = props.onchange ? e => props.onchange(e.target.value) : null
     return h('textarea', {
         value: props.value,
-        onkeydown: debounce(update, 500)
+        onkeydown: debounce(update, 500),
+        onchange: update
     })
 }
 

@@ -31,6 +31,7 @@ class Room {
             if (codeMap) room.spriteLocations = obj.spriteLocations.map(({ spriteId, x, y }) => ({ spriteId: codeMap[spriteId], x, y }))
             else room.spriteLocations = obj.spriteLocations
         }
+        if (isInt(obj.paletteId)) room.paletteId = obj.paletteId
 
         return room
     }
@@ -57,6 +58,7 @@ class Room {
             w: room.w,
             h: room.h,
             name: room.name,
+            paletteId: room.paletteId,
             spriteLocations,
             relatedSprites
         }
