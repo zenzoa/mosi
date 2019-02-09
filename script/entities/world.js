@@ -36,6 +36,85 @@ class World {
         return world
     }
 
+    static placeholder() {
+        let world = World.new()
+
+        let avatarData = {
+            name: 'avatar',
+            w: 9,
+            h: 9,
+            frames: [
+                { pixels: [0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,1,0,1,1,1,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0] },
+                { pixels: [0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,1,0,1,1,1,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0] }
+            ]
+        }
+
+        let blockData = {
+            name: 'block',
+            colorId: 3,
+            wall: true,
+            w: 9,
+            h: 9,
+            frames: [
+                { pixels: [0,1,1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,0,1,1,0,0,0,1,1,1,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0] },
+            ]
+        }
+
+        let flowerData = {
+            name: 'flower',
+            colorId: 2,
+            item: true,
+            actions: [{
+                trigger: { type: 'push'},
+                event: { type: 'dialog', text: 'you got a flower!' }
+            }],
+            w: 9,
+            h: 9,
+            frames: [
+                { pixels: [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,0,0,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,1,1,1,1,0,0] },
+                { pixels: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,1,1,1,1,0,0] }
+            ]
+        }
+
+        let roomData = {
+            w: 9,
+            h: 9,
+            spriteLocations: [
+                { spriteId: 0, x: 4, y: 4 },
+                { spriteId: 1, x: 3, y: 2 },
+                { spriteId: 1, x: 3, y: 1 },
+                { spriteId: 1, x: 1, y: 3 },
+                { spriteId: 1, x: 2, y: 3 },
+                { spriteId: 1, x: 7, y: 3 },
+                { spriteId: 1, x: 6, y: 3 },
+                { spriteId: 1, x: 5, y: 2 },
+                { spriteId: 1, x: 5, y: 1 },
+                { spriteId: 1, x: 1, y: 5 },
+                { spriteId: 1, x: 2, y: 5 },
+                { spriteId: 1, x: 3, y: 6 },
+                { spriteId: 1, x: 3, y: 7 },
+                { spriteId: 1, x: 5, y: 6 },
+                { spriteId: 1, x: 5, y: 7 },
+                { spriteId: 1, x: 6, y: 5 },
+                { spriteId: 1, x: 7, y: 5 },
+                { spriteId: 2, x: 1, y: 7 },
+                { spriteId: 2, x: 7, y: 7 },
+                { spriteId: 2, x: 7, y: 1 },
+                { spriteId: 2, x: 1, y: 1 }
+            ]
+        }
+
+        world.sprites = [
+            Sprite.import(avatarData, 9, 9, 0),
+            Sprite.import(blockData, 9, 9, 1),
+            Sprite.import(flowerData, 9, 9, 2)
+        ]
+
+        world.rooms[40] = Room.import(roomData, 9, 9)
+
+        return world
+    }
+
     static import(obj) {
         let w = isInt(obj.worldWidth) && obj.worldWidth
         let h = isInt(obj.worldHeight) && obj.worldHeight

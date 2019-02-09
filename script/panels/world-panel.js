@@ -56,8 +56,7 @@ class WorldPanel extends Panel {
         let resetButton = h(ConfirmComponent, {
             description: 'reset world?',
             onconfirm: () => {
-                let newWorld = World.new(world.worldWidth, world.worldHeight, world.roomWidth, world.roomHeight, world.spriteWidth, world.spriteHeight)
-                newWorld.name = world.name
+                let newWorld = World.placeholder()
                 set('', newWorld)
             }
         }, 'reset world')

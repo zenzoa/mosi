@@ -76,7 +76,7 @@ class Editor extends Component {
         }
 
         this.state = {
-            world: this.load() || World.new()
+            world: this.load() || World.placeholder()
         }
     }
 
