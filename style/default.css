@@ -565,6 +565,31 @@ label > input {
     border-bottom-width: 4px;
     background: #eee;
     overflow: hidden;
+
+    
+}
+
+.panel::after {
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    content: '';
+    background: #444;
+    opacity: 0;
+
+    pointer-events: none;
+
+    animation-duration: 200ms;
+    animation-name: panel-transition;
+}
+
+@keyframes panel-transition {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
 }
 
 .panel-title {
