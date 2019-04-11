@@ -110,6 +110,10 @@ class Game {
         }
 
         this.keyDown = (event) => {
+            if (event.key.startsWith('Arrow')) {
+                // prevent arrow keys from scrolling page
+                event.preventDefault()
+            }
             if (event.repeat) return
             this.keyActive = true
             this.keyCodes.push(event.key)
