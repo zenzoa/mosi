@@ -1,181 +1,130 @@
-class WorldPanel extends Panel {
+class WorldPanel extends Component {
     constructor() {
         super()
-        this.state = {
-            showSplashscreen: true,
-            currentRoomId: 0
-        }
+        this.state = {}
     }
 
-    render({ world, set, undo, redo }) {
-        if (this.state.roomPanelOpen) {
-            return h(RoomPanel, {
-                world, set, undo, redo,
-                room: world.rooms[this.state.currentRoomId],
-                roomId: this.state.currentRoomId,
-                path: 'rooms.' + this.state.currentRoomId,
-                back: () => this.setState({ roomPanelOpen: false })
-            })
-        }
-
-        if (this.state.spriteListOpen) {
-            return h(SpriteListPanel, {
-                world, set, undo, redo,
-                back: () => this.setState({ spriteListOpen: false })
-            })
-        }
-
-        if (this.state.paletteListOpen) {
-            return h(PaletteListPanel, {
-                world, set, undo, redo,
-                back: () => this.setState({ paletteListOpen: false })
-            })
-        }
-
-        if (this.state.settingsPanelOpen) {
-            return h(SettingsPanel, {
-                world, set, undo, redo,
-                path: '',
-                back: () => this.setState({ settingsPanelOpen: false })
-            })
-        }
-
-        if (this.state.playPanelOpen) {
-            return h(PlayPanel, {
-                world,
-                back: () => this.setState({ playPanelOpen: false })
-            })
-        }
+    render({
+        closeTab,
+        updateWorld,
+        renameWorld,
+        importWorld,
+        exportWorld,
+        setWrapHorizontal,
+        setWrapVertical,
+        selectRoom,
+        startRoomIndex,
+        currentRoomIndex,
+        roomList,
+        roomWidth,
+        roomHeight,
+        worldWidth,
+        worldHeight,
+        worldName,
+        worldWrapHorizontal,
+        worldWrapVertical,
+        spriteList,
+        spriteWidth,
+        spriteHeight,
+        paletteList
+    }, {
+        showImportOverlay,
+        showExportOverlay,
+        showNewOverlay
+    }) {
 
         let nameTextbox = textbox({
-            value: world.name,
-            placeholder: 'world',
-            onchange: x => set('name', x)
+            className: 'initial-focus',
+            placeholder: 'name of world',
+            value: worldName,
+            onchange: e => renameWorld(e.target.value)
         })
-
-        let resetButton = h(ConfirmComponent, {
-            description: 'reset world?',
-            onconfirm: () => {
-                let newWorld = World.placeholder()
-                set('', newWorld)
-            }
-        }, 'reset world')
-
-        let importButton = h(ImportComponent, {
-            description: 'world',
-            filetype: '.mosi',
-            onupload: data => {
-                try {
-                    let obj = JSON.parse(data)
-                    let newWorld = World.import(obj)
-                    set('', newWorld)
-                } catch (e) {
-                    console.error('unable to import world', e)
-                    throw 'unable to import world'
-                }
-            }
-        }, 'import world')
     
-        let exportButton = h(ExportComponent, {
-            description: 'world',
-            getData: () => World.export(world),
-            exportGame: () => Exporter.exportGame(window.resources, world)
+        let wrapHorizontalButton = button({
+            className: 'toggle' + (worldWrapHorizontal ? ' selected' : ''),
+            onclick: () => setWrapHorizontal(!worldWrapHorizontal)
+        }, 'wrap horizontally')
+    
+        let wrapVerticalButton = button({
+            className: 'toggle' + (worldWrapVertical ? ' selected' : ''),
+            onclick: () => setWrapVertical(!worldWrapVertical)
+        }, 'wrap vertically')
+
+        let newWorldButton = button({
+            onclick: () => this.setState({ showNewOverlay: true })
+        }, 'new world')
+
+        let newOverlay = !showNewOverlay ? null :
+            h(NewWorldOverlay, {
+                worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight,
+                createWorld: (props) => {
+                    let newWorld = World.create(props)
+                    this.setState({ showNewOverlay: false })
+                    updateWorld(newWorld)
+                },
+                closeOverlay: () => this.setState({ showNewOverlay: false })
+            })
+
+        let importButton = button({
+            onclick: () => this.setState({ showImportOverlay: true })
+        }, 'import world')
+
+        let importOverlay = !showImportOverlay ? null :
+            h(ImportOverlay, {
+                header: 'import world',
+                onImport: data => {
+                    importWorld(data)
+                    this.setState({ showImportOverlay: false })
+                },
+                closeOverlay: () => this.setState({ showImportOverlay: false })
+            })
+
+        let exportButton = button({
+            onclick: () => this.setState({ showExportOverlay: true })
         }, 'export world')
 
-        let spriteListButton = button({
-            onclick: () => this.setState({ spriteListOpen: true })
-        }, 'sprites')
+        let exportOverlay = !showExportOverlay ? null :
+            h(ExportOverlay, {
+                header: 'export world',
+                data: exportWorld(),
+                closeOverlay: () => this.setState({ showExportOverlay: false })
+            })
 
-        let paletteListButton = button({
-            onclick: () => this.setState({ paletteListOpen: true })
-        }, 'colors')
-
-        let settingsButton = button({
-            onclick: () => this.setState({ settingsPanelOpen: true })
-        }, 'settings')
-
-        let playButton = button({
-            onclick: () => this.setState({ playPanelOpen: true })
-        }, '▶ play')
-
-        let avatarRoomId = World.avatarRoom(world)
-        let avatarRoom = exists(avatarRoomId) ? {
-            x: Math.floor(avatarRoomId % world.worldWidth),
-            y: Math.floor(avatarRoomId / world.worldWidth)
-        } : null
-
-        let tileCanvas = h(TileCanvas, {
-            w: world.worldWidth,
-            h: world.worldHeight,
-            sw: world.roomWidth,
-            sh: world.roomHeight,
-            highlight: avatarRoom,
-            showGrid: world.showGrid,
-            draw: context => World.draw(context, world),
-            move: ({ x, y }, destination) => {
-                let newX = destination.x
-                let newY = destination.y
-                if (x === newX && y === newY) {
-                    let roomId = x + (y * world.worldWidth)
-                    this.setState({ currentRoomId: roomId, roomPanelOpen: true })
-                } else {
-                    let roomId1 = x + (y * world.worldWidth)
-                    let roomId2 = newX + (newY * world.worldWidth)
-                    let newRooms = clone(world.rooms)
-                    newRooms[roomId1] = world.rooms[roomId2]
-                    newRooms[roomId2] = world.rooms[roomId1]
-                    set('rooms', newRooms)
-                }
-            },
-            erase: ({ x, y }) => {
-                this.setState({
-                    confirmErase: true,
-                    onConfirm: () => {
-                        let roomId = x + (y * world.worldWidth)
-                        set('rooms.' + roomId, Room.new(world.roomWidth, world.roomHeight))
-                    }
-                })
-            }
+        let worldGrid = h(WorldGrid, {
+            selectRoom,
+            startRoomIndex,
+            currentRoomIndex,
+            roomList,
+            roomWidth,
+            roomHeight,
+            worldWidth,
+            worldHeight,
+            spriteList,
+            paletteList
         })
 
-        let confirmEraseModal = this.state.confirmErase ? h(ConfirmComponent, {
-            description: 'erase room?',
-            onclose: () => this.setState({ confirmErase: false }),
-            onconfirm: () => {
-                this.state.onConfirm()
-                this.setState({ confirmErase: false })
-            }
-        }) : null
-
-        let splashscreen = this.state.showSplashscreen ? modal([
-            div({ style: { marginBottom: '16px' } }, 'môsi is still in early release and probably has lots of bugs - please backup your work often!'),
-            div({ style: { marginBottom: '16px' } }, a({ href: 'https://github.com/sarahgould/mosi/issues/new', target: '_blank'}, 'please report bugs here')),
-            button({
-                onclick: () => this.setState({ showSplashscreen: false })
-            }, 'ok, got it!')
-        ]) : null
-
-        return div({ class: 'panel world-panel' }, [
-            buttonRow([
-                this.undoButton(),
-                this.redoButton(),
+        return panel({ header: 'world', closeTab }, [
+            div({ className: 'world-settings' }, [
                 nameTextbox,
-                this.menu([
-                    settingsButton,
-                    resetButton,
+                menu({}, [
+                    newWorldButton,
                     importButton,
                     exportButton
                 ])
             ]),
-            tileCanvas,
-            buttonRow([
-                spriteListButton,
-                paletteListButton,
-                div({ class: 'filler' }),
-                playButton
+            div({
+                className: 'world-grid',
+                style: { backgroundColor: paletteList[0].colorList[0] }
+            },
+                worldGrid
+            ),
+            div({ className: 'world-actions' }, [
+                wrapHorizontalButton,
+                wrapVerticalButton
             ]),
-            confirmEraseModal,
-            splashscreen
+            newOverlay,
+            importOverlay,
+            exportOverlay
         ])
     }
 }

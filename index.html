@@ -1,76 +1,57 @@
 <!DOCTYPE html>
 
 <html>
-
     <head>
-        <!-- META -->
         <title>môsi</title>
+
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+        
+        <link href="style/styles.css" rel="stylesheet">
 
-        <!-- STYLESHEET -->
-        <link href="style/default.css" rel="stylesheet">
+        <!-- FONTS -->
+        <script type="bitsyFontData" src="fonts/ascii_tiny.bitsyfont" id="ascii_tiny"></script>
 
         <!-- LIBRARIES -->
         <script src="library/preact.min.js"></script>
         <script src="library/iro.min.js"></script>
         <script src="library/chroma.min.js"></script>
+        <script src="library/gif.js"></script>
+        <script src="library/files.js"></script>
 
         <!-- HELPERS -->
-        <script src="script/ascii-tiny.js"></script>
         <script src="script/helpers.js"></script>
 
         <!-- ENTITIES -->
-        <script src="script/entities/store.js"></script>
+        <script src="script/entities/game.js"></script>
+        <script src="script/entities/world.js"></script>
+        <script src="script/entities/room.js"></script>
+        <script src="script/entities/sprite.js"></script>
+        <script src="script/entities/behavior.js"></script>
+        <script src="script/entities/color.js"></script>
         <script src="script/entities/font.js"></script>
         <script src="script/entities/text.js"></script>
-        <script src="script/entities/resource-loader.js"></script>
-        <script src="script/entities/exporter.js"></script>
-        <script src="script/entities/gif.js"></script>
-
-        <script src="script/entities/action.js"></script>
-        <script src="script/entities/frame.js"></script>
-        <script src="script/entities/sprite.js"></script>
-        <script src="script/entities/palette.js"></script>
-        <script src="script/entities/room.js"></script>
-        <script src="script/entities/world.js"></script>
-
-        <script src="script/entities/game.js"></script>
-
-        <!-- COMPONENTS -->
-        <script src="script/components/basics.js"></script>
-        <script src="script/components/panel.js"></script>
-        <script src="script/components/confirm-component.js"></script>
-        <script src="script/components/import-component.js"></script>
-        <script src="script/components/export-component.js"></script>
-        <script src="script/components/export-image-component.js"></script>
-        <script src="script/components/canvas-component.js"></script>
-        <script src="script/components/sprite-component.js"></script>
-        <script src="script/components/drawing-canvas.js"></script>
-        <script src="script/components/tile-canvas.js"></script>
-        <script src="script/components/drag-list.js"></script>
-        <script src="script/components/dialog-component.js"></script>
-        <script src="script/components/action-component.js"></script>
-        <script src="script/components/room-picker.js"></script>
 
         <!-- PANELS -->
-        <script src="script/panels/settings-panel.js"></script>
-        <script src="script/panels/palette-panel.js"></script>
-        <script src="script/panels/palette-list-panel.js"></script>
-        <script src="script/panels/action-list-panel.js"></script>
-        <script src="script/panels/sprite-panel.js"></script>
-        <script src="script/panels/sprite-list-panel.js"></script>
-        <script src="script/panels/room-panel.js"></script>
-        <script src="script/panels/world-panel.js"></script>
+        <script src="script/panels/overlays.js"></script>
         <script src="script/panels/play-panel.js"></script>
-        <script src="script/panels/editor.js"></script>
+        <script src="script/panels/welcome-panel.js"></script>
+        <script src="script/panels/world-grid.js"></script>
+        <script src="script/panels/world-panel.js"></script>
+        <script src="script/panels/room-panel.js"></script>
+        <script src="script/panels/room-grid.js"></script>
+        <script src="script/panels/sprite-list-panel.js"></script>
+        <script src="script/panels/sprite-panel.js"></script>
+        <script src="script/panels/sprite-canvas.js"></script>
+        <script src="script/panels/sprite-grid.js"></script>
+        <script src="script/panels/behavior-panel.js"></script>
+        <script src="script/panels/color-panel.js"></script>
+        <script src="script/panels/font-panel.js"></script>
 
         <!-- MAIN SCRIPT -->
         <script src="script/main.js"></script>
-
     </head>
 
     <body>
-        <main></main>
     </body>
 </html>

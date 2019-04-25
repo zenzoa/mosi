@@ -1,266 +1,272 @@
-class SpritePanel extends Panel {
+class SpritePanel extends Component {
     constructor() {
         super()
         this.state = {
-            currentFrameId: 0
-        }
-
-        this.isDrawing = true
-
-        this.selectFrame = (frameId) => {
-            this.setState({ currentFrameId: frameId })
-        }
-
-        this.renderFrame = (frameId) => {
-            let { world, sprite, palette } = this.props
-            palette = palette || world.palettes[0]
-            return h(CanvasComponent, {
-                w: sprite.w,
-                h: sprite.h,
-                draw: context => Sprite.draw(sprite, context, { frameId, palette, background: true })
-            })
+            currentFrameIndex: 0
         }
     }
 
-    componentWillUpdate(_, nextState) {
-        if (this.state.menuOpen) nextState.menuOpen = false
-        if (nextState.currentFrameId !== this.state.currentFrameId) {
-            this.horizontal = true
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.sprite !== this.props.sprite) {
+            this.setState({ currentFrameIndex: 0 })
         }
     }
 
-    render({ world, sprite, spriteId, palette, path, set, undo, redo, back }) {
-        if (this.state.actionListOpen) {
-            return h(ActionListPanel, {
-                world, sprite, spriteId, path, set, undo, redo,
-                back: () => this.setState({ actionListOpen: false })
-            })
-        }
+    render({
+        closeTab,
+        renameSprite,
+        exportSprite,
+        setSpriteIsWall,
+        setSpriteIsItem,
+        setColorIndex,
+        removeSprite,
+        duplicateSprite,
+        addFrame,
+        removeFrame,
+        updateFrame,
+        openBehaviorTab,
+        sprite,
+        colorList
+    }, {
+        currentFrameIndex,
+        showRemoveSpriteOverlay,
+        showExportOverlay,
+        showRemoveFrameOverlay,
+        showClearFrameOverlay,
+        showRandomFrameOverlay
+    }) {
+        if (!sprite) return
 
-        palette = palette || world.palettes[0]
+        let { name, width, height, isAvatar, isWall, isItem, frameList, colorIndex } = sprite
+        let currentFrame = frameList[currentFrameIndex]
 
-        let isAvatar = spriteId === world.avatarId
+        while (colorIndex > 0 && !colorList[colorIndex]) colorIndex--
+        let color = colorList[colorIndex]
+        let backgroundColor = colorList[0]
 
         let nameTextbox = textbox({
-            value: sprite.name,
-            placeholder: 'sprite',
-            onchange: x => set(path + '.name', x)
+            className: 'initial-focus',
+            placeholder: 'sprite name',
+            value: name,
+            onchange: e => renameSprite(e.target.value)
         })
 
-        let wallToggle = !isAvatar ? toggle({
-            value: sprite.wall,
-            onclick: x => set(path + '.wall', x)
-        }, 'wall') : null
-
-        let itemToggle = !isAvatar ? toggle({
-            value: sprite.item,
-            onclick: x => set(path + '.item', x)
-        }, 'item') : null
-
-        let actionButton =  !isAvatar ? toggle({
-            value: sprite.actions.length,
-            onclick: () => this.setState({ actionListOpen: true })
-        }, 'actions') : null
-
-        let avatarIndicator = isAvatar ? div({}, '★ player avatar') : null
-    
-        let setAvatarButton = !isAvatar ? h(ConfirmComponent, {
-            description: 'set sprite as avatar and clear it from all rooms?',
-            onconfirm: () => {
-                set('', World.setAvatar(clone(world), spriteId))
-                back()
-            }
-        }, 'set as avatar ★') : null
-
-        let copyButton = button({
+        let spritePreview = button({
+            className: 'sprite-button',
             onclick: () => {
-                set('', World.copySprite(clone(world), sprite))
-                back()
+                let newColorIndex = colorIndex
+                newColorIndex++
+                if (newColorIndex >= colorList.length) newColorIndex = 1
+                setColorIndex(newColorIndex)
             }
-        }, 'copy sprite')
-        
-        let delButton = !isAvatar ? h(ConfirmComponent, {
-            description: 'delete sprite?',
-            onconfirm: () => {
-                set('', World.delSprite(clone(world), spriteId))
-                back()
-            }
-        }, 'delete sprite') : null
-
-        let importButton = h(ImportComponent, {
-            description: 'sprite',
-            filetype: '.mosisprite',
-            onupload: data => {
-                try {
-                    let obj = JSON.parse(data)
-                    let newSprite = Sprite.import(obj, sprite.w, sprite.h, spriteId, world.sprites)
-                    if (newSprite.relatedSprites) {
-                        set([
-                            { path: 'sprites', value: world.sprites.concat(newSprite.relatedSprites) },
-                            { path: path, value: newSprite },
-                        ])
-                        delete newSprite.relatedSprites
-                    } else {
-                        set(path, newSprite)
-                    }
-                } catch (e) {
-                    console.error('unable to import sprite', e)
-                    throw 'unable to import sprite'
-                }
-            }
-        }, 'import sprite')
+        }, h(SpriteCanvas, {
+            width,
+            height,
+            frameList,
+            isAnimated: true,
+            color,
+            backgroundColor
+        }))
     
-        let exportButton = h(ExportComponent, {
-            description: 'sprite',
-            getData: () => Sprite.export(sprite, spriteId, world.sprites)
+        let wallButton = isAvatar ? null :
+            button({
+                className: 'toggle' + (isWall ? ' selected' : ''),
+                onclick: () => setSpriteIsWall(!isWall)
+            }, 'wall')
+    
+        let itemButton = isAvatar ? null :
+            button({
+                className: 'toggle' + (isItem ? ' selected' : ''),
+                onclick: () => setSpriteIsItem(!isItem)
+            }, 'item')
+    
+        let behaviorButton = isAvatar ? null :
+            button({
+                onclick: openBehaviorTab
+            }, 'behavior')
+    
+        let exportButton = button({
+            onclick: () => this.setState({ showExportOverlay: true })
         }, 'export sprite')
 
-        let showGridButton = toggle({
-            value: world.showGrid,
-            onclick: x => set('showGrid', x)
-        }, 'grid')
-
-        let drawModeButton = toggle({
-            value: world.drawMode === 'drag',
-            onclick: x => set('drawMode', x ? 'drag' : 'draw')
-        }, 'cursor mode')
-
-        let addFrameButton = sprite.frames.length < 4 ? button({
-            class: 'icon',
-            onclick: () => {
-                set(path, Sprite.addFrame(clone(sprite), this.state.currentFrameId))
-                this.setState({ currentFrameId: sprite.frames.length })
-            }
-        }, '+') : null
-
-        let delFrameButton = sprite.frames.length > 1 ? h(ConfirmComponent, {
-            class: 'icon',
-            description: 'delete frame?',
-            onconfirm: () => {
-                set(path, Sprite.delFrame(clone(sprite), this.state.currentFrameId))
-                this.setState({ currentFrameId: Math.max(0, this.state.currentFrameId - 1) })
-            }
-        }, '-') : null
-
-        let framePath = path + '.frames.' + this.state.currentFrameId
-
-        let flipFrameButton = button({
-            onclick: () => {
-                set(framePath, Frame.flip(clone(frame), this.horizontal))
-                this.horizontal = !this.horizontal
-            }
-        }, 'flip frame')
-        if (!exists(this.horizontal)) this.horizontal = true
-
-        let rotateFrameButton = sprite.w === sprite.h ? button({
-            onclick: () => set(framePath, Frame.rotate(clone(frame)))
-        }, 'rotate frame') : null
-
-        let clearFrameButton = h(ConfirmComponent, {
-            description: 'clear frame?',
-            onconfirm: () => set(framePath, Frame.clear(clone(frame)))
-        }, 'clear frame')
-
-        let items = []
-        sprite.frames.forEach((frame, frameId) => {
-            items.push({
-                class: 'sprite-button' + (this.state.currentFrameId === frameId ? ' selected' : ''),
-                index: frameId
+        let exportOverlay = !showExportOverlay ? null :
+            h(ExportOverlay, {
+                header: 'export sprite',
+                data: exportSprite(),
+                closeOverlay: () => this.setState({ showExportOverlay: false })
             })
-        })
+    
+        let removeButton = isAvatar ? null :
+            button({
+                onclick: () => this.setState({ showRemoveSpriteOverlay: true }),
+            }, 'remove sprite')
 
-        let frameList = h(DragList, {
-            items,
-            renderItem: this.renderFrame,
-            selectItem: this.selectFrame,
-            moveItem: (frameId, insertId) => {
-                set(path, Sprite.reorderFrames(clone(sprite), frameId, insertId))
-                if (frameId > insertId) this.setState({ currentFrameId: insertId })
-                else this.setState({ currentFrameId: insertId - 1 })
-            },
-            after: [
-                addFrameButton,
-                delFrameButton
-            ]
-        })
-
-        let frame = sprite.frames[Math.min(this.state.currentFrameId, sprite.frames.length - 1)]
-
-        let drawingCanvas = h(DrawingCanvas, {
-            w: sprite.w,
-            h: sprite.h,
-            backgroundColor: palette.colors[0],
-            showGrid: world.showGrid,
-            mode: world.drawMode,
-            update: context => {
-                Sprite.draw(sprite, context, { frameId: this.state.currentFrameId, palette, background: true })
-            },
-            updateOnion: (sprite.frames.length > 1) ? context => {
-                let onionFrameId = this.state.currentFrameId - 1
-                if (onionFrameId < 0) onionFrameId = sprite.frames.length - 1
-                Sprite.draw(sprite, context, { frameId: onionFrameId, palette, clear: true })
-            } : null,
-            draw: (x, y, isMoving) => {
-                if (!isMoving) this.isDrawing = (Frame.getPixel(frame, x, y) === 0)
-                let pixelPath = path + '.frames.' + this.state.currentFrameId
-                if (this.isDrawing) {
-                    set(pixelPath, Frame.setPixel(clone(frame), x, y, 1), true)
-                } else {
-                    set(pixelPath, Frame.setPixel(clone(frame), x, y, 0), true)
+        let removeSpriteOverlay = !showRemoveSpriteOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'remove sprite?',
+                closeOverlay: () => this.setState({ showRemoveSpriteOverlay: false }),
+                remove: () => {
+                    removeSprite()
+                    this.setState({ showRemoveSpriteOverlay: false })
                 }
-            },
-            cursorX: this.cursorX,
-            cursorY: this.cursorY,
-            saveCursor: (x, y) => {
-                this.cursorX = x,
-                this.cursorY = y
-            }
-        })
+            })
 
-        let spritePreview = h(SpriteComponent, { sprite, palette, frameRate: world.frameRate })
+        let duplicateButton = button({
+            onclick: duplicateSprite
+        }, 'duplicate sprite')
+    
+        let frameButtonList = frameList.length === 1 ? null :
+            frameList.map((frame, i) => {
+                let selectedClass = i === currentFrameIndex ? ' selected' : ''
+                return button({
+                    className: 'sprite-button' + selectedClass,
+                    onclick: () => this.setState({ currentFrameIndex: i })
+                }, h(SpriteCanvas, {
+                    width,
+                    height,
+                    frameList,
+                    frameIndex: i,
+                    color,
+                    backgroundColor
+                }))
+            })
 
-        let colorButton = button({
-            class: 'sprite-button',
-            onclick: () => {
-                let newColorId = sprite.colorId + 1
-                if (newColorId > palette.colors.length - 1) {
-                    newColorId = 1
+        let frameListDivider = frameList.length === 1 ? null :
+            div({ className: 'vertical-divider' })
+    
+        let addFrameButton = frameList.length >= 4 ? null :
+            button({
+                onclick: () => {
+                    let newFrame = currentFrame.slice()
+                    addFrame(newFrame)
+                    this.setState({ currentFrameIndex: frameList.length - 1 })
                 }
-                set(path + '.colorId', newColorId)
-            }
-        }, spritePreview)
+            }, frameList.length === 1 ? 'animate' : '+')
+    
+        let removeFrameButton = frameList.length <= 1 ? null :
+            button({
+                onclick: () => this.setState({ showRemoveFrameOverlay: true })
+            }, '-')
 
-        return div({ class: 'panel sprite-panel' }, [
-            buttonRow([
-                this.backButton(),
-                this.undoButton(),
-                this.redoButton(),
+        let removeFrameOverlay = !showRemoveFrameOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'remove frame?',
+                closeOverlay: () => this.setState({ showRemoveFrameOverlay: false }),
+                remove: () => {
+                    removeFrame(currentFrameIndex)
+                    this.setState({
+                        currentFrameIndex: Math.max(0, currentFrameIndex - 1),
+                        showRemoveFrameOverlay: false
+                    })
+                }
+            })
+    
+        let clearFrameButton = button({
+            onclick: () => this.setState({ showClearFrameOverlay: true })
+        }, '×')
+
+        let clearFrameOverlay = !showClearFrameOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'clear frame?',
+                closeOverlay: () => this.setState({ showClearFrameOverlay: false }),
+                remove: () => {
+                    let frame = Sprite.clearFrame(width, height)
+                    updateFrame(currentFrameIndex, frame)
+                    this.setState({ showClearFrameOverlay: false })
+                }
+            })
+
+        let randomFrameButton = button({
+            onclick: () => this.setState({ showRandomFrameOverlay: true })
+        }, '?')
+
+        let randomFrameOverlay = !showRandomFrameOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'randomize frame?',
+                closeOverlay: () => this.setState({ showRandomFrameOverlay: false }),
+                remove: () => {
+                    let frame = Sprite.randomFrame(width, height)
+                    updateFrame(currentFrameIndex, frame)
+                    this.setState({ showRandomFrameOverlay: false })
+                }
+            })
+
+        let flipFrameHorizontalButton = button({
+            onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, true))
+        }, '⇆')
+
+        let flipFrameVerticalButton = button({
+            onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, false))
+        }, '⇅')
+
+        let rotateFrameButton = button({
+            onclick: () => updateFrame(currentFrameIndex, Sprite.rotateFrame(width, height, currentFrame))
+        }, '⟳')
+    
+        let drawPixel = (pixelIndex, newValue) => {
+            let frame = frameList[currentFrameIndex].slice()
+            frame[pixelIndex] = newValue
+            updateFrame(currentFrameIndex, frame)
+        }
+
+        let prevFrame
+        if (frameList.length > 1) {
+            if (currentFrameIndex > 0) {
+                prevFrame = frameList[currentFrameIndex - 1]
+            } else {
+                prevFrame = frameList[frameList.length - 1]
+            }
+        }
+
+        let spriteGrid = h(SpriteGrid, {
+            drawPixel,
+            width,
+            height,
+            frame: frameList[currentFrameIndex],
+            prevFrame,
+            color,
+            backgroundColor
+        })
+    
+        return panel({ header: 'sprite', closeTab }, [
+            div({ className: 'sprite-settings' }, [
                 nameTextbox,
-                this.menu([
-                    showGridButton,
-                    drawModeButton,
-                    hr(),
-                    setAvatarButton,
-                    importButton,
+                menu({}, [
                     exportButton,
-                    copyButton,
-                    delButton,
-                    hr(),
-                    flipFrameButton,
-                    rotateFrameButton,
-                    clearFrameButton
+                    duplicateButton,
+                    removeButton
                 ])
             ]),
-            buttonRow([
-                avatarIndicator,
-                wallToggle,
-                itemToggle,
-                actionButton,
-                div({ class: 'filler' }),
-                colorButton
+            div({ className: 'sprite-actions' }, [
+                wallButton,
+                itemButton,
+                behaviorButton
             ]),
-            drawingCanvas,
-            frameList
+            div({ className: 'sprite-frames' }, [
+                spritePreview,
+                frameListDivider,
+                frameButtonList,
+                addFrameButton,
+                removeFrameButton
+            ]),
+            div({
+                className: 'sprite-grid',
+                style: { backgroundColor }
+            },
+                spriteGrid
+            ),
+            div({className: 'sprite-frame-actions'}, [
+                clearFrameButton,
+                flipFrameHorizontalButton,
+                flipFrameVerticalButton,
+                rotateFrameButton,
+                randomFrameButton
+            ]),
+            exportOverlay,
+            removeSpriteOverlay,
+            removeFrameOverlay,
+            clearFrameOverlay,
+            randomFrameOverlay
         ])
     }
 }

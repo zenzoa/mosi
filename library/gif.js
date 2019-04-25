@@ -11,9 +11,10 @@ class GIF {
 
         // pad out palette
         colors = colors.slice()
-        loopUpTo(Math.pow(2, colorTableSize + 1), i => {
+        let palettePadding = Math.pow(2, colorTableSize + 1)
+        for (let i = 0; i < palettePadding; i++) {
             if (!colors[i]) colors.push('#000000')
-        })
+        }
 
         // header
         let header = this.header(width, height, colorTableSize)
@@ -163,9 +164,9 @@ class GIF {
     }
 
     static pushStr(array, str) {
-        loopUpTo(str.length, i => {
+        for (let i = 0; i < str.length; i++) {
             array.push(str.charCodeAt(i))
-        })
+        }
     }
 
     static pushU16(array, num) {

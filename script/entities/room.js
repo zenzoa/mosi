@@ -1,245 +1,226 @@
-class Room {
-    static new(w, h) {
-        return {
-            w: w,
-            h: h,
+let Room = {
 
-            name: '',
-            paletteId: 0,
-            spriteLocations: []
+    select: (that, roomIndex) => {
+        let currentRoomIndex = roomIndex
+        that.setCurrentTab('room')
+        that.setState({ currentRoomIndex })
+    },
+
+    rename: (that, roomIndex, newName) => {
+        let roomList = that.state.roomList.slice()
+        let room = roomList[roomIndex]
+        let oldName = room.name
+        if (newName === '') {
+            that.setState({ showErrorOverlay: true, errorMessage: `a room's name can't be empty!` })
+        } else if (roomList.find(r => r.name === newName)) {
+            that.setState({ showErrorOverlay: true, errorMessage: `another room is already named "${newName}"!` })
+        } else {
+            // TODO: replace references to room
+            room.name = newName
+            that.setState({ roomList })
         }
-    }
+    },
 
-    static import(obj, w, h, sprites) {
-        if (obj.w !== w || obj.h !== h) throw 'room is the wrong size'
+    import: (that, roomIndex, roomData) => {
+        try {
+            let room = JSON.parse(roomData)
+            let roomList = that.state.roomList.slice()
+            let spriteList = that.state.spriteList
 
-        let room = Room.new(w, h)
+            // check room and sprite sizes
+            if (room.width !== that.state.roomWidth || room.height !== that.state.roomHeight) {
+                throw('this room is the wrong size for your world!')
+            }
+            if (room.spriteWidth !== that.state.spriteWidth || room.spriteHeight !== that.state.spriteHeight) {
+                throw('sprites in this room are the wrong size for your world!')
+            }
+            delete room.width
+            delete room.height
+            delete room.spriteWidth
+            delete room.spriteHeight
 
-        let codeMap
-        if (isArr(obj.relatedSprites) && sprites) {
-            let nextId = sprites.length
-            codeMap = {}
-            obj.relatedSprites.forEach((_, index) => {
-                codeMap[index] = nextId
-                nextId++
+            // add related sprites
+            if (room.spriteList) {
+                spriteList = spriteList.slice()
+                room.spriteList.forEach(sprite => {
+                    let spriteAlreadyExists = spriteList.find(s => s.name === sprite.name)
+                    if (!spriteAlreadyExists) {
+                        spriteList.push(sprite)
+                    }
+                })
+                delete room.spriteList
+            }
+
+            roomList[roomIndex] = room
+            that.setState({ roomList, spriteList })
+        }
+        catch (e) {
+            console.error('unable to import room!', e)
+            that.setState({
+                showErrorOverlay: true,
+                errorMessage: isStr(e) ? e : 'unable to import room!'
             })
-            room.relatedSprites = obj.relatedSprites.map(s => Sprite.import(s, sprites[0].w, sprites[0].h, null, null, codeMap))
         }
+    },
 
-        if (isStr(obj.name)) room.name = obj.name
-        if (isArr(obj.spriteLocations)) {
-            if (codeMap) room.spriteLocations = obj.spriteLocations.map(({ spriteId, x, y }) => ({ spriteId: codeMap[spriteId], x, y }))
-            else room.spriteLocations = obj.spriteLocations
-        }
-        if (isInt(obj.paletteId)) room.paletteId = obj.paletteId
+    export: (that, roomIndex) => {
+        let room = deepClone(that.state.roomList[roomIndex])
+        room.width = that.state.roomWidth
+        room.height = that.state.roomHeight
+        room.spriteWidth = that.state.spriteWidth
+        room.spriteHeight = that.state.spriteHeight
 
-        return room
-    }
-
-    static export(room, sprites) {
-        let spriteLocations = room.spriteLocations
-        let relatedSprites
-
-        if (sprites) {
-            relatedSprites = []
-            let codeMap = {}
-            let relatedSpriteIds = Room.relatedSpriteIds(room, sprites)
-            relatedSpriteIds.forEach((id, index) => {
-                codeMap[id] = index
-            })
-            relatedSprites = relatedSpriteIds.map(id =>
-                Sprite.export(sprites[id], null, null, codeMap)
-            )
-            spriteLocations = room.spriteLocations.map(({ spriteId, x, y }) => ({ spriteId: codeMap[spriteId], x, y }))
-        }
-
-        return {
-            type: 'room',
-            w: room.w,
-            h: room.h,
-            name: room.name,
-            paletteId: room.paletteId,
-            spriteLocations,
-            relatedSprites
-        }
-    }
-
-    static clone(room) {
-        return Room.import(room, room.w, room.h)
-    }
-
-    static addSpriteLocation(room, spriteId, x, y) {
-        room.spriteLocations.push({ spriteId, x, y })
-        return room
-    }
-
-    static moveSpriteLocation(room, x, y, newX, newY) {
-        let location, locationId
-        room.spriteLocations.forEach((l, id) => {
-            if (l.x === x && l.y === y) {
-                location = l
-                locationId = id
+        // get related sprites
+        let spriteNames = []
+        room.tileList.forEach(tile => {
+            if (!spriteNames.includes(tile.spriteName)) {
+                spriteNames.push(tile.spriteName)
             }
         })
-        room.spriteLocations.splice(locationId, 1)
-        room.spriteLocations.push({ spriteId: location.spriteId, x: newX, y: newY })
-        return room
-    }
-
-    static isSpriteInRoom(room, spriteId) {
-        let index = room.spriteLocations.findIndex(l => l.spriteId === spriteId)
-        return index !== -1
-    }
-
-    static isSpriteAtLocation(room, spriteId, x, y) {
-        let locations = room.spriteLocations.filter(l => l.spriteId === spriteId && l.x === x && l.y === y)
-        return locations.length > 0
-    }
-    
-    static isTileEmpty(room, x, y) {
-        let locations = room.spriteLocations.filter(l => l.x === x && l.y === y)
-        return locations.length === 0
-    }
-
-    static lastSpriteAtLocation(room, x, y) {
-        let locations = room.spriteLocations.filter(l => l.x === x && l.y === y)
-        if (locations.length > 0) return locations[locations.length - 1].spriteId
-        else return null
-    }
-
-    static changeSpriteIndex(room, start, end, change) {
-        room.spriteLocations.forEach(l => {
-            if (l.spriteId >= start && l.spriteId < end) {
-                l.spriteId = change(l.spriteId)
-            }
-        })
-        return room
-    }
-
-    static changePaletteIndex(room, start, end, change) {
-        if (room.paletteId >= start && room.paletteId < end) {
-            room.paletteId = change(room.paletteId)
-        }
-        return room
-    }
-
-    static clear(room) {
-        room.spriteLocations = []
-        return room
-    }
-
-    static clearTile(room, x, y) {
-        room.spriteLocations = room.spriteLocations.filter(l => !(l.x === x && l.y === y))
-        return room
-    }
-
-    static clearTopSprite(room, x, y) {
-        let ids = []
-        room.spriteLocations.forEach((l, id) => {
-            if (l.x === x && l.y === y) ids.push(id)
-        })
-        if (ids.length) {
-            let lastId = ids[ids.length - 1]
-            room.spriteLocations.splice(lastId, 1)
-        }
-        return room
-    }
-
-    static clearSprite(room, spriteId) {
-        room.spriteLocations = room.spriteLocations.filter(l => !(l.spriteId === spriteId))
-        return room
-    }
-
-    static relatedSpriteIds(room, sprites) {
-        let ids = []
-        room.spriteLocations.forEach(l => {
-            ids.push(l.spriteId)
-            ids = ids.concat(
-                Sprite.relatedSpriteIds(sprites[l.spriteId], l.spriteId, sprites)
+        room.spriteList = spriteNames.map(spriteName =>
+            that.state.spriteList.find(sprite =>
+                sprite.name === spriteName
             )
-        })
-        return uniqueList(ids)
-    }
-    
-    static draw(context, { world, room, x, y }) {
-        x = x || 0
-        y = y || 0
-
-        let palette = world.palettes[room.paletteId] || world.palettes[0]
-
-        context.fillStyle = palette.colors[0]
-        context.fillRect(x, y, world.roomWidth * world.spriteWidth, world.roomWidth * world.spriteHeight)
-
-        room.spriteLocations.forEach(l => {
-            let sprite = world.sprites[l.spriteId]
-            Sprite.draw(sprite, context, {
-                x: x + (l.x * world.spriteWidth),
-                y: y + (l.y * world.spriteHeight),
-                palette
-            })
-        })
-    }
-    
-    static drawSimple(context, { world, room, x, y }) {
-        x = x || 0
-        y = y || 0
-
-        let palette = world.palettes[room.paletteId] || world.palettes[0]
-
-        context.fillStyle = palette.colors[0]
-        context.fillRect(x, y, world.roomWidth, world.roomWidth)
-
-        room.spriteLocations.forEach(l => {
-            let sprite = world.sprites[l.spriteId]
-            context.fillStyle = palette.colors[sprite.colorId] || palette.colors[1] || '#000'
-            context.fillRect(x + l.x, y + l.y, 1, 1)
-        })
-    }
-
-    static exportGIF(world, room, scale, callback) {
-        let palette = world.palettes[room.paletteId] || world.palettes[0]
-        let colors = palette.colors
-
-        // initialize data
-        let w = world.roomWidth * world.spriteWidth * scale
-        let h = world.roomWidth * world.spriteHeight * scale
-
-        // calculate number of frames needed for room
-        let spriteIds = []
-        room.spriteLocations.forEach(l => {
-            if (!spriteIds.includes(l.spriteId)) spriteIds.push(l.spriteId)
-        })
-        let frameCount = 1
-        spriteIds.forEach(id => {
-            let numFrames = world.sprites[id].frames.length
-            frameCount = lcm(frameCount, numFrames)
-        })
-
-        // initialize frames
-        let frames = Array(frameCount).fill(0).map(() =>
-            Array(w * h).fill(0)
         )
 
-        // draw sprites
-        frames.forEach((pixelData, currentFrame) => {
-            room.spriteLocations.forEach(l => {
-                let sprite = world.sprites[l.spriteId]
-                let frameId = currentFrame % sprite.frames.length
-                let spritePixelData = sprite.frames[frameId].pixels
-                let sx = l.x * world.spriteWidth * scale
-                let sy = l.y * world.spriteHeight * scale
-                spritePixelData.forEach((pixel, i) => {
-                    if (pixel === 0) return
-                    let x = sx + Math.floor(i % world.spriteWidth) * scale
-                    let y = sy + Math.floor(i / world.spriteWidth) * scale
-                    loopUpTo(scale, scaleX => loopUpTo(scale, scaleY => {
-                        pixelData[x + scaleX + ((y + scaleY) * w)] = sprite.colorId
-                    }))
+        let roomData = JSON.stringify(room)
+        return roomData
+    },
+
+    clear: (that, roomIndex) => {
+        let roomList = that.state.roomList.slice()
+        let room = roomList[roomIndex]
+        room.tileList = []
+        that.setState({ roomList })
+    },
+
+    randomTileList: (width, height, spriteList) => {
+        let tileList = []
+        let spriteNames = spriteList.filter(s => !s.isAvatar).map(s => s.name)
+
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                if (Math.random() < 0.1) {
+                    let spriteNameIndex = Math.floor(Math.random() * spriteNames.length)
+                    let spriteName = spriteNames[spriteNameIndex]
+                    tileList.push({
+                        spriteName,
+                        x,
+                        y
+                    })
+                }
+            }
+        }
+
+        return tileList
+    },
+
+    random: (that, roomIndex) => {
+        let { roomWidth, roomHeight, spriteList } = that.state
+        let roomList = that.state.roomList.slice()
+        let room = roomList[roomIndex]
+        room.tileList = Room.randomTileList(roomWidth, roomHeight, spriteList)
+        that.setState({ roomList })
+    },
+
+    addTile: (that, roomIndex, x, y, spriteIndex) => {
+        let { roomWidth, roomHeight, spriteList } = that.state
+        let inBounds = x >= 0 && y >= 0 && x < roomWidth && y < roomHeight
+        let roomList = that.state.roomList.slice()
+        let room = roomList[roomIndex]
+        room.tileList = room.tileList.slice()
+        let sprite = spriteList[spriteIndex]
+
+        // if placing avatar, remove it from everywhere else first
+        if (sprite.isAvatar) {
+            let avatarName = sprite.name
+            roomList.forEach(room => {
+                if (room.tileList.find(t => t.spriteName === avatarName)) {
+                    room.tileList = room.tileList.filter(t => t.spriteName !== avatarName)
+                }
+            })
+        }
+
+        // place sprite in room
+        if (sprite && inBounds) {
+            room.tileList.push({
+                spriteName: sprite.name,
+                x,
+                y
+            })
+            that.setState({ roomList })
+        }
+    },
+
+    clearTile: (that, roomIndex, x, y) => {
+        let roomList = that.state.roomList.slice()
+        let room = roomList[roomIndex]
+        room.tileList = room.tileList.filter(l => l.x !== x || l.y !== y)
+        that.setState({ roomList })
+    },
+
+    setPaletteName: (that, roomIndex, newPaletteName) => {
+        let roomList = that.state.roomList.slice()
+        let room = roomList[roomIndex]
+        room.paletteName = newPaletteName
+        that.setState({ roomList })
+    },
+
+    createGif: (that, roomIndex, scale, colorList, onComplete) => {
+        let { spriteList, spriteWidth, spriteHeight, roomList, roomWidth, roomHeight } = that.state
+        let room = roomList[roomIndex]
+
+        let width = spriteWidth * roomWidth * scale
+        let height = spriteHeight * roomHeight * scale
+
+        let frameCount = 12
+        let frames = Array(frameCount).fill(0).map(() =>
+            Array(width * height).fill(0)
+        )
+
+        frames.forEach((frame, i) => {
+            room.tileList.forEach(tile => {
+                let sprite = spriteList.find(s => s.name === tile.spriteName)
+                let frameIndex = i % sprite.frameList.length
+                let spriteFrame = sprite.frameList[frameIndex]
+
+                let xOffset = tile.x * spriteWidth * scale
+                let yOffset = tile.y * spriteHeight * scale
+
+                let colorIndex = sprite.colorIndex
+                while (colorIndex > 0 && !colorList[colorIndex]) colorIndex--
+
+                spriteFrame.forEach((pixel, j) => {
+                    if (!pixel) return
+                    let pxOffset = Math.floor(j % spriteWidth) * scale + xOffset
+                    let pyOffset = Math.floor(j / spriteWidth) * scale + yOffset
+                    for (let x = 0; x < scale; x++) {
+                        for (let y = 0; y < scale; y++) {
+                            let pixelIndex = x + pxOffset + ((y + pyOffset) * width)
+                            frame[pixelIndex] = colorIndex
+                        }
+                    }
                 })
             })
         })
 
-        // encode gif
-        GIF.encode(w, h, frames, world.frameRate, colors, callback)
+        GIF.encode(width, height, frames, FRAME_RATE, colorList, onComplete)
+    },
+
+    roomWithAvatar: (that) => {
+        let { roomList, spriteList } = that.state
+        let roomIndex = 0
+        let avatarSprite = spriteList.find(sprite => sprite.isAvatar)
+        if (avatarSprite) {
+            roomList.forEach((room, i) => {
+                room.tileList.forEach(tile => {
+                    if (tile.spriteName === avatarSprite.name) {
+                        roomIndex = i
+                    }
+                })
+            })
+        }
+        return roomIndex
     }
+
 }

@@ -1,96 +1,101 @@
-class SpriteListPanel extends Panel {
+class SpriteListPanel extends Component {
+    render ({ closeTab }) {
+        return panel({ header: 'list of sprites', closeTab }, [
+            h(SpriteList, this.props)
+        ])
+    }
+}
+
+class SpriteList extends Component {
     constructor() {
         super()
         this.state = {
-            currentSpriteId: 0,
-            spritePanelOpen: false,
-            choosingNewSprite: false,
-            search: ''
-        }
-
-        this.selectSprite = (spriteId) => {
-            if (this.props.selectSprite) {
-                this.props.selectSprite(spriteId)
-            } else {
-                this.props.set('currentSpriteId', spriteId)
-                this.setState({ spritePanelOpen: true })
-            }
-        }
-
-        this.renderSprite = (spriteId) => {
-            return h(SpriteComponent, {
-                sprite: this.props.world.sprites[spriteId],
-                palette: this.props.world.palettes[0],
-                frameId: 0
-            })
+            filter: ''
         }
     }
 
-    render({ world, set, undo, redo, selectedId, selectSprite, filter }) {
-        if (this.state.spritePanelOpen && world.sprites[world.currentSpriteId]) {
-            return h(SpritePanel, {
-                world, set, undo, redo,
-                sprite: world.sprites[world.currentSpriteId],
-                spriteId: world.currentSpriteId,
-                path: 'sprites.' + world.currentSpriteId,
-                back: () => this.state.choosingNewSprite && selectSprite ?
-                    selectSprite(world.currentSpriteId)
-                    : this.setState({ spritePanelOpen: false })
+    render ({
+        selectSprite,
+        editSprite,
+        addSprite,
+        importSprite,
+        spriteList,
+        currentSpriteIndex,
+        colorList
+    }, {
+        showImportOverlay,
+        filter
+    }) {
+        let filterInput = textbox({
+            className: 'initial-focus',
+            placeholder: 'search sprites',
+            value: filter,
+            onchange: e => this.setState({ filter: e.target.value })
+        })
+
+        // TODO: add clear filter button
+
+        let spriteButtonList = spriteList
+            // remember original indices
+            .map((sprite, i) => ({ sprite, i }))
+            // apply filter
+            .filter(({ sprite }) =>
+                filter ? sprite.name.includes(filter) : true
+            )
+            // sort alphabetically, avatar is always first
+            .sort((s1, s2) => {
+                if (s1.sprite.isAvatar) return -1
+                if (s2.sprite.isAvatar) return 1
+                let name1 = s1.sprite.name.toUpperCase()
+                let name2 = s2.sprite.name.toUpperCase()
+                if (name1 < name2) return -1
+                if (name1 > name2) return 1
+                else return 0
             })
-        }
+            // convert to components
+            .map(({ sprite, i }) =>
+                spriteButton({
+                    onclick: () => selectSprite(i, 'sprite'),
+                    sprite,
+                    colorList,
+                    isSelected: (i === currentSpriteIndex)
+                })
+            )
 
-        let searchTextbox = searchBox({
-            placeholder: 'search',
-            value: this.state.search,
-            onchange: search => this.setState({ search })
-        })
+        let editSpriteButton = !editSprite ? null :
+            button({ onclick: editSprite }, 'edit sprite')
 
-        let addSpriteButton = button({
-            class: 'icon',
-            onclick: () => {
-                set('', World.addSprite(clone(world), world.randomSprites))
-                this.setState({ spritePanelOpen: true, choosingNewSprite: true })
-            }
-        }, '+')
+        let addSpriteButton = !addSprite ? null :
+            button({ onclick: addSprite }, 'add sprite')
 
-        let avatar = world.sprites[world.avatarId]
-        let avatarOutsideFilter = filter && !filter(world.avatarId)
-        let avatarOutsideSearch = this.state.search && !avatar.name.includes(this.state.search)
-        let avatarComponent = (avatarOutsideFilter || avatarOutsideSearch) ? null :
-            div({ class: 'avatar-component' }, button({
-                class: 'sprite-button avatar-button' + (selectedId === world.avatarId ? ' selected' : ''),
-                onclick: () => this.selectSprite(world.avatarId)
-            }, this.renderSprite(world.avatarId)))
+        let importSpriteButton = !importSprite ? null :
+            button({
+                onclick: () => this.setState({ showImportOverlay: true })
+            }, 'import sprite')
 
-        let items = []
-        world.sprites.forEach((sprite, spriteId) => {
-            if (filter && !filter(spriteId)) return
-            if (this.state.search && !sprite.name.includes(this.state.search)) return
-            if (spriteId === world.avatarId) return null
-            items.push({
-                class: 'sprite-button' + (selectedId === spriteId ? ' selected' : ''),
-                index: spriteId
+        let importOverlay = !showImportOverlay ? null :
+            h(ImportOverlay, {
+                header: 'import sprite',
+                onImport: data => {
+                    importSprite(data)
+                    this.setState({ showImportOverlay: false })
+                },
+                closeOverlay: () => this.setState({ showImportOverlay: false })
             })
-        })
 
-        let spriteList = h(DragList, {
-            class: 'wrap',
-            before: avatarComponent,
-            items,
-            renderItem: this.renderSprite,
-            selectItem: this.selectSprite,
-            moveItem: (spriteId, insertId) => set('', World.reorderSprites(clone(world), spriteId, insertId))
-        })
-
-        return div({ class: 'panel sprite-list-panel' }, [
-            buttonRow([
-                this.backButton(),
-                this.undoButton(),
-                this.redoButton(),
-                searchTextbox,
-                addSpriteButton,
+        return div({ className: 'spritelist' }, [
+            div({ className: 'spritelist-filter' }, [
+                filterInput,
+                importSpriteButton ? menu({}, importSpriteButton) : null
             ]),
-            spriteList
+            div({ className: 'spritelist-actions' }, [
+                editSpriteButton,
+                addSpriteButton
+            ]),
+            div({ className: 'spritelist-sprites' }, [
+                spriteButtonList
+            ]),
+            importOverlay
         ])
     }
 }

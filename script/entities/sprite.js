@@ -1,170 +1,258 @@
-class Sprite {
-    static new(w, h, random) {
-        return {
-            w: w,
-            h: h,
+let Sprite = {
 
-            name: '',
-            colorId: 1,
-            wall: false,
-            item: false,
-            actions: [],
-            frames: random ? [Frame.random(w, h)] : [Frame.new(w, h)],
-
-            currentFrameId: 0
+    create: ({ name, isAvatar, isWall, isItem, spriteWidth, spriteHeight, randomStart }) => {
+        let newSprite = {
+            name: name || '',
+            isAvatar: isAvatar || false,
+            isWall: isWall || false,
+            isItem: isItem || false,
+            colorIndex: 1,
+            width: spriteWidth,
+            height: spriteHeight,
+            frameList: [Array(spriteWidth * spriteHeight).fill(0)],
+            behaviorList: [
+                {
+                    event: 'push',
+                    actionList: []
+                }
+            ]
         }
-    }
+        if (randomStart) {
+            newSprite.frameList = [
+                Sprite.randomFrame(spriteWidth, spriteHeight)
+            ]
+        }
+        return newSprite
+    },
 
-    static import(obj, w, h, spriteId, sprites, codeMap) {
-        if (obj.w !== w || obj.h !== h) throw 'sprite is the wrong size'
+    select: (that, spriteIndex, nextTab) => {
+        let currentSpriteIndex = spriteIndex
+        if (nextTab) that.setCurrentTab(nextTab)
+        that.setState({ currentSpriteIndex })
+    },
 
-        let sprite = Sprite.new(w, h)
-
-        if (isArr(obj.relatedSprites) && spriteId && sprites) {
-            let nextId = sprites.length
-            codeMap = { 0: spriteId }
-            obj.relatedSprites.forEach((_, index) => {
-                codeMap[index + 1] = nextId
-                nextId++
+    add: (that, sprite) => {
+        let { spriteWidth, spriteHeight } = that.state
+        let spriteList = that.state.spriteList.slice()
+        sprite = !(sprite instanceof MouseEvent) ? deepClone(sprite) :
+            Sprite.create({
+                name: 'sprite 1',
+                spriteWidth,
+                spriteHeight
             })
-            sprite.relatedSprites = obj.relatedSprites.map(s => Sprite.import(s, w, h, null, null, codeMap))
+        sprite.isAvatar = false
+
+        // get a unique name
+        let baseName = sprite.name
+        let number = parseInt(baseName.split(' ').slice(-1)[0])
+        if (isInt(number)) {
+            let numberLength = (number).toString().length + 1
+            baseName = baseName.slice(0, -numberLength)
+        } else {
+            number = 2
+        }
+        while (spriteList.find(s => s.name === sprite.name)) {
+            sprite.name = baseName + ' ' + number
+            number++
         }
 
-        if (isStr(obj.name)) sprite.name = obj.name
-        if (isInt(obj.colorId)) sprite.colorId = obj.colorId
-        if (isBool(obj.wall)) sprite.wall = obj.wall
-        if (isBool(obj.item)) sprite.item = obj.item
-        if (isArr(obj.actions)) {
-            sprite.actions = obj.actions.map(a => Action.import(a, codeMap))
-        }
-        if (isArr(obj.frames)) {
-            sprite.frames = obj.frames.map(f => Frame.import(f, w, h))
-        }
+        spriteList.push(sprite)
+        let currentSpriteIndex = spriteList.length - 1
+        that.setCurrentTab('sprite')
+        that.setState({ spriteList, currentSpriteIndex })
+    },
 
-        return sprite
-    }
+    import: (that, spriteData) => {
+        try {
+            let sprite = JSON.parse(spriteData)
 
-    static export(sprite, spriteId, sprites, codeMap) {
-        let relatedSprites
-        if (sprites) {
-            relatedSprites = []
-            codeMap = {}
-            codeMap[spriteId] = 0
-            let relatedSpriteIds = Sprite.relatedSpriteIds(sprite, spriteId, sprites)
-            relatedSpriteIds.forEach((id, index) => {
-                codeMap[id] = index + 1
+            // check sprite size
+            if (sprite.width !== that.state.spriteWidth || sprite.height !== that.state.spriteHeight) {
+                throw('this sprite is the wrong size for your world!')
+            }
+
+            Sprite.add(that, sprite)
+        }
+        catch (e) {
+            console.error('unable to import sprite!', e)
+            that.setState({ showErrorOverlay: true, errorMessage: 'unable to import sprite!' })
+        }
+    },
+
+    export: (that, spriteIndex) => {
+        let sprite = deepClone(that.state.spriteList[spriteIndex])
+        delete sprite.isAvatar
+        let spriteData = JSON.stringify(sprite)
+        return spriteData
+    },
+
+    setIsWall: (that, spriteIndex, newValue) => {
+        let spriteList = that.state.spriteList.slice()
+        spriteList[spriteIndex].isWall = newValue
+        that.setState({ spriteList })
+    },
+
+    setIsItem: (that, spriteIndex, newValue) => {
+        let spriteList = that.state.spriteList.slice()
+        spriteList[spriteIndex].isItem = newValue
+        that.setState({ spriteList })
+    },
+
+    setColorIndex: (that, spriteIndex, newValue) => {
+        let spriteList = that.state.spriteList.slice()
+        spriteList[spriteIndex].colorIndex = newValue
+        that.setState({ spriteList })
+    },
+
+    rename: (that, spriteIndex, newName) => {
+        let spriteList = that.state.spriteList.slice()
+        let roomList = that.state.roomList.slice()
+        let sprite = spriteList[spriteIndex]
+        let oldName = sprite.name
+        if (newName === '') {
+            that.setState({
+                showErrorOverlay: true,
+                errorMessage: `a sprite's name can't be empty!`
             })
-            relatedSprites = relatedSpriteIds.map(id =>
-                Sprite.export(sprites[id], null, null, codeMap)
+        } else if (spriteList.find(s => s.name === newName)) {
+            that.setState({
+                showErrorOverlay: true,
+                errorMessage: `another sprite is already named "${newName}"!`
+            })
+        } else {
+
+            // rename room references
+            roomList.forEach(room => {
+                room.tileList.forEach(tile => {
+                    if (tile.spriteName === oldName) {
+                        tile.spriteName = newName
+                    }
+                })
+            })
+
+            // rename behavior references
+            // spriteList.forEach(({ behaviorList }) => {
+            //     behaviorList.forEach(behavior => {
+            //         if (behavior.itemName === oldName) {
+            //             behavior.itemName = newName
+            //         }
+            //         if (behavior.spriteName === oldName) {
+            //             behavior.spriteName = newName
+            //         }
+            //     })
+            // })
+
+            sprite.name = newName
+            that.setState({ spriteList, roomList })
+        }
+    },
+
+    remove: (that, spriteIndex) => {
+        let { currentSpriteIndex, oneTabMode } = that.state
+        let roomList = that.state.roomList.slice()
+        let spriteList = that.state.spriteList.slice()
+        let sprite = spriteList[spriteIndex]
+
+        // remove sprite from rooms
+        roomList.forEach(room =>
+            room.tileList = room.tileList.filter(tile =>
+                tile.spriteName !== sprite.name
+            )
+        )
+
+        // update sprite references
+        // TODO: remove sprite from behaviors
+        if (currentSpriteIndex >= spriteIndex && currentSpriteIndex > 0) {
+            currentSpriteIndex--
+        }
+
+        // remove sprite from list
+        spriteList.splice(spriteIndex, 1)
+
+        if (oneTabMode) that.closeTab('sprite')
+
+        that.setState({ spriteList, roomList, currentSpriteIndex })
+    },
+
+    addFrame: (that, spriteIndex, newFrame) => {
+        let spriteList = that.state.spriteList.slice()
+        let sprite = spriteList[spriteIndex]
+        sprite.frameList = sprite.frameList.slice()
+        sprite.frameList.push(newFrame)
+        that.setState({ spriteList })
+    },
+
+    removeFrame: (that, spriteIndex, frameIndex) => {
+        let spriteList = that.state.spriteList.slice()
+        let sprite = spriteList[spriteIndex]
+        sprite.frameList = sprite.frameList.slice()
+        sprite.frameList.splice(frameIndex, 1)
+        that.setState({ spriteList })
+    },
+
+    updateFrame: (that, spriteIndex, frameIndex, newFrame) => {
+        let spriteList = that.state.spriteList.slice()
+        let sprite = spriteList[spriteIndex]
+        sprite.frameList = sprite.frameList.slice()
+        sprite.frameList[frameIndex] = newFrame
+        that.setState({ spriteList })
+    },
+
+    clearFrame: (width, height) => {
+        return Array(width * height).fill(0)
+    },
+
+    flipFrame: (width, height, frame, horizontal) => {
+        let rows = []
+        for (let i = 0; i < height; i++) {
+            console.log(i, i * width, (i * width) + width)
+            rows.push(
+                frame.slice(i * width, i * width + width)
             )
         }
 
-        return {
-            type: 'sprite',
-            w: sprite.w,
-            h: sprite.h,
-            name: sprite.name,
-            colorId: sprite.colorId,
-            wall: sprite.wall,
-            item: sprite.item,
-            actions: sprite.actions.map(action => Action.export(action, codeMap)),
-            frames: sprite.frames.map(frame => Frame.export(frame)),
-            relatedSprites
-        }
-    }
+        if (horizontal) rows.forEach(row => row.reverse())
+        else rows.reverse()
 
-    static clone(sprite) {
-        return Sprite.import(sprite, sprite.w, sprite.h)
-    }
+        let newFrame = rows.reduce((prev, curr) => prev.concat(curr), [])
+        return newFrame
+    },
 
-    static changeSpriteIndex(sprite, start, end, change) {
-        sprite.actions = sprite.actions.map(action => Action.changeSpriteIndex(action, start, end, change))
-        return sprite
-    }
+    rotateFrame: (width, height, frame) => {
+        if (width !== height) return frame
 
-    static flip(sprite, horizontal) {
-        sprite.frames.forEach(frame => Frame.flip(frame, horizontal))
-    }
-
-    static addFrame(sprite, frameId) {
-        frameId = exists(frameId) ? frameId : sprite.frames[sprite.currentFrameId]
-        let newFrame = Frame.clone(sprite.frames[frameId])
-        sprite.frames.push(newFrame)
-        return sprite
-    }
-
-    static delFrame(sprite, i) {
-        if (sprite.frames.length === 1) return sprite // can't delete last frame
-        sprite.frames.splice(i, 1)
-        return sprite
-    }
-
-    static nextFrame(sprite) {
-        if (sprite.frames.length === 0) return sprite // can't progress if no frames
-        sprite.currentFrameId++
-        if (sprite.currentFrameId >= sprite.frames.length) sprite.currentFrameId = 0
-        return sprite
-    }
-
-    static reorderFrames(sprite, frameId, insertId) {
-        sprite.frames = reorderList(sprite.frames, frameId, insertId)
-        return sprite
-    }
-
-    static addAction(sprite) {
-        let newAction = Action.new()
-        sprite.actions.push(newAction)
-        return sprite
-    }
-
-    static delAction(sprite, i) {
-        sprite.actions.splice(i, 1)
-        return sprite
-    }
-
-    static relatedSpriteIds(sprite, spriteId, sprites) {
-        let ids = []
-        sprite.actions.forEach(action => {
-            ids = ids.concat(Action.relatedSpriteIds(action))
-        })
-
-        if (sprites) {
-            let idsToGo = uniqueList(ids)
-            while (idsToGo.length) {
-                let newIds = []
-                idsToGo.forEach(id => {
-                    let relatedIds = Sprite.relatedSpriteIds(sprites[id])
-                    let newRelatedIds = relatedIds.filter(x => !ids.includes(x))
-                    newIds = newIds.concat(newRelatedIds)
-                })
-                ids = ids.concat(newIds)
-                idsToGo = uniqueList(newIds)
+        let newFrame = Array(width * height).fill(0)
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                newFrame[y * width + x] = frame[(width - x - 1) * height + y]
             }
         }
+        return newFrame
+    },
 
-        if (spriteId) ids = ids.filter(id => id !== spriteId)
+    randomFrame: (width, height) => {
+        let newFrame = Array(width * height).fill(0)
+        let randomPixels = Array(width * height).fill(0)
+            .map(() => Math.floor(Math.random() * 2))
 
-        return uniqueList(ids)
+        let styles = ['left-right', 'top-bottom', 'corners']
+        let style = styles[Math.floor(Math.random() * styles.length)]
+
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < height; y++) {
+                let xA = x
+                let yA = y
+                if (style === 'left-right' || style === 'corners') {
+                    if (x >= width / 2) xA = (width - x - 1)
+                }
+                if (style === 'top-bottom' || style === 'corners') {
+                    if (y >= height / 2) yA = (height - y - 1)
+                }
+                newFrame[y * width + x] = randomPixels[yA * width + xA]
+            }
+        }
+    
+        return newFrame
     }
 
-    static draw(sprite, context, { x, y, frameId, palette, clear, background }) {
-        if (!exists(frameId)) frameId = sprite.currentFrameId
-        if (frameId >= sprite.frames.length) frameId = 0      
-        if (!exists(sprite.frames[frameId])) return // can't draw frame that doesn't exist
-
-        x = x || 0
-        y = y || 0
-
-        if (clear) {
-            context.clearRect(x, y, x + sprite.w, y + sprite.h)
-        }
-
-        if (background) {
-            context.fillStyle = palette.colors[0]
-            context.fillRect(x, y, x + sprite.w, y + sprite.h)
-        }
-
-        context.fillStyle = palette.colors[sprite.colorId] || palette.colors[1] || '#000'
-        Frame.draw(sprite.frames[frameId], context, x, y)
-    }
 }

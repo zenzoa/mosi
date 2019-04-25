@@ -1,29 +1,23 @@
-class PlayPanel extends Panel {
-    constructor(props) {
-        super()
-        this.world = clone(props.world)
-    }
-
+class PlayPanel extends Component {
     componentDidMount() {
-        this.game = new Game(this.world, this.canvas)
-        this.game.load()
+        this.game = new Game(deepClone(this.props.world), this.gameWrapper)
+        this.game.begin()
     }
 
     componentWillUnmount() {
-        this.game.removeEventListeners()
+        this.game.end()
     }
 
-    render() {
-        return div({ class: 'panel play-panel' }, [
-            buttonRow(this.backButton()),
+    render({ closeTab }) {
+
+        return div({}, [
+            button({
+                onclick: closeTab
+            }, 'back'),
             div({
-                class: 'play-canvas',
-                ref: n => this.canvasWrapper = n
-            },
-                div({ style: { position: 'relative' } },
-                    canvas({ ref: n => this.canvas = n })
-                )
-            )
+                className: 'play-canvas-wrapper',
+                ref: n => this.gameWrapper = n
+            })
         ])
     }
 }

@@ -1,378 +1,362 @@
-class World {
-    static new(w = 9, h = 9, rw = 9, rh = 9, sw = 9, sh = 9) {
-        let world = {}
+let World = {
 
-        world.version = 0.2
+    create: ({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight, randomStart }) => {
+        let world = {
+            version: '0.4',
+            
+            currentSpriteIndex: 0,
+            spriteList: [],
+            spriteWidth,
+            spriteHeight,
 
-        world.name = ''
+            currentRoomIndex: 0,
+            roomList: [],
+            roomWidth,
+            roomHeight,
 
-        world.worldWidth = w
-        world.worldHeight = h
+            worldWidth,
+            worldHeight,
+            worldName: '',
+            worldWrapHorizontal: false,
+            worldWrapVertical: false,
 
-        world.roomWidth = rw
-        world.roomHeight = rh
-        world.rooms = Array(w * h).fill().map(() => Room.new(rw, rh))
+            paletteList: [],
 
-        world.spriteWidth = sw
-        world.spriteHeight = sh
-        world.sprites = [Sprite.new(sw, sh, true)]
-        world.avatarId = 0
-        
-        world.palettes = [Palette.new()]
-        world.font = window.ASCII_4x5 ? Font.parse(window.ASCII_4x5) : null
-        world.textScale = 1
+            fontResolution: 2,
+            fontDirection: 'ltr',
+            fontData: null
+        }
+ 
+        // initialize room list
+        world.roomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
+            let x = Math.floor(i % worldWidth) + 1
+            let y = Math.floor(i / worldWidth) + 1
+            return {
+                name: 'room ' + x + '-' + y,
+                paletteName: 'palette 1',
+                tileList: []
+            }
+        })
 
-        world.frameRate = 400
-        world.wrapLeftRight = false
-        world.wrapTopBottom = false
-
-        // editor-only properties
-        world.drawMode = ('ontouchstart' in window) ? 'drag' : 'draw'
-        world.showGrid = true
-        world.randomSprites = true
-        world.currentSpriteId = 0
-        world.recentSpriteIds = [0]
-
-        return world
-    }
-
-    static placeholder() {
-        let world = World.new()
-
-        let avatarData = {
+        // create avatar
+        world.spriteList.push(Sprite.create({
             name: 'avatar',
-            w: 9,
-            h: 9,
-            frames: [
-                { pixels: [0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,1,0,1,1,1,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0] },
-                { pixels: [0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1,1,0,0,0,1,0,1,1,1,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,1,0,0,0] }
+            isAvatar: true,
+            spriteWidth,
+            spriteHeight,
+            randomStart: true
+        }))
+
+        if (spriteWidth === 8 && spriteHeight === 8) {
+            world.spriteList[0].frameList = [
+                [0,0,0,0,1,0,0,1,0,1,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,0,1,0,0,1,0,0],
+                [0,0,0,0,1,0,0,1,1,0,0,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,0,0,1,1,1,1,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,1,0]
             ]
         }
 
-        let blockData = {
-            name: 'block',
-            colorId: 3,
-            wall: true,
-            w: 9,
-            h: 9,
-            frames: [
-                { pixels: [0,1,1,1,1,1,1,1,0,1,0,0,0,0,0,0,1,1,1,0,1,1,0,0,0,1,1,1,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,0] },
+        // pick contrasting colors for initial palette
+        let bgColor = chroma.random()
+        let fgColor = chroma.random()
+        while(chroma.contrast(bgColor, fgColor) < 4.5) {
+            bgColor = chroma.random()
+            fgColor = chroma.random()
+        }
+        world.paletteList.push({
+            name: 'palette 1',
+            colorList: [
+                bgColor.hex(),
+                fgColor.hex()
             ]
+        })
+
+        // place random tiles throughout world
+        if (randomStart) {
+            world.spriteList.push(Sprite.create({
+                name: 'floor',
+                spriteWidth,
+                spriteHeight,
+                randomStart: true
+            }))
+            world.spriteList.push(Sprite.create({
+                name: 'wall',
+                isWall: true,
+                spriteWidth,
+                spriteHeight,
+                randomStart: true
+            }))
+            world.spriteList.push(Sprite.create({
+                name: 'item',
+                isItem: true,
+                spriteWidth,
+                spriteHeight,
+                randomStart: true
+            }))
+            world.roomList.forEach(room => {
+                room.tileList = Room.randomTileList(roomWidth, roomHeight, world.spriteList)
+            })
         }
 
-        let flowerData = {
-            name: 'flower',
-            colorId: 2,
-            item: true,
-            actions: [{
-                trigger: { type: 'push'},
-                event: { type: 'dialog', text: 'you got a flower!' }
-            }],
-            w: 9,
-            h: 9,
-            frames: [
-                { pixels: [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1,0,0,0,1,0,1,1,0,0,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,1,1,1,1,0,0] },
-                { pixels: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,1,1,0,1,0,0,0,1,1,1,0,1,0,0,0,1,0,1,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,0,1,0,0,0,1,1,1,1,1,0,0] }
-            ]
-        }
-
-        let roomData = {
-            w: 9,
-            h: 9,
-            spriteLocations: [
-                { spriteId: 0, x: 4, y: 4 },
-                { spriteId: 1, x: 3, y: 2 },
-                { spriteId: 1, x: 3, y: 1 },
-                { spriteId: 1, x: 1, y: 3 },
-                { spriteId: 1, x: 2, y: 3 },
-                { spriteId: 1, x: 7, y: 3 },
-                { spriteId: 1, x: 6, y: 3 },
-                { spriteId: 1, x: 5, y: 2 },
-                { spriteId: 1, x: 5, y: 1 },
-                { spriteId: 1, x: 1, y: 5 },
-                { spriteId: 1, x: 2, y: 5 },
-                { spriteId: 1, x: 3, y: 6 },
-                { spriteId: 1, x: 3, y: 7 },
-                { spriteId: 1, x: 5, y: 6 },
-                { spriteId: 1, x: 5, y: 7 },
-                { spriteId: 1, x: 6, y: 5 },
-                { spriteId: 1, x: 7, y: 5 },
-                { spriteId: 2, x: 1, y: 7 },
-                { spriteId: 2, x: 7, y: 7 },
-                { spriteId: 2, x: 7, y: 1 },
-                { spriteId: 2, x: 1, y: 1 }
-            ]
-        }
-
-        world.sprites = [
-            Sprite.import(avatarData, 9, 9, 0),
-            Sprite.import(blockData, 9, 9, 1),
-            Sprite.import(flowerData, 9, 9, 2)
-        ]
-
-        world.rooms[40] = Room.import(roomData, 9, 9)
+        // place avatar
+        world.roomList[0].tileList.push({
+            spriteName: 'avatar',
+            x: 0,
+            y: 0
+        })
 
         return world
+    },
+    
+    rename: (that, newName) => {
+        that.setState({ worldName: newName })
+    },
+
+    import: (that, worldData) => {
+        try {
+            let world = JSON.parse(worldData)
+
+
+            // let roomList = that.state.roomList.slice()
+            // let spriteList = that.state.spriteList
+
+            // // check room and sprite sizes
+            // if (room.width !== that.state.roomWidth || room.height !== that.state.roomHeight) {
+            //     throw('this room is the wrong size for your world!')
+            // }
+            // if (room.spriteWidth !== that.state.spriteWidth || room.spriteHeight !== that.state.spriteHeight) {
+            //     throw('sprites in this room are the wrong size for your world!')
+            // }
+            // delete room.width
+            // delete room.height
+            // delete room.spriteWidth
+            // delete room.spriteHeight
+
+            // // add related sprites
+            // if (room.spriteList) {
+            //     spriteList = spriteList.slice()
+            //     room.spriteList.forEach(sprite => {
+            //         let spriteAlreadyExists = spriteList.find(s => s.name === sprite.name)
+            //         if (!spriteAlreadyExists) {
+            //             spriteList.push(sprite)
+            //         }
+            //     })
+            //     delete room.spriteList
+            // }
+
+            // roomList[roomIndex] = room
+            // that.setState({ roomList, spriteList })
+
+            that.setState(world)
+        }
+        catch (e) {
+            console.error('unable to import world!', e)
+            that.setState({
+                showErrorOverlay: true,
+                errorMessage: isStr(e) ? e : 'unable to import world!'
+            })
+        }
+    },
+
+    export: (that) => {
+        let world = deepClone(that.state)
+
+        // remove editor state
+        delete world.currentTab
+        delete world.tabVisibility
+        delete world.tabHistory
+        delete world.oneTabMode
+        delete world.showErrorOverlay
+        delete world.errorMessage
+
+        let worldData = JSON.stringify(world)
+        return worldData
+    },
+
+    setWrapHorizontal: (that, newValue) => {
+        that.setState({ worldWrapHorizontal: newValue })
+    },
+
+    setWrapVertical: (that, newValue) => {
+        that.setState({ worldWrapVertical: newValue })
     }
 
-    static import(obj) {
-        let w = isInt(obj.worldWidth) && obj.worldWidth
-        let h = isInt(obj.worldHeight) && obj.worldHeight
-        let rw = isInt(obj.roomWidth) && obj.roomWidth
-        let rh = isInt(obj.roomHeight) && obj.roomHeight
-        let sw = isInt(obj.spriteWidth) && obj.spriteWidth
-        let sh = isInt(obj.spriteHeight) && obj.spriteHeight
-        if (!(w && h && rw && rh && sw && sh)) {
-            console.error('unable to import world: invalid dimensions')
-            return
-        }
-        
-        let world = World.new(w, h, rw, rh, sw, sh)
+}
 
-        if (isStr(obj.name)) world.name = obj.name
-        if (isArr(obj.rooms) && obj.rooms.length === w * h) {
-            world.rooms = obj.rooms.map(r => Room.import(r, rw, rh))
-        }
-        if (isArr(obj.sprites) && obj.sprites.length > 0) {
-            world.sprites = obj.sprites.map(s => Sprite.import(s, sw, sh))
-        }
-        if (isArr(obj.palettes) && obj.palettes.length > 0) {
-            world.palettes = obj.palettes.map(p => Palette.import(p))
-        }
-        if (isInt(obj.avatarId) && world.sprites[obj.avatarId]) world.avatarId = obj.avatarId
-        if (isObj(obj.font)) world.font = clone(obj.font)
-        if (isInt(obj.textScale)) world.textScale = obj.textScale
-        if (isInt(obj.frameRate)) world.frameRate = obj.frameRate
-        if (isBool(obj.wrapLeftRight)) world.wrapLeftRight = obj.wrapLeftRight
-        if (isBool(obj.wrapTopBottom)) world.wrapTopBottom = obj.wrapTopBottom
+let convertOldWorld = (world) => {
+    let newWorld = {}
+    newWorld.version = 0.4
 
-        return world
-    }
-
-    static export(world) {
+    // convert colors
+    newWorld.paletteList = world.palettes.map((palette, i) => {
         return {
-            version: 0.2,
-            name: world.name,
+            name: palette.name || 'palette ' + i,
+            colorList: palette.colorList
 
-            worldWidth: world.worldWidth,
-            worldHeight: world.worldHeight,
-
-            roomWidth: world.roomWidth,
-            roomHeight: world.roomHeight,
-            rooms: world.rooms.map(room => Room.export(room)),
-
-            spriteWidth: world.spriteWidth,
-            spriteHeight: world.spriteHeight,
-            sprites: world.sprites.map(sprite => Sprite.export(sprite)),
-            avatarId: world.avatarId,
-
-            palettes: world.palettes.map(palette => Palette.export(palette)),
-            font: world.font,
-            textScale: world.textScale,
-
-            frameRate: world.frameRate,
-            wrapLeftRight: world.wrapLeftRight,
-            wrapTopBottom: world.wrapTopBottom
         }
-    }
+    })
 
-    static clone(world) {
-        return World.import(world)
-    }
-
-    static addSprite(world, random) {
-        let newSprite = Sprite.new(world.spriteWidth, world.spriteHeight, random)
-        world.sprites.push(newSprite)
-        world.currentSpriteId = world.sprites.length - 1
-        return world
-    }
-
-    static copySprite(world, sprite) {
-        let newSprite = Sprite.clone(sprite)
-        if (newSprite.name) newSprite.name += ' copy'
-        world.sprites.push(newSprite)
-        world.currentSpriteId = world.sprites.length - 1
-        return world
-    }
-
-    static delSprite(world, spriteId) {
-        if (spriteId === world.avatarId) return world // can't delete avatar
-        world = World.clearSprite(world, spriteId)
-        world.sprites.splice(spriteId, 1)
-
-        world = World.changeSpriteIndex(world, spriteId + 1, world.sprites.length + 1, x => x - 1)
-
-        world.recentSpriteIds = world.recentSpriteIds.filter(spriteId => spriteId !== spriteId)
-        if (world.recentSpriteIds.length === 0) world.recentSpriteIds = [world.currentSpriteId]
-        
-        return world
-    }
-
-    static clearSprite(world, spriteId) {
-        world.rooms = world.rooms.map(room => Room.clearSprite(room, spriteId))
-        return world
-    }
-
-    static changeSpriteIndex(world, start, end, change) {
-        world.sprites = world.sprites.map(sprite => Sprite.changeSpriteIndex(sprite, start, end, change))
-        world.rooms = world.rooms.map(room => Room.changeSpriteIndex(room, start, end, change))
-        
-        if (world.avatarId >= start && world.avatarId < end) {
-            world.avatarId = Math.min(Math.max(0, change(world.avatarId)), world.sprites.length - 1)
+    // convert sprites
+    newWorld.spriteWidth = world.spriteWidth
+    newWorld.spriteHeight = world.spriteHeight
+    newWorld.spriteList = world.sprites.map((sprite, i) => {
+        return {
+            width: world.spriteWidth,
+            height: world.spriteHeight,
+            name: sprite.name || 'sprite ' + i,
+            colorIndex: sprite.colorId,
+            isAvatar: i === world.avatarId,
+            isWall: sprite.wall,
+            isItem: sprite.item,
+            frameList: sprite.frames.map(frame => {
+                return frame.pixels
+            })
         }
+    })
 
-        if (world.currentSpriteId >= start && world.currentSpriteId < end) {
-            world.currentSpriteId = Math.min(Math.max(0, change(world.currentSpriteId)), world.sprites.length - 1)
+    // convert behaviors
+    let convertAction = (action) => {
+        let actionList = []
+        if (action.type === 'dialog') {
+            actionList.push({
+                type: 'dialog',
+                text: action.text
+            })
         }
-
-        world.recentSpriteIds = world.recentSpriteIds.map(spriteId => {
-            if (spriteId >= start && spriteId < end) {
-                return Math.min(Math.max(0, change(spriteId)), world.sprites.length - 1)
+        else if (action.type === 'give_item') {
+            actionList.push({
+                type: 'give_item',
+                isGiving: action.isGiving,
+                spriteName: newWorld.spriteList[action.spriteId],
+                quantity: action.quantity
+            })
+        }
+        else if (action.type === 'transform_self') {
+            actionList.push({
+                type: 'give_item',
+                spriteName: newWorld.spriteList[action.spriteId]
+            })
+        }
+        else if (action.type === 'move_avatar') {
+            actionList.push({
+                type: 'move_avatar',
+                roomIndex: action.roomId,
+                tileX: action.x,
+                tileY: action.y
+            })
+        }
+        else if (action.type === 'remove_self') {
+            actionList.push({
+                type: 'remove_self'
+            })
+        }
+        else if (action.type === 'send_message') {
+            actionList.push({
+                type: 'trigger_event',
+                eventName: action.message
+            })
+        }
+        else if (action.type === 'branch') {
+            let oppositeOperator = {
+                '=': '!=',
+                '>': '<=',
+                '<': '>=',
+                '>=': '<',
+                '<=': '>',
+                '!=': '='
             }
-            return spriteId
-        })
-
-        return world
-    }
-
-    static reorderSprites(world, spriteId, insertId) {
-        insertId = Math.min(Math.max(0, insertId), world.sprites.length)
-        world.sprites = reorderList(world.sprites, spriteId, insertId)
-
-        if (insertId === 0) {
-            world = World.changeSpriteIndex(
-                world, 0, world.sprites.length,
-                x => x === spriteId ? 0 : x + 1
-            )
-        } else if (insertId < spriteId) {
-            world = World.changeSpriteIndex(
-                world, insertId, spriteId + 1,
-                x => x === spriteId ? insertId : x + 1
-            )
-        } else if (spriteId < insertId) {
-            world = World.changeSpriteIndex(
-                world, spriteId, insertId,
-                x => x === spriteId ? insertId - 1 : x - 1
-            )
+            actionList.push({
+                type: 'conditional',
+                comparison: action.condition.operator,
+                spriteName: newWorld.spriteList[action.condition.spriteId],
+                quantity: action.condition.value,
+                actionList: convertAction(action.trueEvent)
+            })
+            actionList.push({
+                type: 'conditional',
+                comparison: oppositeOperator(action.condition.operator),
+                spriteName: newWorld.spriteList[action.condition.spriteId],
+                quantity: action.condition.value,
+                actionList: convertAction(action.falseEvent)
+            })
         }
-
-        return world
-    }
-
-    static setAvatar(world, spriteId) {
-        World.clearSprite(world, spriteId)
-        world.avatarId = spriteId
-        return world
-    }
-
-    static addPalette(world) {
-        let lastPalette = world.palettes[world.palettes.length - 1]
-        let newPalette = Palette.clone(lastPalette)
-        world.palettes.push(newPalette)
-        return world
-    }
-
-    static copyPalette(world, palette) {
-        let newPalette = Palette.clone(palette)
-        if (newPalette.name) newPalette.name += ' copy'
-        world.palettes.push(newPalette)
-        return world
-    }
-
-    static delPalette(world, paletteId) {
-        if (world.palettes.length === 1) return world // can't delete last palette
-        World.clearPalette(world, paletteId)
-        world.palettes.splice(paletteId, 1)
-
-        world = World.changePaletteIndex(world, paletteId + 1, world.palettes.length + 1, x => x - 1)
-
-        return world
-    }
-
-    static clearPalette(world, paletteId) {
-        world.rooms.forEach(room => {
-            if (room.paletteId === paletteId) room.paletteId = 0
-        })
-        return world
-    }
-
-    static changePaletteIndex(world, start, end, change) {
-        world.rooms = world.rooms.map(room => Room.changePaletteIndex(room, start, end, change))
-        return world
-    }
-
-    static reorderPalettes(world, paletteId, insertId) {
-        insertId = Math.min(Math.max(0, insertId), world.palettes.length)
-        world.palettes = reorderList(world.palettes, paletteId, insertId)
-
-        if (insertId === 0) {
-            world = World.changePaletteIndex(
-                world, 0, world.palettes.length,
-                x => x === paletteId ? 0 : x + 1
-            )
-        } else if (insertId < paletteId) {
-            world = World.changePaletteIndex(
-                world, insertId, paletteId + 1,
-                x => x === paletteId ? insertId : x + 1
-            )
-        } else if (paletteId < insertId) {
-            world = World.changePaletteIndex(
-                world, paletteId, insertId,
-                x => x === paletteId ? insertId - 1 : x - 1
-            )
-        }
-
-        return world
-    }
-
-    static avatarRoom(world) {
-        let roomId = world.rooms.findIndex(r => Room.isSpriteInRoom(r, world.avatarId))
-        if (roomId !== -1) return roomId
-        else return null
-    }
-
-    static changeSize(world, w, h, rw, rh, sw, sh) {
-        world.worldWidth = w
-        world.worldHeight = h
-
-        world.roomWidth = rw
-        world.roomHeight = rh
-        world.rooms = Array(w * h).fill().map(() => Room.new(rw, rh))
-
-        world.spriteWidth = sw
-        world.spriteHeight = sh
-        world.sprites = [Sprite.new(sw, sh, true)]
-        world.avatarId = 0
-
-        return world
-    }
-
-    static changePaletteSize(world, paletteSize) {
-        world.palettes.forEach(palette => {
-            if (palette.colors.length > paletteSize) {
-                palette.colors = palette.colors.slice(0, paletteSize)
+        else if (action.type === 'sequence') {
+            let subActions = []
+            action.events.forEach(event => {
+                subActions = subActions.concat(convertAction(event))
+            })
+            if (action.sequenceType === 'simultaneous') {
+                actionList = subActions
             } else {
-                loopUpTo(paletteSize - palette.colors.length, () => {
-                    let newColor = chroma.random().hex()
-                    palette.colors.push(newColor)
+                actionList.push({
+                    type: 'sequence',
+                    isLooping: action.sequenceType === 'loop',
+                    isShuffled: action.sequenceType === 'shuffle',
+                    actionList: subActions
                 })
             }
-        })
-        return world
+        }
+        return actionList
     }
 
-    static draw(context, world) {
-        loopUpTo(world.worldWidth, x => {
-            loopUpTo(world.worldHeight, y => {
-                let roomId = x + (y * world.worldWidth)
-                let room = world.rooms[roomId]
-                Room.drawSimple(context, {
-                    world,
-                    room,
-                    x: x * world.roomWidth,
-                    y: y * world.roomHeight
-                })
+    world.sprites.forEach((sprite, i) => {
+        newWorld.behaviorList = {}
+        let events = ['push']
+        sprite.actions.forEach(action => {
+            let event = action.trigger.type === 'push' ? 'push' : action.trigger.message
+            if (!events.includes[event]) events.push(event)
+        })
+        events.forEach(event => {
+            let actions = sprite.actions.filter(a => a.trigger.type === event || a.trigger.message === event)
+            let behavior = {
+                event,
+                actionList: []
+            }
+            actions.forEach(action => {
+                behavior.actionList = behavior.actionList.concat(
+                    convertAction(action.event)
+                )
             })
         })
+    })
+
+    // convert rooms
+    newWorld.roomWidth = world.roomWidth
+    newWorld.roomHeight = world.roomHeight
+    newWorld.roomList = world.rooms.map((room, i) => {
+        return {
+            width: world.roomWidth,
+            height: world.roomHeight,
+            name: room.name || 'room ' + i,
+            paletteIndex: room.paletteId,
+            tileList: room.spriteLocations.map(spriteLocation => {
+                let sprite = newWorld.spriteList[spriteLocation.spriteId]
+                return {
+                    spriteName: sprite.name,
+                    x: spriteLocation.x,
+                    y: spriteLocation.y
+                }
+            })
+        }
+    })
+
+    // convert font
+    newWorld.fontResolution = world.textScale
+    newWorld.fontDirection = 'ltr'
+    newWorld.fontData = {
+        name: 'imported_font',
+        width: world.font.size.width,
+        height: world.font.size.height,
+        characterList: {}
     }
+    let charCodes = Object.keys(world.font.characters)
+    charCodes.forEach(charCode => {
+        characterList[charCode] = {
+            data: world.font.characters[charCode]
+        }
+    })
+
+    // convert world
+    newWorld.worldWidth = world.worldWidth
+    newWorld.worldHeight = world.worldHeight
+    newWorld.worldWrapHorizontal = world.wrapLeftRight
+    newWorld.worldWrapVertical = world.wrapTopBottom
 }

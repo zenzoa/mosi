@@ -1,266 +1,208 @@
-class RoomPanel extends Panel {
+class RoomPanel extends Component {
     constructor() {
         super()
-        this.state = {
-            cursorMode: 'draw'
-        }
-
-        this.isDrawing = false
-        this.maxSpriteButtons = 100
-
-        this.selectSprite = (spriteId) => {
-            let { world, set } = this.props
-            if (world.recentSpriteIds.includes(spriteId)) {
-                set('currentSpriteId', spriteId)
-            } else {
-                let recentSpriteIds = [spriteId]
-                    .concat(world.recentSpriteIds.filter(id => id !== spriteId))
-                    .slice(0, this.maxSpriteButtons)
-                set([
-                    { path: 'currentSpriteId', value: spriteId },
-                    { path: 'recentSpriteIds', value: recentSpriteIds}
-                ])
-            }
-            this.setState({ spriteListOpen: false })
-        }
-
-        this.drawSprite = (x, y) => {
-            let { world, room, roomId, path, set } = this.props
-            if (!Room.isSpriteAtLocation(room, world.currentSpriteId, x, y)) {
-                if (world.currentSpriteId === world.avatarId) {
-                    let newWorld = clone(world)
-                    newWorld = World.clearSprite(newWorld, world.avatarId)
-                    newWorld.rooms[roomId] = Room.addSpriteLocation(newWorld.rooms[roomId], world.currentSpriteId, x, y)
-                    set('', newWorld)
-                } else {
-                    set(path, Room.addSpriteLocation(clone(this.props.room), world.currentSpriteId, x, y))
-                }
-            }
-        }
-
-        this.eraseSprite = (x, y) => {
-            let { room, path, set } = this.props
-            set(path, Room.clearTopSprite(clone(room), x, y))
-        }
-
-        this.resize = () => {
-            let { world, set } = this.props
-            let rect = this.base.getBoundingClientRect()
-            this.maxSpriteButtons = Math.floor((rect.width - 12) / 44) - 1
-            if (world.recentSpriteIds.length > this.maxSpriteButtons) {
-                set('recentSpriteIds', world.recentSpriteIds.slice(0, this.maxSpriteButtons))
-            }
-        }
+        this.state = {}
     }
 
-    componentDidMount() {
-        window.addEventListener('resize', this.resize)
-        setTimeout(this.resize, 1)
-    }
+    render({
+        closeTab,
+        renameRoom,
+        importRoom,
+        exportRoom,
+        clearRoom,
+        randomRoom,
+        setPaletteName,
+        createRoomGif,
+        addTile,
+        clearTile,
+        selectSprite,
+        editSprite,
+        addSprite,
+        importSprite,
+        room,
+        roomWidth,
+        roomHeight,
+        spriteWidth,
+        spriteHeight,
+        spriteList,
+        currentSpriteIndex,
+        paletteList
+    }, {
+        showClearOverlay,
+        showImportOverlay,
+        showExportOverlay,
+        showGifOverlay,
+        showSpriteOverlay,
+        showRandomOverlay
+    }) {
 
-    componentWillUnmount() {
-        window.removeEventListener('resize', this.resize)
-    }
-
-    render({ world, room, roomId, path, set, undo, redo }) {
-        let palette = world.palettes[room.paletteId] || world.palettes[0]
-
-        if (this.state.spriteListOpen) {
-            return h(SpriteListPanel, {
-                world, set, undo, redo,
-                selectedId: world.currentSpriteId,
-                palette: palette,
-                back: () => this.setState({ spriteListOpen: false }),
-                selectSprite: this.selectSprite
-            })
-        }
-
-        if (this.state.spritePanelOpen) {
-            return h(SpritePanel, {
-                world, set,
-                sprite: world.sprites[world.currentSpriteId],
-                spriteId: world.currentSpriteId,
-                palette: palette,
-                path: 'sprites.' + world.currentSpriteId,
-                back: () => this.setState({ spritePanelOpen: false })
-            })
-        }
-
-        if (this.state.paletteListOpen) {
-            return h(PaletteListPanel, {
-                world, set, undo, redo,
-                selectedId: room.paletteId,
-                back: () => this.setState({ paletteListOpen: false }),
-                selectPalette: paletteId => {
-                    set(path + '.paletteId', paletteId)
-                    this.setState({ paletteListOpen: false })
-                }
-            })
-        }
+        let sprite = spriteList[currentSpriteIndex]
+        let currentPaletteIndex = paletteList.findIndex(p => p.name === room.paletteName)
+        let currentPalette = paletteList[currentPaletteIndex]
+        let colorList = currentPalette.colorList
 
         let nameTextbox = textbox({
+            className: 'initial-focus',
+            placeholder: 'room name',
             value: room.name,
-            placeholder: 'room',
-            onchange: x => set(path + '.name', x)
+            onchange: e => renameRoom(e.target.value)
         })
 
-        let paletteButton = button({
-            onclick: () => this.setState({ paletteListOpen: true })
-        }, 'change color palette')
-
-        let showGridButton = toggle({
-            value: world.showGrid,
-            onclick: x => set('showGrid', x)
-        }, 'grid')
-
-        let drawModeButton = toggle({
-            value: world.drawMode === 'drag',
-            onclick: x => set('drawMode', x ? 'drag' : 'draw')
-        }, 'cursor mode')
-
-        let cursorModeButtons = multiButton([
-            button({
-                class: this.state.cursorMode === 'draw' ? 'selected' : undefined,
-                onclick: () => this.setState({ cursorMode: 'draw'})
-            }, 'draw'),
-            button({
-                class: this.state.cursorMode === 'stack' ? 'selected' : undefined,
-                onclick: () => this.setState({ cursorMode: 'stack'})
-            }, 'stack'),
-            button({
-                class: this.state.cursorMode === 'pick' ? 'selected' : undefined,
-                onclick: () => this.setState({ cursorMode: 'pick'})
-            }, 'pick')
-        ])
-
-        let editSpriteButton = button({
-            onclick: () => this.setState({ spritePanelOpen: true })
-        }, 'edit sprite')
-
-        let clearButton = h(ConfirmComponent, {
-            description: 'clear room?',
-            onconfirm: () => set(path, Room.clear(clone(room)))
+        let paletteDropdown = dropdown({
+            className: 'initial-focus',
+            value: room.paletteName,
+            onchange: e => setPaletteName(e.target.value)
+        }, paletteList
+            // sort alphabetically
+            .sort((p1, p2) => {
+                let name1 = p1.name.toUpperCase()
+                let name2 = p2.name.toUpperCase()
+                if (name1 < name2) return -1
+                if (name1 > name2) return 1
+                else return 0
+            })
+            // convert to options
+            .map(palette =>
+                option({ value: palette.name }, palette.name)
+            )
+        )
+    
+        let clearButton = button({
+            onclick: () => this.setState({ showClearOverlay: true })
         }, 'clear room')
 
-        let importButton = h(ImportComponent, {
-            description: 'room',
-            filetype: '.mosiroom',
-            onupload: data => {
-                try {
-                    let obj = JSON.parse(data)
-                    let newRoom = Room.import(obj, world.roomWidth, world.roomHeight, world.sprites)
-                    if (newRoom.relatedSprites) {
-                        set([
-                            { path: 'sprites', value: world.sprites.concat(newRoom.relatedSprites) },
-                            { path: path, value: newRoom },
-                        ])
-                        delete newRoom.relatedSprites
-                    } else {
-                        set(path, newRoom)
-                    }
-
-                } catch (e) {
-                    console.error('unable to import room', e)
-                    throw 'unable to import room'
+        let clearOverlay = !showClearOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'clear room?',
+                closeOverlay: () => this.setState({ showClearOverlay: false }),
+                remove: () => {
+                    clearRoom()
+                    this.setState({ showClearOverlay: false })
                 }
-            }
+            })
+
+        let randomButton = button({
+            onclick: () => this.setState({ showRandomOverlay: true })
+        }, 'randomize room')
+
+        let randomOverlay = !showRandomOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'randomize room?',
+                closeOverlay: () => this.setState({ showRandomOverlay: false }),
+                remove: () => {
+                    randomRoom()
+                    this.setState({ showRandomOverlay: false })
+                }
+            })
+
+        let importButton = button({
+            onclick: () => this.setState({ showImportOverlay: true })
         }, 'import room')
+
+        let importOverlay = !showImportOverlay ? null :
+            h(ImportOverlay, {
+                header: 'import room',
+                onImport: data => {
+                    importRoom(data)
+                    this.setState({ showImportOverlay: false })
+                },
+                closeOverlay: () => this.setState({ showImportOverlay: false })
+            })
     
-        let exportButton = h(ExportComponent, {
-            description: 'room',
-            getData: () => Room.export(room, world.sprites)
+        let exportButton = button({
+            onclick: () => this.setState({ showExportOverlay: true })
         }, 'export room')
 
-        let exportImageButton = h(ExportImageComponent, {
-            encodeImage: (imageScale, callback) => Room.exportGIF(world, room, imageScale, blob => {
-                let imageUri = URL.createObjectURL(blob)
-                callback(imageUri)
+        let exportOverlay = !showExportOverlay ? null :
+            h(ExportOverlay, {
+                header: 'export room',
+                data: exportRoom(),
+                closeOverlay: () => this.setState({ showExportOverlay: false })
             })
-        }, 'export gif')
+    
+        let gifButton = button({
+            onclick: () => this.setState({ showGifOverlay: true })
+        }, 'create gif')
 
-        let drawingCanvas = h(DrawingCanvas, {
-            w: world.roomWidth,
-            h: world.roomHeight,
-            sw: world.spriteWidth,
-            sh: world.spriteHeight,
-            backgroundColor: palette.colors[0] + '99',
-            frameRate: world.frameRate,
-            showGrid: world.showGrid,
-            mode: world.drawMode,
-            update: (context, progressFrames) => {
-                if (progressFrames) world.sprites = world.sprites.map(sprite => Sprite.nextFrame(sprite))
-                Room.draw(context, { world, room })
-            },
-            draw: (x, y, isMoving) => {
-                if (!isMoving && this.state.cursorMode === 'pick') {
-                    let spriteId = Room.lastSpriteAtLocation(room, x, y)
-                    if (exists(spriteId)) this.selectSprite(spriteId)
-                } else {
-                    if (!isMoving) this.isDrawing = Room.isTileEmpty(room, x, y)
-                    if (this.isDrawing || this.state.cursorMode === 'stack') {
-                        if (!this.state.cursorMode !== 'stack' && isMoving && !Room.isTileEmpty(room, x, y)) return
-                        this.drawSprite(x, y)
-                    } else {
-                        this.eraseSprite(x, y)
-                    }
-                }
-            },
-            cursorX: this.cursorX,
-            cursorY: this.cursorY,
-            saveCursor: (x, y) => {
-                this.cursorX = x,
-                this.cursorY = y
-            }
+        let gifOverlay = !showGifOverlay ? null :
+            h(RoomGifOverlay, {
+                colorList,
+                createGif: createRoomGif,
+                closeOverlay: () => this.setState({ showGifOverlay: false })
+            })
+
+        let currentSpriteButton = !sprite ? null :
+            spriteButton({
+                onclick: () => this.setState({ showSpriteOverlay: true }),
+                sprite,
+                colorList
+            })
+            
+        let spriteOverlay = !showSpriteOverlay ? null :
+            h(SpriteListOverlay, {
+                closeOverlay: () => this.setState({ showSpriteOverlay: false }),
+                selectSprite: spriteIndex => {
+                    selectSprite(spriteIndex)
+                    this.setState({ showSpriteOverlay: false })
+                },
+                editSprite: () => {
+                    editSprite()
+                    this.setState({ showSpriteOverlay: false })
+                },
+                addSprite: sprite => {
+                    addSprite(sprite)
+                    this.setState({ showSpriteOverlay: false })
+                },
+                importSprite: spriteData => {
+                    importSprite(spriteData)
+                    this.setState({ showSpriteOverlay: false })
+                },
+                spriteList,
+                currentSpriteIndex,
+                colorList
+            })
+
+        let roomGrid = h(RoomGrid, {
+            roomWidth,
+            roomHeight,
+            spriteWidth,
+            spriteHeight,
+            spriteList,
+            currentSpriteName: sprite.name,
+            tileList: room.tileList,
+            drawTile: (x, y) => addTile(x, y, currentSpriteIndex),
+            eraseTile: (x, y) => clearTile(x, y),
+            isAnimated: true,
+            colorList
         })
 
-        let recentSpriteButtons = world.recentSpriteIds.map(spriteId => {
-            return button({
-                class: 'sprite-button'
-                    + (world.currentSpriteId === spriteId ? ' selected' : '')
-                    + (spriteId === world.avatarId ? ' avatar-button' : ''),
-                onclick: () => set('currentSpriteId', spriteId)
-            },
-                h(SpriteComponent, {
-                    sprite: world.sprites[spriteId],
-                    palette
-                })
-            )
-        })
-
-        let addSpriteButton = button({
-            class: 'icon',
-            onclick: () => this.setState({ spriteListOpen: true })
-        }, '⋯')
-
-        return div({ class: 'panel room-panel' }, [
-            buttonRow([
-                this.backButton(),
-                this.undoButton(),
-                this.redoButton(),
+        return panel({ header: 'room', closeTab }, [
+            div({ className: 'room-settings' }, [
                 nameTextbox,
-                this.menu([
-                    showGridButton,
-                    drawModeButton,
-                    hr(),
-                    paletteButton,
-                    hr(),
+                menu({}, [
+                    paletteDropdown,
                     clearButton,
+                    randomButton,
                     importButton,
                     exportButton,
-                    exportImageButton
+                    gifButton
                 ])
             ]),
-            buttonRow([
-                cursorModeButtons,
-                div({ class: 'filler' }),
-                editSpriteButton
+            div({
+                className: 'room-grid',
+                style: { backgroundColor: colorList[0] }
+            },
+                roomGrid
+            ),
+            div({ className: 'room-actions' }, [
+                currentSpriteButton
             ]),
-            drawingCanvas,
-            buttonRow([
-                recentSpriteButtons,
-                div({ class: 'filler' }),
-                addSpriteButton
-            ])
+            clearOverlay,
+            importOverlay,
+            exportOverlay,
+            gifOverlay,
+            spriteOverlay,
+            randomOverlay
         ])
     }
 }
