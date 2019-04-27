@@ -1,7 +1,3 @@
-
-let fontData
-Font.load('ascii_small', f => { fontData = Font.parse(f) })
-
 class Text {
 
     constructor(props) {

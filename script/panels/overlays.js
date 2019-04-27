@@ -8,7 +8,7 @@ class ErrorOverlay extends Component {
 }
 
 class RemoveOverlay extends Component {
-    render({ remove, closeOverlay, header }) {
+    render({ remove, closeOverlay, header, fileType }) {
         return overlay({ closeOverlay, header }, [
             button({ onclick: remove, className: 'initial-focus' }, 'yes!'),
             button({ onclick: closeOverlay }, 'no, keep it')
@@ -17,22 +17,30 @@ class RemoveOverlay extends Component {
 }
 
 class ImportOverlay extends Component {
-    render({ onImport, closeOverlay, header }) {
-        return overlay({ closeOverlay, header }, [
-            // button({ onclick: () => onImport(this.textarea.value) }, 'import from file'),
-            textarea({
-                value: '',
-                className: 'initial-focus',
-                ref: node => { this.textarea = node }
-            }),
-            button({ onclick: () => onImport(this.textarea.value) }, 'import from text')
+    render({ onImport, closeOverlay, header, fileType, hideTextImport }) {
+        let textImport = hideTextImport ? null :
+            div({}, [
+                textarea({
+                    value: '',
+                    className: 'initial-focus',
+                    ref: node => { this.textarea = node }
+                }),
+                button({ onclick: () => onImport(this.textarea.value) }, 'import from text'),
+                h('hr')
+            ])
+
+        let fileImport = div({}, [
+            div({}, 'import from file:'),
+            fileinput({ onUpload: onImport, fileType })
         ])
+
+        return overlay({ closeOverlay, header }, [ textImport, fileImport ])
     }
 }
 
 class ExportOverlay extends Component {
-    render({ data, closeOverlay, header }) {
-        return overlay({ closeOverlay, header }, [
+    render({ data, closeOverlay, header, fileName }) {
+        let textExport = div({}, [
             textarea({
                 value: data,
                 ref: node => { this.textarea = node }
@@ -43,8 +51,17 @@ class ExportOverlay extends Component {
                     this.textarea.select()
                     document.execCommand('copy')
                 }
-            }, 'copy text')
+            }, 'copy text'),
+            h('hr')
         ])
+
+        let fileExport = div({}, [
+            button({
+                onclick: () => Files.download(fileName, data)
+            }, 'download file')
+        ])
+
+        return overlay({ closeOverlay, header }, [ textExport, fileExport ])
     }
 }
 

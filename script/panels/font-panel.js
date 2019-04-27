@@ -27,9 +27,25 @@ class FontPanel extends Component {
             onclick: () => setFontDirection((fontDirection === 'ltr' ? 'rtl' : 'ltr'))
         }, (fontDirection === 'ltr' ? 'left to right' : 'right to left'))
 
+        let importOverlay = !showImportOverlay ? null :
+            h(ImportOverlay, {
+                header: 'import font',
+                onImport: data => {
+                    let fontData = Font.parse(data)
+                    setFontData(fontData)
+                    this.setState({ showImportOverlay: false })
+                },
+                fileType: '.bitsyfont',
+                hideTextImport: true,
+                closeOverlay: () => this.setState({ showImportOverlay: false })
+            })
+
         return panel({ header: 'font', closeTab }, [
             div({ className: 'font-data' }, [
-                
+                label({}, [
+                    span({}, ['current font: ', strong(fontData.name)]),
+                    button({ onclick: () => this.setState({ showImportOverlay: true }) }, 'import font')
+                ])
             ]),
             div({ className: 'font-resolution' }, [
                 label({}, [
@@ -42,7 +58,8 @@ class FontPanel extends Component {
                     span({}, 'font direction'),
                     fontDirectionButton
                 ])
-            ])
+            ]),
+            importOverlay
         ])
     }
 }

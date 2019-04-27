@@ -80,6 +80,7 @@ class SpriteList extends Component {
                     importSprite(data)
                     this.setState({ showImportOverlay: false })
                 },
+                fileType: '.mosisprite',
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
 

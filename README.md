@@ -1,6 +1,6 @@
 # môsi
 
-A tiny game engine that lets you make tiny game worlds. Inspired by [Bitsy](https://github.com/le-doux/bitsy).
+A tiny game engine that lets you make tiny game worlds.
 
 ## Libraries
 - [preact](https://preactjs.com) for lightweight reactive ui framework

@@ -92,6 +92,7 @@ class SpritePanel extends Component {
         let exportOverlay = !showExportOverlay ? null :
             h(ExportOverlay, {
                 header: 'export sprite',
+                fileName: `${sprite.name || 'untitled'}.mosisprite`,
                 data: exportSprite(),
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })

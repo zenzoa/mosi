@@ -6,6 +6,7 @@
 // TODO: swipe controls on gameplay, mimic arrow keys, test with dialog
 // TODO: convert old format to new format
 // TODO: add share button to play panel
+// TODO: add behaviors to gameplay
 
 // TODO: make ui nicer
 // TODO: test on mobile
@@ -19,6 +20,9 @@
 // TODO: stretch: documentation
 
 let FRAME_RATE = 400
+
+let DEFAULT_FONT
+Font.load('ascii_tiny', f => { DEFAULT_FONT = Font.parse(f) })
 
 class Main extends Component {
     constructor() {

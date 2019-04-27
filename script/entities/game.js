@@ -329,7 +329,7 @@ class Game {
         }
 
         this.beginDialog = (string, displayAtBottom) => {
-            let { roomWidth, roomHeight, spriteWidth, spriteHeight, fontResolution, fontDirection } = this.world
+            let { roomWidth, roomHeight, spriteWidth, spriteHeight, fontData, fontResolution, fontDirection } = this.world
             this.showDialog = true
             this.dialog = new Text({
                 string: 'hello, how are you? What even are you doing! We may never know for sure...',

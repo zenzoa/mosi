@@ -15,7 +15,6 @@ let Room = {
         } else if (roomList.find(r => r.name === newName)) {
             that.setState({ showErrorOverlay: true, errorMessage: `another room is already named "${newName}"!` })
         } else {
-            // TODO: replace references to room
             room.name = newName
             that.setState({ roomList })
         }

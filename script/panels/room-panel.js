@@ -106,6 +106,7 @@ class RoomPanel extends Component {
                     importRoom(data)
                     this.setState({ showImportOverlay: false })
                 },
+                fileType: '.mosiroom',
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
     
@@ -116,6 +117,7 @@ class RoomPanel extends Component {
         let exportOverlay = !showExportOverlay ? null :
             h(ExportOverlay, {
                 header: 'export room',
+                fileName: `${room.name || 'untitled'}.mosiroom`,
                 data: exportRoom(),
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })

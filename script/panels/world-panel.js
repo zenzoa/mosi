@@ -76,6 +76,7 @@ class WorldPanel extends Component {
                     importWorld(data)
                     this.setState({ showImportOverlay: false })
                 },
+                fileType: '.mosi',
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
 
@@ -86,6 +87,7 @@ class WorldPanel extends Component {
         let exportOverlay = !showExportOverlay ? null :
             h(ExportOverlay, {
                 header: 'export world',
+                fileName: `${worldName || 'untitled'}.mosi`,
                 data: exportWorld(),
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })

@@ -33,7 +33,7 @@ let Files = {
             let blobURL = URL.createObjectURL(blob)
             
             let downloadLink = document.createElement('a')
-            downloadLink.download = filename
+            downloadLink.download = encodeURIComponent(filename)
             downloadLink.href = blobURL
             document.body.appendChild(downloadLink)
             downloadLink.click()

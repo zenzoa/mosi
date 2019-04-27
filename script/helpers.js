@@ -60,6 +60,12 @@ let numbox = (props, children) => {
     props.pattern = '\d+'
     return h('input', props, children)
 }
+let fileinput = ({ onUpload, fileType }) => {
+    let onchange = event => {
+        Files.upload(event, data => onUpload(data))
+    }
+    return h('input', { type: 'file', accept: fileType, onchange })
+}
 let textarea = (props, children) => h('textarea', props, children)
 let option = (props, children) => h('option', props, children)
 let dropdown = (props, children) => div({ className: 'dropdown' }, h('select', props, children))

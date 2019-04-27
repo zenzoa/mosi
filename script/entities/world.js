@@ -22,9 +22,9 @@ let World = {
 
             paletteList: [],
 
-            fontResolution: 2,
+            fontResolution: 1,
             fontDirection: 'ltr',
-            fontData: null
+            fontData: DEFAULT_FONT
         }
  
         // initialize room list
@@ -32,7 +32,7 @@ let World = {
             let x = Math.floor(i % worldWidth) + 1
             let y = Math.floor(i / worldWidth) + 1
             return {
-                name: 'room ' + x + '-' + y,
+                name: 'room-' + x + '-' + y,
                 paletteName: 'palette 1',
                 tileList: []
             }
