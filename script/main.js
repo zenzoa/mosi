@@ -1,23 +1,10 @@
-
-// TODO: fonts
-//          - add file import
-//          - add file export
-//          - add font import to font panel
 // TODO: swipe controls on gameplay, mimic arrow keys, test with dialog
 // TODO: convert old format to new format
 // TODO: add share button to play panel
 // TODO: add behaviors to gameplay
-
 // TODO: make ui nicer
 // TODO: test on mobile
-
-// TODO: stretch: behavior that runs js
-// TODO: stretch: behavior that changes palette
-// TODO: stretch: music
-// TODO: stretch: debug tools? show hidden objects?
-// TODO: stretch: text effects
-// TODO: stretch: import/export palettes
-// TODO: stretch: documentation
+// TODO: start avatar in right position
 
 let FRAME_RATE = 400
 
@@ -105,9 +92,13 @@ class Main extends Component {
         this.load = () => {
             try {
                 let data = window.localStorage.getItem('mosi-state')
+                let oldData = window.localStorage.getItem('world')
                 if (data) {
                     let newState = JSON.parse(data)
                     this.setState(newState)
+                } else if (oldData) {
+                    console.log('found world data from previous version of mosi', oldData)
+                    World.import(this, oldData)
                 }
             } catch(e) {
                 console.error('unable to load editor state', e)

@@ -8,7 +8,7 @@ class Text {
         this.fontDirection = fontDirection
         this.wrapper = wrapper
         this.width = width
-        this.height = Math.floor(fontData.height * 2.5) + (padding * 1.5)
+        this.height = Math.floor(fontData.height * 2.5) + Math.floor(padding * 1.5)
         this.linesPerPage = 2
 
         this.x = 0

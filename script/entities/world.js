@@ -2,7 +2,7 @@ let World = {
 
     create: ({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight, randomStart }) => {
         let world = {
-            version: '0.4',
+            version: 0.4,
             
             currentSpriteIndex: 0,
             spriteList: [],
@@ -113,38 +113,7 @@ let World = {
     import: (that, worldData) => {
         try {
             let world = JSON.parse(worldData)
-
-
-            // let roomList = that.state.roomList.slice()
-            // let spriteList = that.state.spriteList
-
-            // // check room and sprite sizes
-            // if (room.width !== that.state.roomWidth || room.height !== that.state.roomHeight) {
-            //     throw('this room is the wrong size for your world!')
-            // }
-            // if (room.spriteWidth !== that.state.spriteWidth || room.spriteHeight !== that.state.spriteHeight) {
-            //     throw('sprites in this room are the wrong size for your world!')
-            // }
-            // delete room.width
-            // delete room.height
-            // delete room.spriteWidth
-            // delete room.spriteHeight
-
-            // // add related sprites
-            // if (room.spriteList) {
-            //     spriteList = spriteList.slice()
-            //     room.spriteList.forEach(sprite => {
-            //         let spriteAlreadyExists = spriteList.find(s => s.name === sprite.name)
-            //         if (!spriteAlreadyExists) {
-            //             spriteList.push(sprite)
-            //         }
-            //     })
-            //     delete room.spriteList
-            // }
-
-            // roomList[roomIndex] = room
-            // that.setState({ roomList, spriteList })
-
+            if (world.version < 0.4) world = convertOldWorld(world)
             that.setState(world)
         }
         catch (e) {
@@ -182,14 +151,17 @@ let World = {
 }
 
 let convertOldWorld = (world) => {
-    let newWorld = {}
-    newWorld.version = 0.4
+    let newWorld = {
+        version: 0.4,
+        currentSpriteIndex: 0,
+        currentRoomIndex: 0
+    }
 
     // convert colors
     newWorld.paletteList = world.palettes.map((palette, i) => {
         return {
             name: palette.name || 'palette ' + i,
-            colorList: palette.colorList
+            colorList: palette.colors
 
         }
     })
@@ -298,8 +270,8 @@ let convertOldWorld = (world) => {
     }
 
     world.sprites.forEach((sprite, i) => {
-        newWorld.behaviorList = {}
-        let events = ['push']
+        let behaviorList = []
+        let events = []
         sprite.actions.forEach(action => {
             let event = action.trigger.type === 'push' ? 'push' : action.trigger.message
             if (!events.includes[event]) events.push(event)
@@ -315,7 +287,9 @@ let convertOldWorld = (world) => {
                     convertAction(action.event)
                 )
             })
+            behaviorList.push(behavior)
         })
+        newWorld.spriteList[i].behaviorList = behaviorList
     })
 
     // convert rooms
@@ -325,8 +299,8 @@ let convertOldWorld = (world) => {
         return {
             width: world.roomWidth,
             height: world.roomHeight,
-            name: room.name || 'room ' + i,
-            paletteIndex: room.paletteId,
+            name: room.name || 'room-' + i,
+            paletteName: newWorld.paletteList[room.paletteId].name,
             tileList: room.spriteLocations.map(spriteLocation => {
                 let sprite = newWorld.spriteList[spriteLocation.spriteId]
                 return {
@@ -349,7 +323,7 @@ let convertOldWorld = (world) => {
     }
     let charCodes = Object.keys(world.font.characters)
     charCodes.forEach(charCode => {
-        characterList[charCode] = {
+        newWorld.fontData.characterList[charCode] = {
             data: world.font.characters[charCode]
         }
     })
@@ -359,4 +333,6 @@ let convertOldWorld = (world) => {
     newWorld.worldHeight = world.worldHeight
     newWorld.worldWrapHorizontal = world.wrapLeftRight
     newWorld.worldWrapVertical = world.wrapTopBottom
+
+    return newWorld
 }
