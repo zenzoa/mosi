@@ -234,6 +234,8 @@ class Game {
                 room.tileList.forEach(tile => {
                     if (tile.spriteName === this.avatar.name) {
                         roomIndex = i
+                        this.avatarX = tile.x
+                        this.avatarY = tile.y
                     }
                 })
             })

@@ -1,10 +1,8 @@
 // TODO: swipe controls on gameplay, mimic arrow keys, test with dialog
-// TODO: convert old format to new format
 // TODO: add share button to play panel
 // TODO: add behaviors to gameplay
 // TODO: make ui nicer
 // TODO: test on mobile
-// TODO: start avatar in right position
 
 let FRAME_RATE = 400
 
@@ -31,6 +29,7 @@ class Main extends Component {
         this.state.oneTabMode = true
         this.state.showErrorOverlay = false
         this.state.errorMessage = ''
+        this.state.themeName = 'light'
 
         this.setCurrentTab = (tab, skipHistory) => {
             let { currentTab, tabVisibility, tabHistory, oneTabMode } = this.state
@@ -96,6 +95,7 @@ class Main extends Component {
                 if (data) {
                     let newState = JSON.parse(data)
                     this.setState(newState)
+                    this.applyTheme(newState.themeName)
                 } else if (oldData) {
                     console.log('found world data from previous version of mosi', oldData)
                     World.import(this, oldData)
@@ -107,6 +107,20 @@ class Main extends Component {
 
         this.updateWorld = (newWorldState) => {
             this.setState(newWorldState)
+        }
+
+        this.applyTheme = (themeName) => {
+            let theme = THEMES[themeName]
+            if (!theme) return
+            Object.keys(theme).forEach(key => {
+                let value = theme[key]
+                document.body.style.setProperty(key, value)
+            })
+        }
+
+        // TODO: remove once UI is added for changing themes
+        window.changeTheme = (themeName) => {
+            if (THEMES[themeName]) this.setState({ themeName })
         }
     }
 
@@ -120,7 +134,10 @@ class Main extends Component {
         window.removeEventListener('resize', this.resize)
     }
 
-    componentDidUpdate() {
+    componentDidUpdate(_, prevState) {
+        if (prevState.themeName !== this.state.themeName) {
+            this.applyTheme(this.state.themeName)
+        }
         this.save()
     }
 
