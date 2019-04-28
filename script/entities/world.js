@@ -198,14 +198,14 @@ let convertOldWorld = (world) => {
             actionList.push({
                 type: 'give_item',
                 isGiving: action.isGiving,
-                spriteName: newWorld.spriteList[action.spriteId],
+                spriteName: newWorld.spriteList[action.spriteId].name,
                 quantity: action.quantity
             })
         }
         else if (action.type === 'transform_self') {
             actionList.push({
                 type: 'give_item',
-                spriteName: newWorld.spriteList[action.spriteId]
+                spriteName: newWorld.spriteList[action.spriteId].name
             })
         }
         else if (action.type === 'move_avatar') {
@@ -239,14 +239,14 @@ let convertOldWorld = (world) => {
             actionList.push({
                 type: 'conditional',
                 comparison: action.condition.operator,
-                spriteName: newWorld.spriteList[action.condition.spriteId],
+                spriteName: newWorld.spriteList[action.condition.spriteId].name,
                 quantity: action.condition.value,
                 actionList: convertAction(action.trueEvent)
             })
             actionList.push({
                 type: 'conditional',
                 comparison: oppositeOperator(action.condition.operator),
-                spriteName: newWorld.spriteList[action.condition.spriteId],
+                spriteName: newWorld.spriteList[action.condition.spriteId].name,
                 quantity: action.condition.value,
                 actionList: convertAction(action.falseEvent)
             })
@@ -272,10 +272,10 @@ let convertOldWorld = (world) => {
 
     world.sprites.forEach((sprite, i) => {
         let behaviorList = []
-        let events = []
+        let events = ['push']
         sprite.actions.forEach(action => {
             let event = action.trigger.type === 'push' ? 'push' : action.trigger.message
-            if (!events.includes[event]) events.push(event)
+            if (!events.includes(event)) events.push(event)
         })
         events.forEach(event => {
             let actions = sprite.actions.filter(a => a.trigger.type === event || a.trigger.message === event)

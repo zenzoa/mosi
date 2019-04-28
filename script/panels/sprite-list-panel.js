@@ -21,7 +21,8 @@ class SpriteList extends Component {
         importSprite,
         spriteList,
         currentSpriteIndex,
-        colorList
+        colorList,
+        hideAvatar
     }, {
         showImportOverlay,
         filter
@@ -39,9 +40,11 @@ class SpriteList extends Component {
             // remember original indices
             .map((sprite, i) => ({ sprite, i }))
             // apply filter
-            .filter(({ sprite }) =>
-                filter ? sprite.name.includes(filter) : true
-            )
+            .filter(({ sprite }) => {
+                if (filter) return sprite.name.includes(filter)
+                else if (hideAvatar && sprite.isAvatar) return false
+                else return true
+            })
             // sort alphabetically, avatar is always first
             .sort((s1, s2) => {
                 if (s1.sprite.isAvatar) return -1

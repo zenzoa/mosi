@@ -1,6 +1,5 @@
 // TODO: swipe controls on gameplay, mimic arrow keys, test with dialog
 // TODO: add share button to play panel
-// TODO: add behaviors to gameplay
 // TODO: make ui nicer
 // TODO: test on mobile
 

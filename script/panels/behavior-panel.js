@@ -163,7 +163,8 @@ class BehaviorComponent extends Component {
                 },
                 spriteList,
                 currentSpriteIndex: spriteIndex,
-                colorList
+                colorList,
+                hideAvatar: true
             })
         }
 
@@ -446,6 +447,7 @@ class BehaviorComponent extends Component {
             option({ value: '<=' }, 'no more than'),
             option({ value: '<' }, 'less than'),
             option({ value: '=' }, 'equal to'),
+            option({ value: '!=' }, 'not equal to'),
             option({ value: '>' }, 'more than'),
             option({ value: '>=' }, 'at least')
         ])

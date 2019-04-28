@@ -56,7 +56,6 @@ class Game {
             this.lastTimestamp = timestamp
 
             let {
-                roomList,
                 roomWidth,
                 roomHeight,
                 spriteList,
@@ -187,25 +186,26 @@ class Game {
             // check for tile interactions
             let roomIndex = (roomY * worldWidth) + roomX
             let room = roomList[roomIndex]
-            let tileIsClear = this.checkTiles(room, x, y)
+            let tempPosition = { roomIndex, x, y }
+            let tileIsClear = this.checkTiles(room, tempPosition)
             if (!tileIsClear) stopMoving = true
 
             // finalize avatar movement
             if (!stopMoving) {
-                this.avatarX = x
-                this.avatarY = y
+                this.avatarX = tempPosition.x
+                this.avatarY = tempPosition.y
                 room.tileList = room.tileList.filter(tile => !tile.removeMe)
-                if (roomIndex !== this.currentRoomIndex) this.moveRooms(roomIndex)
+                if (tempPosition.roomIndex !== this.currentRoomIndex) this.moveRooms(tempPosition.roomIndex)
             } else {
                 room.tileList.forEach(tile => { tile.removeMe = false })
             }
         }
 
-        this.checkTiles = (room, x, y) => {
-            let { roomHeight, spriteList } = this.world
+        this.checkTiles = (room, tempPosition) => {
+            let { spriteList } = this.world
             let tileIsClear = true
             room.tileList.forEach(tile => {
-                if (tile.x !== x || tile.y !== y) return
+                if (tile.x !== tempPosition.x || tile.y !== tempPosition.y) return
                 let sprite = spriteList.find(s => s.name === tile.spriteName)
                 if (sprite.isAvatar) return
                 // wall
@@ -214,17 +214,118 @@ class Game {
                 }
                 // item
                 if (sprite.isItem) {
-                    if (this.inventory[sprite.name]) this.inventory[sprite.name]++
-                    else this.inventory[sprite.name] = 1
+                    this.addToInventory(sprite.name, 1)
                     tile.removeMe = true
                 }
                 // behaviors - only do if not already on this tile
-                if (x !== this.avatarX || y !== this.avatarY) {
-                    let displayAtBottom = y < roomHeight / 2
-                    this.beginDialog('hello how are you', displayAtBottom)
+                if (tempPosition.x !== this.avatarX || tempPosition.y !== this.avatarY) {
+                    let pushBehavior = sprite.behaviorList.find(b => b.event === 'push')
+                    if (pushBehavior) {
+                        pushBehavior.actionList.forEach((action, i) => {
+                            this.runAction({ action, tile, tempPosition, id: 'push-' + i })
+                        })
+                    }
                 }
             })
             return tileIsClear
+        }
+
+        this.runAction = ({ action, tile, tempPosition, id }) => {
+            let { roomHeight, roomList, spriteList, paletteList } = this.world
+            let room = roomList[tempPosition.roomIndex]
+
+            if (action.type === 'dialog') {
+                let displayAtBottom = tempPosition.y < roomHeight / 2
+                this.beginDialog(action.text, displayAtBottom)
+            }
+            else if (action.type === 'give_item') {
+                let { isGiving, spriteName, quantity } = action
+                if (!isGiving) quantity *= -1
+                this.addToInventory(spriteName, quantity)
+            }
+            else if (action.type === 'transform_self') {
+                tile.spriteName = action.spriteName
+                let newSprite = spriteList.find(s => s.name === action.spriteName)
+                let palette = paletteList[this.currentPaletteIndex]
+                let colorList = palette.colorList
+                this.cacheSprite(newSprite, colorList)
+            }
+            else if (action.type === 'move_avatar') {
+                tempPosition.roomIndex = action.roomIndex
+                tempPosition.x = action.tileX
+                tempPosition.y = action.tileY
+            }
+            else if (action.type === 'remove_self') {
+                tile.removeMe = true
+            }
+            else if (action.type === 'trigger_event') {
+                room.tileList.forEach(t => {
+                    let s = spriteList.find(s => s.name === t.spriteName)
+                    let eventBehavior = s.behaviorList.find(b => b.event === action.eventName)
+                    if (eventBehavior) {
+                        eventBehavior.actionList.forEach((a, i) => {
+                            this.runAction({ action: a, tile: t, tempPosition, id: action.eventName + '-' + i })
+                        })
+                    }
+                })
+            }
+            else if (action.type === 'conditional') {
+                let { comparison, spriteName, quantity, actionList } = action
+                let numItems = this.inventory[spriteName] || 0
+                if ((comparison === '=' && numItems === quantity) ||
+                    (comparison === '!=' && numItems !== quantity) ||
+                    (comparison === '<' && numItems < quantity) ||
+                    (comparison === '<=' && numItems <= quantity) ||
+                    (comparison === '>' && numItems > quantity) ||
+                    (comparison === '>=' && numItems >= quantity)
+                ) {
+                    actionList.forEach((a, i) => this.runAction({ action: a, tile, tempPosition, id: id + '-' + i }))
+                }
+            }
+            else if (action.type === 'sequence') {
+                let { isLooping, isShuffled, actionList } = action
+
+                let listOfIndices = (num) => {
+                    if (isShuffled) {
+                        let shuffledList = []
+                        while (shuffledList.length < num) {
+                            let index = Math.floor(Math.random() * num)
+                            if (!shuffledList.includes(index)) shuffledList.push(index)
+                        }
+                        return shuffledList
+                    } else {
+                        return Array(num).fill(0).map((_, i) => i)
+                    }
+                }
+
+                if (!tile.seqIndexList) tile.seqIndexList = {}
+                if (!tile.seqIndexList[id]) tile.seqIndexList[id] = 0
+
+                if (!tile.seqOrderList) tile.seqOrderList = {}
+                if (!tile.seqOrderList[id]) tile.seqOrderList[id] = listOfIndices(actionList.length)
+
+                // run current action
+                let i = tile.seqOrderList[id][tile.seqIndexList[id]]
+                let a = actionList[i]
+                this.runAction({ action: a, tile, tempPosition, id: id + '-' + i })
+
+                // get next action
+                tile.seqIndexList[id]++
+                if (tile.seqIndexList[id] >= actionList.length) {
+                    if (isLooping) {
+                        tile.seqIndexList[id] = 0
+                        if (isShuffled) tile.seqOrderList[id] = listOfIndices(actionList.length)
+                    } else {
+                        tile.seqIndexList[id] = actionList.length - 1
+                    }
+                }
+            }
+        }
+
+        this.addToInventory = (item, quantity) => {
+            if (!this.inventory[item]) this.inventory[item] = 0
+            this.inventory[item] += quantity
+            if (this.inventory[item] < 0) this.inventory[item] = 0
         }
 
         this.startingRoom = () => {
@@ -334,7 +435,7 @@ class Game {
             let { roomWidth, roomHeight, spriteWidth, spriteHeight, fontData, fontResolution, fontDirection } = this.world
             this.showDialog = true
             this.dialog = new Text({
-                string: 'hello, how are you? What even are you doing! We may never know for sure...',
+                string,
                 fontData: fontData,
                 fontDirection: fontDirection,
                 wrapper: this.wrapper,
