@@ -22,8 +22,10 @@ class Text {
         this.canvas.width = width
         this.canvas.height = height
         this.canvas.style.position = 'absolute'
+        this.canvas.style.display = 'block'
         this.canvas.style.top = '0'
         this.canvas.style.left = '0'
+        this.canvas.style.width = '100%'
         this.context = this.canvas.getContext('2d')
 
         this.numCharsToShow = 0

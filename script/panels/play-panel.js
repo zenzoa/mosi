@@ -10,7 +10,7 @@ class PlayPanel extends Component {
 
     render({ closeTab }) {
 
-        return div({}, [
+        return div({ className: 'main' }, [
             div({ className: 'editor-header row' }, [
                 button({
                     onclick: closeTab
@@ -20,10 +20,12 @@ class PlayPanel extends Component {
                     onclick: () => console.log('da share zone')
                 }, 'share')
             ]),
-            div({
-                className: 'play-canvas-wrapper',
-                ref: n => this.gameWrapper = n
-            })
+            div({ className: 'play-canvas-wrapper' }, 
+                div({
+                    className: 'play-canvas',
+                    ref: n => this.gameWrapper = n
+                })
+            )
         ])
     }
 }

@@ -1,20 +1,24 @@
 class Game {
 
-    constructor(world, wrapper) {
+    constructor(world, el) {
         this.world = world
 
-        this.wrapper = wrapper
+        this.wrapper = document.createElement('div')
+        this.wrapper.style.margin = '0 auto'
+        el.appendChild(this.wrapper)
 
         this.canvas = document.createElement('canvas')
         this.canvas.width = world.roomWidth * world.spriteWidth
         this.canvas.height = world.roomHeight * world.spriteWidth
-        wrapper.appendChild(this.canvas)
+        this.canvas.style.width = '100%'
+        this.canvas.style.display = 'block'
+        this.wrapper.appendChild(this.canvas)
         this.context = this.canvas.getContext('2d')
 
         this.frameRate = 400
 
         this.begin = () => {
-            let { roomList, spriteList, paletteList } = this.world
+            let { spriteList } = this.world
 
             // get avatar
             this.avatar = spriteList.find(sprite => sprite.isAvatar) || spriteList[0]
@@ -466,6 +470,7 @@ class Game {
             document.addEventListener('touchmove', this.pointerMove, { passive: false })
 
             window.addEventListener('resize', this.resize)
+            this.resize()
         }
 
         this.removeEventListeners = () => {
@@ -520,7 +525,20 @@ class Game {
         }
 
         this.resize = () => {
-            
+            let container = this.wrapper.parentElement
+            let rect = container.getBoundingClientRect()
+            if (this.canvas.height > this.canvas.width) {
+                let widthA = rect.height * (this.canvas.width / this.canvas.height)
+                let widthB = rect.width
+                let minWidth = Math.min(widthA, widthB)
+                this.wrapper.style.width = minWidth + 'px'
+            } else {
+                let heightA = rect.width * (this.canvas.height / this.canvas.width)
+                let heightB = rect.height
+                let minHeight = Math.min(heightA, heightB)
+                let width = (this.canvas.width / this.canvas.height) * minHeight
+                this.wrapper.style.width = width + 'px'
+            }
         }
     }
 

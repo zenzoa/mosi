@@ -198,13 +198,27 @@ let spriteButton = ({ onclick, sprite, isSelected, colorList }) => {
 }
 
 class ColorPicker extends Component {
+    constructor() {
+        super()
+
+        this.resize = () => {
+            let rect = this.el.getBoundingClientRect()
+            let width = Math.min(rect.width, 320) - 16
+            this.colorPicker.resize(width)
+        }
+    }
+
     componentDidMount() {
         this.colorPicker = new iro.ColorPicker(this.el, this.props)
         this.colorPicker.on('color:change', color => {
             if (this.props.onColorChange) this.props.onColorChange(color)
         })
         this.resize()
-        window.addEventListener('resize', this.resize.bind(this))
+        window.addEventListener('resize', this.resize)
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.resize)
     }
 
     shouldComponentUpdate(nextProps) {
@@ -212,12 +226,6 @@ class ColorPicker extends Component {
         if (color) this.colorPicker.color.set( color)
         this.colorPicker.setState(otherProps)
         return false
-    }
-
-    resize() {
-        let rect = this.el.getBoundingClientRect()
-        let width = Math.min(rect.width, 320) - 16
-        this.colorPicker.resize(width)
     }
   
     render() {

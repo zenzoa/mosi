@@ -350,8 +350,14 @@ class Main extends Component {
                 playButton
             ])
 
-        let tabList = tabVisibility.play ? playTab :
-            [
+        if (tabVisibility.play) {
+            return playTab
+        }
+
+        // main
+        return div({ className: 'main' }, [
+            header,
+            div({ className: 'tabs' }, [
                 welcomeTab,
                 worldTab,
                 roomTab,
@@ -360,12 +366,7 @@ class Main extends Component {
                 behaviorTab,
                 colorTab,
                 fontTab
-            ]
-
-        // main
-        return div({ className: 'main' }, [
-            header,
-            div({ className: 'tabs' }, tabList),
+            ]),
             errorOverlay
         ])
     }

@@ -471,12 +471,17 @@ a:visited {
 }
 
 .play-canvas-wrapper {
-    width: 100%;
-    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    flex-basis: auto;
+    flex-grow: 1;
+    justify-content: center;
+    margin: 8px;
 }
 
-.play-canvas-wrapper canvas {
-    width: 100%;
+.play-canvas {
+    flex-grow: 1;
+    overflow: hidden;
 }
 
 .behavior {
