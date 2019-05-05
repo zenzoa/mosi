@@ -580,7 +580,7 @@ class Game {
         }
 
         this.resize = () => {
-            let container = this.wrapper.parentElement
+            let container = this.wrapper.parentElement.parentElement
             let rect = container.getBoundingClientRect()
             if (this.canvas.height > this.canvas.width) {
                 let widthA = rect.height * (this.canvas.width / this.canvas.height)

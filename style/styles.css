@@ -477,11 +477,16 @@ a:visited {
     flex-grow: 1;
     justify-content: center;
     margin: 8px;
+    overflow: hidden;
 }
 
 .play-canvas {
     flex-grow: 1;
     overflow: hidden;
+}
+
+.play-canvas canvas:first-child {
+    border-radius: 4px;
 }
 
 .behavior {
