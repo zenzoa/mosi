@@ -42,6 +42,14 @@ let Files = {
         } catch (e) {
             console.error('unable to create file', e)
         }
+    },
+
+    fillTemplate: (template, dictionary) => {
+        Object.keys(dictionary).forEach(key => {
+            let value = dictionary[key]
+            template = template.replace('//' + key + '//', value)
+        })
+        return template
     }
 
 }

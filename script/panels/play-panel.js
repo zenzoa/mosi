@@ -8,7 +8,13 @@ class PlayPanel extends Component {
         this.game.end()
     }
 
-    render({ closeTab }) {
+    render({ closeTab, world }, { showShareOverlay }) {
+
+        let shareOverlay = !showShareOverlay ? null :
+            h(ShareOverlay, {
+                closeOverlay: () => this.setState({ showShareOverlay: false }),
+                world
+            })
 
         return div({ className: 'main' }, [
             div({ className: 'editor-header row' }, [
@@ -17,7 +23,7 @@ class PlayPanel extends Component {
                 }, 'back'),
                 fill(),
                 button({
-                    onclick: () => console.log('da share zone')
+                    onclick: () => this.setState({ showShareOverlay: true })
                 }, 'share')
             ]),
             div({ className: 'play-canvas-wrapper' }, 
@@ -25,7 +31,9 @@ class PlayPanel extends Component {
                     className: 'play-canvas',
                     ref: n => this.gameWrapper = n
                 })
-            )
+            ),
+            shareOverlay
         ])
+
     }
 }

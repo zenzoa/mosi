@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>//TITLE//</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+
+<style>
+    html, body {
+        height: 100%;
+        overflow: hidden;
+    }
+    body {
+        background: black;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    main {
+        display: flex;
+        flex-direction: column;
+        flex-basis: auto;
+        flex-grow: 1;
+        justify-content: center;
+        margin: 8px;
+    }
+    #game-wrapper {
+        flex-grow: 1;
+        overflow: hidden;
+    }
+    canvas:first-child {
+        border-radius: 4px;
+    }
+    canvas {
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        image-rendering: -moz-crisp-edges;
+    }
+</style>
+
+<script>
+window.GAME_DATA = //GAME_DATA//
+</script>
+
+<script>
+//TEXT_SCRIPT//
+</script>
+
+<script>
+//GAME_SCRIPT//
+</script>
+
+<script>
+window.onload = () => {
+    let wrapper = document.getElementById('game-wrapper')
+    this.game = new Game(window.GAME_DATA, wrapper)
+    this.game.begin()
+}
+</script>
+
+</head>
+
+<body>
+    <main>
+        <div id='game-wrapper'></div>
+    </main>
+</body>
+
+</html>

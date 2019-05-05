@@ -67,6 +67,30 @@ class ExportOverlay extends Component {
     }
 }
 
+class ShareOverlay extends Component {
+    render({ closeOverlay, world }) {
+        let downloadButton = div({}, [
+            button({
+                onclick: () => {
+                    let template = window.resources['export-template.html']
+                    let data = Files.fillTemplate(template, {
+                        'TITLE': world.name || 'untitled',
+                        'GAME_SCRIPT': window.resources['game.js'],
+                        'TEXT_SCRIPT': window.resources['text.js'],
+                        'GAME_DATA': World.export(world)
+                    })
+                    let filename = (world.name || 'untitled') + '.html'
+                    Files.download(filename, data)
+                }
+            }, 'download game file')
+        ])
+
+        return overlay({ closeOverlay, header: 'share' }, [
+            downloadButton
+        ])
+    }
+}
+
 class RoomGifOverlay extends Component {
     constructor() {
         super()

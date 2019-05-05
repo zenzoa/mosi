@@ -1,5 +1,3 @@
-// TODO: add share button to play panel
-
 let FRAME_RATE = 400
 
 class Main extends Component {
@@ -208,7 +206,7 @@ class Main extends Component {
                 updateWorld: this.updateWorld.bind(this),
                 renameWorld: World.rename.bind(this, this),
                 importWorld: World.import.bind(this, this),
-                exportWorld: World.export.bind(this, this),
+                exportWorld: World.export.bind(this, this.state),
                 setWrapHorizontal: World.setWrapHorizontal.bind(this, this),
                 setWrapVertical: World.setWrapVertical.bind(this, this),
                 selectRoom: Room.select.bind(this, this),
@@ -369,4 +367,9 @@ class Main extends Component {
 
 window.onload = () => {
     render(h(Main), document.body)
+
+    window.resources = {}
+    Files.loadResource('export-template.html', data => window.resources['export-template.html'] = data)
+    Files.loadResource('script/entities/game.js', data => window.resources['game.js'] = data)
+    Files.loadResource('script/entities/text.js', data => window.resources['text.js'] = data)
 }

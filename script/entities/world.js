@@ -125,8 +125,8 @@ let World = {
         }
     },
 
-    export: (that) => {
-        let world = deepClone(that.state)
+    export: (world) => {
+        world = deepClone(world)
 
         // remove editor state
         delete world.currentTab

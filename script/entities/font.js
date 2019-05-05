@@ -1,10 +1,5 @@
 let Font = {
 
-    load: (fontName, onready) => {
-        let fileName = 'fonts/' + fontName + '.bitsyfont'
-        Files.loadResource(fileName, data => onready(data))
-    },
-
     parse: (data) => {
         let name = ''
         let width
