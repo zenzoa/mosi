@@ -169,7 +169,7 @@ let menu = (props, children) => {
     return h(Menu, props, children)
 }
 
-let spriteButton = ({ onclick, sprite, isSelected, colorList }) => {
+let spriteButton = ({ className, onclick, sprite, isSelected, colorList }) => {
     let avatarClass = sprite.isAvatar ? ' avatar' : ''
     let selectedClass = isSelected ? ' selected' : ''
     let spriteName = sprite.name
@@ -181,7 +181,7 @@ let spriteButton = ({ onclick, sprite, isSelected, colorList }) => {
     let backgroundColor = colorList[0]
 
     return button({
-        className: 'sprite-button' + avatarClass + selectedClass,
+        className: 'sprite-button ' + className + avatarClass + selectedClass,
         onclick,
     }, [
         span({}, h(SpriteCanvas, {

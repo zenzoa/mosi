@@ -1,4 +1,4 @@
-FONT ascii_tiny
+let ASCII_TINY = `FONT ascii_tiny
 SIZE 4 5
 CHAR 32
 0000
@@ -569,4 +569,4 @@ CHAR 126
 1100
 0000
 0000
-0000
+0000`

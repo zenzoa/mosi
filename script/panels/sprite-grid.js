@@ -8,18 +8,21 @@ class SpriteGrid extends Component {
         }
 
         this.pointerStart = (e) => {
+            e.preventDefault()
             this.pointerIsDown = true
             this.drawPixelEvent(e, true)
         }
 
         this.pointerMove = (e) => {
             if (this.pointerIsDown) {
+                e.preventDefault()
                 this.drawPixelEvent(e)
             }
         }
 
         this.pointerEnd = (e) => {
             if (this.pointerIsDown) {
+                e.preventDefault()
                 this.pointerIsDown = false
             }
         }
@@ -145,14 +148,14 @@ class SpriteGrid extends Component {
         this.update()
     }
 
-    render({ width, height }, { lastTileX, lastTileY }) {
+    render({ className, width, height }, { lastTileX, lastTileY }) {
         let tileWidth = 100 / width
         let tileHeight = 100 / height
         let tileX = lastTileX * tileWidth
         let tileY = lastTileY * tileHeight
 
         return div({
-            className: 'grid spritegrid',
+            className: 'grid spritegrid ' + className,
             ref: node => { this.node = node },
             tabindex: 0
         }, [

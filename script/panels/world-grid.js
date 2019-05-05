@@ -11,22 +11,31 @@ class WorldGrid extends Component {
         this.roomColorList = []
         
         this.pointerStart = (e) => {
+            e.preventDefault()
             let pointer = e.touches ? e.touches[0] : e
             this.pointerIsDown = true
-            this.pointerStart = {
+            this.pointerPos = {
                 x: pointer.clientX,
                 y: pointer.clientY
             }
         }
 
         this.pointerMove = (e) => {
-            //
+            if (this.pointerIsDown) {
+                e.preventDefault()
+                let pointer = e.touches ? e.touches[0] : e
+                this.pointerPos = {
+                    x: pointer.clientX,
+                    y: pointer.clientY
+                }
+            }
         }
 
         this.pointerEnd = (e) => {
             if (this.pointerIsDown) {
+                e.preventDefault()
                 this.pointerIsDown = false
-                this.pointerSelect(e)
+                this.pointerSelect()
             }
         }
 
@@ -58,13 +67,12 @@ class WorldGrid extends Component {
         }
 
         this.pointerSelect = (e) => {
-            let pointer = e.touches ? e.touches[0] : e
             let { worldWidth, worldHeight, selectRoom } = this.props
             let rect = this.node.getBoundingClientRect()
             let tileWidth = rect.width / worldWidth
             let tileHeight = rect.height / worldHeight
-            let relX = pointer.clientX - rect.x
-            let relY = pointer.clientY - rect.y
+            let relX = this.pointerPos.x - rect.x
+            let relY = this.pointerPos.y - rect.y
             if (relX < 0 || relY < 0 || relX >= rect.width || relY >= rect.height) {
                 return
             }

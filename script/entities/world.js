@@ -24,7 +24,7 @@ let World = {
 
             fontResolution: 1,
             fontDirection: 'ltr',
-            fontData: DEFAULT_FONT
+            fontData: Font.parse(ASCII_TINY)
         }
  
         // initialize room list

@@ -12,6 +12,7 @@ class RoomGrid extends Component {
         this.isDrawing = true
 
         this.pointerStart = (e) => {
+            e.preventDefault()
             this.pointerIsDown = true
             let startOfDraw = true
             let drawOnTop = this.metaKeyIsDown
@@ -20,12 +21,14 @@ class RoomGrid extends Component {
 
         this.pointerMove = (e) => {
             if (this.pointerIsDown) {
+                e.preventDefault()
                 this.pointerDraw(e)
             }
         }
 
         this.pointerEnd = (e) => {
             if (this.pointerIsDown) {
+                e.preventDefault()
                 this.pointerIsDown = false
             }
         }

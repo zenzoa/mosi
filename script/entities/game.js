@@ -80,7 +80,7 @@ class Game {
             this.timeToNextInput -= dt
             if (this.timeToNextInput <= 0) {
                 if (!this.showDialog) this.updateAvatar()
-                this.timeToNextInput = 150
+                this.timeToNextInput = 200
             }
 
             // get current tiles and colors
@@ -147,6 +147,26 @@ class Game {
                     y--
                 } else if (key === 'ArrowDown') {
                     y++
+                }
+            } else if (this.pointerIsDown || this.oneMoreMove) {
+                let dx = this.pointerEndPos.x - this.pointerStartPos.x
+                let dy = this.pointerEndPos.y - this.pointerStartPos.y
+
+                if (dx * dx + dy * dy > 20 * 20) {
+                    let angle = Math.atan2(dy, dx) * 180 / Math.PI + 180
+                    if (angle > 45 && angle <= 135) {
+                        y--
+                    } else if (angle > 135 && angle <= 225) {
+                        x++
+                        this.avatarDirection = 'right'
+                    } else if (angle > 225 && angle <= 315) {
+                        y++
+                    } else {
+                        x--
+                        this.avatarDirection = 'left'
+                    }
+                    this.movesSinceLastTouch++
+                    this.oneMoreMove = false
                 }
             }
 
@@ -449,6 +469,7 @@ class Game {
                 displayAtBottom
             })
             this.dialog.begin()
+            this.pointerIsDown = false
         }
 
         this.endDialog = () => {
@@ -513,15 +534,49 @@ class Game {
         }
 
         this.pointerStart = (e) => {
+            e.preventDefault()
             let pointer = e.touches ? e.touches[0] : e
-        }
-
-        this.pointerEnd = (e) => {
-            
+            this.pointerIsDown = true
+            this.movesSinceLastTouch = 0
+            this.pointerStartPos = {
+                x: pointer.clientX,
+                y: pointer.clientY
+            }
+            this.pointerEndPos = {
+                x: pointer.clientX,
+                y: pointer.clientY
+            }
+            this.timeToNextInput = 0
         }
 
         this.pointerMove = (e) => {
-            
+            if (this.pointerIsDown) {
+                e.preventDefault()
+                let pointer = e.touches ? e.touches[0] : e
+                this.pointerEndPos = {
+                    x: pointer.clientX,
+                    y: pointer.clientY
+                }
+            }
+        }
+
+        this.pointerEnd = (e) => {
+            if (this.pointerIsDown) {
+                e.preventDefault()
+                this.pointerIsDown = false
+                if (this.showDialog) {
+                    if (this.dialog.isComplete()) {
+                        this.endDialog()
+                    } else {
+                        this.dialog.finishPage()
+                    }
+                } else {
+                    if (this.movesSinceLastTouch === 0) {
+                        this.oneMoreMove = true
+                        this.timeToNextInput = 0
+                    }
+                }
+            }
         }
 
         this.resize = () => {

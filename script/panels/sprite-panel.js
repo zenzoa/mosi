@@ -45,7 +45,6 @@ class SpritePanel extends Component {
         let backgroundColor = colorList[0]
 
         let nameTextbox = textbox({
-            className: 'initial-focus',
             placeholder: 'sprite name',
             value: name,
             onchange: e => renameSprite(e.target.value)
@@ -137,7 +136,7 @@ class SpritePanel extends Component {
     
         let addFrameButton = frameList.length >= 4 ? null :
             button({
-                className: 'icon',
+                className: frameList.length === 1 ? '' : 'icon',
                 title: 'add frame',
                 onclick: () => {
                     let newFrame = currentFrame.slice()
@@ -234,6 +233,7 @@ class SpritePanel extends Component {
         }
 
         let spriteGrid = h(SpriteGrid, {
+            className: 'initial-focus',
             drawPixel,
             width,
             height,

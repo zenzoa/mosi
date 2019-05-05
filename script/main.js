@@ -1,11 +1,6 @@
-// TODO: swipe controls on gameplay, mimic arrow keys, test with dialog
 // TODO: add share button to play panel
-// TODO: test on mobile
 
 let FRAME_RATE = 400
-
-let DEFAULT_FONT
-Font.load('ascii_tiny', f => { DEFAULT_FONT = Font.parse(f) })
 
 class Main extends Component {
     constructor() {
@@ -93,11 +88,11 @@ class Main extends Component {
                 if (data) {
                     let newState = JSON.parse(data)
                     this.setState(newState)
-                    this.applyTheme(newState.themeName)
                 } else if (oldData) {
                     console.log('found world data from previous version of mosi', oldData)
                     World.import(this, oldData)
                 }
+                this.applyTheme(this.state.themeName)
             } catch(e) {
                 console.error('unable to load editor state', e)
             }

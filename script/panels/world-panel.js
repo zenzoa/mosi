@@ -34,7 +34,6 @@ class WorldPanel extends Component {
     }) {
 
         let nameTextbox = textbox({
-            className: 'initial-focus',
             placeholder: 'name of world',
             value: worldName,
             onchange: e => renameWorld(e.target.value)
@@ -93,6 +92,7 @@ class WorldPanel extends Component {
             })
 
         let worldGrid = h(WorldGrid, {
+            className: 'initial-focus',
             selectRoom,
             startRoomIndex,
             currentRoomIndex,

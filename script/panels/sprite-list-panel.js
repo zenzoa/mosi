@@ -28,7 +28,6 @@ class SpriteList extends Component {
         filter
     }) {
         let filterInput = textbox({
-            className: 'initial-focus',
             placeholder: 'search sprites',
             value: filter,
             onchange: e => this.setState({ filter: e.target.value })
@@ -58,6 +57,7 @@ class SpriteList extends Component {
             // convert to components
             .map(({ sprite, i }) =>
                 spriteButton({
+                    className: i === 0 ? 'initial-focus' : '',
                     onclick: () => selectSprite(i, 'sprite'),
                     sprite,
                     colorList,

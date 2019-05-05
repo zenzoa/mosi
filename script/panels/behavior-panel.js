@@ -41,7 +41,7 @@ class BehaviorPanel extends Component {
         let currentBehavior = behaviorList[currentBehaviorIndex]
 
         let eventDropdown = dropdown({
-            className: 'initial-focus simple',
+            className: 'simple',
             value: currentBehaviorIndex,
             onchange: e => {
                 if (e.target.value === 'add') {
@@ -119,11 +119,13 @@ class BehaviorPanel extends Component {
                 spriteWidth,
                 spriteHeight,
                 paletteList,
-                colorList
+                colorList,
+                firstAction: i === 0
             })
         })
 
         let addActionButton = button({
+            className: currentBehavior.actionList.length === 0 ? 'initial-focus' : '',
             onclick: () => addAction(currentBehavior.event)
         }, 'add action')
 
@@ -494,7 +496,8 @@ class BehaviorComponent extends Component {
     render({
         updateAction,
         removeAction,
-        action
+        action,
+        firstAction
     }, {
         showRemoveOverlay
     }) {
@@ -556,7 +559,10 @@ class BehaviorComponent extends Component {
             actionSettings = this.renderConditional()
         }
 
-        return div({ className: 'behavior' }, [
+        return div({
+            className: 'behavior' + (firstAction ? ' initial-focus' : ''),
+            tabIndex: 0
+        }, [
             row([
                 actionTypeDropdown,
                 fill(),

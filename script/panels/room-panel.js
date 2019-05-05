@@ -42,14 +42,12 @@ class RoomPanel extends Component {
         let colorList = currentPalette.colorList
 
         let nameTextbox = textbox({
-            className: 'initial-focus',
             placeholder: 'room name',
             value: room.name,
             onchange: e => renameRoom(e.target.value)
         })
 
         let paletteDropdown = dropdown({
-            className: 'initial-focus',
             value: room.paletteName,
             onchange: e => setPaletteName(e.target.value)
         }, paletteList
@@ -165,6 +163,7 @@ class RoomPanel extends Component {
             })
 
         let roomGrid = h(RoomGrid, {
+            className: 'initial-focus',
             roomWidth,
             roomHeight,
             spriteWidth,
