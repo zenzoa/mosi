@@ -137,6 +137,8 @@ class SpritePanel extends Component {
     
         let addFrameButton = frameList.length >= 4 ? null :
             button({
+                className: 'icon',
+                title: 'add frame',
                 onclick: () => {
                     let newFrame = currentFrame.slice()
                     addFrame(newFrame)
@@ -146,6 +148,8 @@ class SpritePanel extends Component {
     
         let removeFrameButton = frameList.length <= 1 ? null :
             button({
+                className: 'icon',
+                title: 'remove frame',
                 onclick: () => this.setState({ showRemoveFrameOverlay: true })
             }, '-')
 
@@ -163,6 +167,8 @@ class SpritePanel extends Component {
             })
     
         let clearFrameButton = button({
+            className: 'icon',
+            title: 'clear',
             onclick: () => this.setState({ showClearFrameOverlay: true })
         }, '×')
 
@@ -178,6 +184,8 @@ class SpritePanel extends Component {
             })
 
         let randomFrameButton = button({
+            className: 'icon',
+            title: 'randomize',
             onclick: () => this.setState({ showRandomFrameOverlay: true })
         }, '?')
 
@@ -193,14 +201,20 @@ class SpritePanel extends Component {
             })
 
         let flipFrameHorizontalButton = button({
+            className: 'icon',
+            title: 'flip left-right',
             onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, true))
         }, '⇆')
 
         let flipFrameVerticalButton = button({
+            className: 'icon',
+            title: 'flip up-down',
             onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, false))
         }, '⇅')
 
         let rotateFrameButton = button({
+            className: 'icon',
+            title: 'rotate',
             onclick: () => updateFrame(currentFrameIndex, Sprite.rotateFrame(width, height, currentFrame))
         }, '⟳')
     
@@ -230,7 +244,7 @@ class SpritePanel extends Component {
         })
     
         return panel({ header: 'sprite', closeTab }, [
-            div({ className: 'sprite-settings' }, [
+            row([
                 nameTextbox,
                 menu({}, [
                     exportButton,
@@ -238,12 +252,12 @@ class SpritePanel extends Component {
                     removeButton
                 ])
             ]),
-            div({ className: 'sprite-actions' }, [
+            row([
                 wallButton,
                 itemButton,
                 behaviorButton
             ]),
-            div({ className: 'sprite-frames' }, [
+            row([
                 spritePreview,
                 frameListDivider,
                 frameButtonList,
@@ -256,7 +270,7 @@ class SpritePanel extends Component {
             },
                 spriteGrid
             ),
-            div({className: 'sprite-frame-actions'}, [
+            row([
                 clearFrameButton,
                 flipFrameHorizontalButton,
                 flipFrameVerticalButton,

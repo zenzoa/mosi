@@ -29,7 +29,6 @@ body.no-scroll {
 
 .editor-header {
     flex-shrink: 0;
-    display: flex;
     padding: 8px;
 }
 
@@ -39,25 +38,33 @@ body.no-scroll {
     flex-grow: 1;
 }
 
-.panel {
-}
-
 .panel-header {
     display: inline-block;
-    min-width: 100px;
     margin-left: 8px;
     margin-bottom: -8px;
     padding-top: 4px;
-    padding-left: 16px;
+    padding-left: 20px;
+    padding-right: 8px;
     border-top-left-radius: 4px;
     border-top-right-radius: 4px;
     background: var(--panel-bg-color);
+    font-weight: bold;
+}
+
+.panel-header > * + * {
+    margin-left: 8px;
 }
 
 .panel-content {
     padding: 8px;
     border-radius: 4px;
     background: var(--panel-bg-color);
+}
+
+.content > * + *,
+.panel-content > * + *,
+.overlay-content > * + * {
+    margin-top: 8px;
 }
 
 .one-tab-mode {
@@ -118,10 +125,12 @@ body.no-scroll {
     display: flex;
     align-items: center;
     justify-content: center;
+    margin: 0;
     background: var(--overlay-bg-color);
 }
 
 .overlay {
+    min-width: 300px;
     max-height: 100%;
     overflow-y: auto;
     margin: 8px;
@@ -135,6 +144,7 @@ body.no-scroll {
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-bottom: 8px;
 }
 
 .overlay-header span:first-child {
@@ -142,12 +152,41 @@ body.no-scroll {
     font-weight: bold;
 }
 
+.overlay-content > button,
+.overlay-content > .dropdown {
+    display: block;
+    width: 100%;
+}
+
+.row {
+    display: flex;
+    align-items: center;
+}
+
+.row > * + * {
+    margin-left: 8px;
+}
+
+.row > input,
+.row > .dropdown {
+    flex-grow: 1;
+}
+
+.fill {
+    flex-grow: 1;
+}
+
+hr {
+    margin: 16px 0 !important;
+    border: none;
+    border-bottom: 1px solid var(--panel-secondary-color);
+}
+
 .vertical-divider {
     display: inline-block;
     height: 52px;
-    margin-left: 2px;
-    margin-right: 8px;
-    border-left: 1px solid var(--panel-secondary-color);
+    padding-left: 2px;
+    border-right: 1px solid var(--panel-secondary-color);
 }
 
 .sprite-button {
@@ -163,6 +202,7 @@ body.no-scroll {
     border-width: 4px;
     border-style: solid;
     border-radius: 2px;
+    box-shadow: 0 0 0 1px white;
     width: 36px;
 }
 
@@ -172,17 +212,6 @@ body.no-scroll {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-}
-
-.color-button {
-    width: 52px;
-    height: 52px;
-    padding: 8px;
-}
-
-.color-button-block {
-    width: 100%;
-    height: 100%;
 }
 
 .menu {
@@ -229,7 +258,9 @@ input,
 textarea,
 button,
 select {
-    margin: 0 8px 8px 0;
+    min-width: 0;
+    min-height: 32px;
+    margin: 0;
     padding: 8px 16px;
     outline: none;
     border: none;
@@ -242,6 +273,11 @@ select {
 input:focus,
 textarea:focus {
     box-shadow: 0 0 0 2px var(--button-shadow-color);
+}
+
+textarea {
+    width: 100%;
+    height: 6em;
 }
 
 button,
@@ -317,6 +353,12 @@ button.toggle.selected:before {
     background: var(--button-selected-fg-color);
 }
 
+button.icon {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 120%;
+}
 
 select {
     -webkit-appearance: none;
@@ -327,7 +369,6 @@ select {
 .dropdown {
     display: inline-block;
     position: relative;
-    margin: 0 8px 8px 0;
 }
 
 .dropdown select {
@@ -381,6 +422,10 @@ textarea {
         -1px -1px var(--shadow-color);
 }
 
+label > span {
+    margin-right: 8px;
+}
+
 canvas {
     display: block;
     image-rendering: pixelated;
@@ -390,6 +435,11 @@ canvas {
 
 img {
     max-width: 100%;
+}
+
+a,
+a:visited {
+    color: var(--highlight-color);
 }
 
 .avatar:after {
@@ -422,6 +472,7 @@ img {
 
 .play-canvas-wrapper {
     width: 100%;
+    padding: 8px;
 }
 
 .play-canvas-wrapper canvas {
@@ -436,13 +487,73 @@ img {
     box-shadow: 2px 2px 0 0 var(--button-shadow-color);
 }
 
+.behavior-settings > * {
+    margin-top: 8px;
+}
+
 .behavior button:not(.simple):not(.selected),
 .behavior select:not(.simple):not(.selected) {
     background: var(--button-dark-bg-color);
 }
 
 .behaviorList {
-    padding: 8px;
+    padding: 16px 8px;
     border-radius: 8px;
     background: var(--panel-bg-color);
+}
+
+.spritelist > * {
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+.welcome-logo {
+    padding: 24px;
+}
+
+.welcome-logo {
+    width: 100%;
+}
+
+.iro__colorPicker {
+    margin: 16px auto 8px;
+}
+
+.color-button {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.color-button + .color-button {
+    margin-left: 4px;
+}
+
+.color-button.selected {
+    padding: 2px;
+}
+
+.color-button-block {
+    width: 100%;
+    height: 100%;
+}
+
+.color-button.selected .color-button-block {
+    border: 1px solid white;
+    border-radius: 2px;
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 10px;
+    }
+
+    button,
+    select,
+    input,
+    textarea {
+        padding: 8px;
+    }
 }

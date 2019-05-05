@@ -87,8 +87,10 @@ class BehaviorPanel extends Component {
 
         let removeEventButton = currentBehavior.event === 'push' ? null :
             button({
+                className: 'icon',
+                title: 'remove event',
                 onclick: () => this.setState({ showRemoveEventOverlay: true }),
-            }, 'remove event')
+            }, '×')
 
         let removeEventOverlay = !showRemoveEventOverlay ? null :
             h(RemoveOverlay, {
@@ -132,7 +134,7 @@ class BehaviorPanel extends Component {
         }
 
         return panel({ header: 'behaviors', closeTab }, [
-            div({ className: 'behavior-event' }, [
+            row([
                 eventDropdown,
                 eventTextbox,
                 removeEventButton
@@ -303,7 +305,7 @@ class BehaviorComponent extends Component {
         let spriteOverlay = !this.state.showSpriteOverlay ? null :
             this.spriteOverlay(spriteIndex, 'spriteName')
 
-        return [
+        return row([
             button({
                 onclick: e => updateAction({ isGiving: !action.isGiving })
             }, action.isGiving ? 'add to inventory' : 'take from inventory'),
@@ -314,7 +316,7 @@ class BehaviorComponent extends Component {
             }),
             currentSpriteButton,
             spriteOverlay
-        ]
+        ])
     }
 
     renderMoveAvatar() {
@@ -336,8 +338,10 @@ class BehaviorComponent extends Component {
             this.roomOverlay(action.roomIndex, action.tileX, action.tileY, 'tileX', 'tileY')
 
         return [
-            currentRoomButton,
-            currentTileButton,
+            row([
+                currentRoomButton,
+                currentTileButton
+            ]),
             worldOverlay,
             roomOverlay
         ]
@@ -361,10 +365,10 @@ class BehaviorComponent extends Component {
         let spriteOverlay = !this.state.showSpriteOverlay ? null :
             this.spriteOverlay(spriteIndex, 'spriteName')
 
-        return [
+        return row([
             currentSpriteButton,
             spriteOverlay
-        ]
+        ])
     }
 
     renderRemoveSelf() {
@@ -411,7 +415,7 @@ class BehaviorComponent extends Component {
         }, 'add action')
 
         return [
-            div({}, [
+            row([
                 loopButton,
                 shuffleButton
             ]),
@@ -474,7 +478,7 @@ class BehaviorComponent extends Component {
         }, 'add action')
 
         return [
-            div({}, [
+            row([
                 currentSpriteButton,
                 comparisonDropdown,
                 quantityNumbox
@@ -511,7 +515,8 @@ class BehaviorComponent extends Component {
         ])
 
         let removeButton = button({
-            className: 'simple',
+            className: 'simple icon',
+            title: 'remove action',
             onclick: () => this.setState({ showRemoveOverlay: true }),
         }, '×')
 
@@ -552,11 +557,12 @@ class BehaviorComponent extends Component {
         }
 
         return div({ className: 'behavior' }, [
-            div({}, [
+            row([
                 actionTypeDropdown,
+                fill(),
                 removeButton
             ]),
-            div({},
+            div({ className: 'behavior-settings' },
                 actionSettings
             ),
             removeOverlay

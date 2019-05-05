@@ -11,9 +11,15 @@ class PlayPanel extends Component {
     render({ closeTab }) {
 
         return div({}, [
-            button({
-                onclick: closeTab
-            }, 'back'),
+            div({ className: 'editor-header row' }, [
+                button({
+                    onclick: closeTab
+                }, 'back'),
+                fill(),
+                button({
+                    onclick: () => console.log('da share zone')
+                }, 'share')
+            ]),
             div({
                 className: 'play-canvas-wrapper',
                 ref: n => this.gameWrapper = n

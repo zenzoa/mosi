@@ -106,7 +106,7 @@ class WorldPanel extends Component {
         })
 
         return panel({ header: 'world', closeTab }, [
-            div({ className: 'world-settings' }, [
+            row([
                 nameTextbox,
                 menu({}, [
                     newWorldButton,
@@ -120,7 +120,7 @@ class WorldPanel extends Component {
             },
                 worldGrid
             ),
-            div({ className: 'world-actions' }, [
+            row([
                 wrapHorizontalButton,
                 wrapVerticalButton
             ]),

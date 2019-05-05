@@ -128,17 +128,21 @@ class ColorPanel extends Component {
 
         let addColorButton = !palette || palette.colorList.length >= 8 ? null :
             button({
+                className: 'icon',
+                title: 'add color',
                 onclick: () => {
                     this.setState({ currentColorIndex: palette.colorList.length })
                     let currentColor = palette.colorList[currentColorIndex]
                     addColor(currentPaletteIndex, currentColor)
                 }
-            }, 'add color')
+            }, '+')
 
         let removeColorButton = !palette || palette.colorList.length <= 2 ? null :
             button({
+                className: 'icon',
+                title: 'remove color',
                 onclick: () => this.setState({ showRemoveColorOverlay: true })
-            }, 'remove color')
+            }, '-')
 
         let removeColorOverlay = !showRemoveColorOverlay ? null :
             h(RemoveOverlay, {
@@ -175,17 +179,17 @@ class ColorPanel extends Component {
             })
 
         return panel({ header: 'colors', closeTab }, [
-            div({ className: 'palette-dropdown' }, [
+            row([
                 paletteDropdown
             ]),
-            div({ className: 'palette-settings' }, [
-                nameTextbox
+            row([
+                nameTextbox,
+                menu({}, [
+                    removePaletteButton,
+                    randomPaletteButton
+                ])
             ]),
-            div({ className: 'palette-actions' }, [
-                removePaletteButton,
-                randomPaletteButton
-            ]),
-            div({ className: 'palette-colors' }, [
+            row([
                 colorButtonList,
                 addColorButton,
                 removeColorButton
@@ -193,7 +197,7 @@ class ColorPanel extends Component {
             div({ className: 'palette-color-picker' }, [
                 colorPicker
             ]),
-            div({ className: 'palette-color-textbox'}, [
+            row([
                 colorTextbox
             ]),
             removePaletteOverlay,

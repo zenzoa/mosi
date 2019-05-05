@@ -87,16 +87,14 @@ class SpriteList extends Component {
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
 
-        return div({ className: 'spritelist' }, [
-            div({ className: 'spritelist-filter' }, [
+        return div({ className: 'content' }, [
+            row([
+                editSpriteButton,
+                addSpriteButton,
                 filterInput,
                 importSpriteButton ? menu({}, importSpriteButton) : null
             ]),
-            div({ className: 'spritelist-actions' }, [
-                editSpriteButton,
-                addSpriteButton
-            ]),
-            div({ className: 'spritelist-sprites' }, [
+            div({ className: 'spritelist' }, [
                 spriteButtonList
             ]),
             importOverlay

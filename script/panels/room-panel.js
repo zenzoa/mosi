@@ -179,7 +179,7 @@ class RoomPanel extends Component {
         })
 
         return panel({ header: 'room', closeTab }, [
-            div({ className: 'room-settings' }, [
+            row([
                 nameTextbox,
                 menu({}, [
                     paletteDropdown,

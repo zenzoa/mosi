@@ -74,6 +74,8 @@ let img = (props, children) => h('img', props, children)
 let a = (props, children) => h('a', props, children)
 let em = (children) => h('em', {}, children)
 let strong = (children) => h('strong', {}, children)
+let row = (children) => div({ className: 'row' }, children)
+let fill = () => div({ className: 'fill' })
 
 class Panel extends Component {
     componentDidMount() {
@@ -87,9 +89,9 @@ class Panel extends Component {
         return div(props, [
             div({ className: 'panel-header' }, [
                 span({}, props.header),
-                span({}, button({ 
+                span({}, button({
                     onclick: props.closeTab,
-                    className: 'simple' 
+                    className: 'simple icon' 
                 }, '×'))
             ]),
             div({ className: 'panel-content' }, props.children)
@@ -125,7 +127,7 @@ class Overlay extends Component {
                     span({}, props.header),
                     span({}, button({
                         onclick: props.closeOverlay,
-                        className: 'simple'
+                        className: 'simple icon'
                     }, '×'))
                 ]),
                 div({ className: 'overlay-content' }, props.children)
@@ -201,6 +203,8 @@ class ColorPicker extends Component {
         this.colorPicker.on('color:change', color => {
             if (this.props.onColorChange) this.props.onColorChange(color)
         })
+        this.resize()
+        window.addEventListener('resize', this.resize.bind(this))
     }
 
     shouldComponentUpdate(nextProps) {
@@ -208,6 +212,12 @@ class ColorPicker extends Component {
         if (color) this.colorPicker.color.set( color)
         this.colorPicker.setState(otherProps)
         return false
+    }
+
+    resize() {
+        let rect = this.el.getBoundingClientRect()
+        let width = Math.min(rect.width, 320) - 16
+        this.colorPicker.resize(width)
     }
   
     render() {

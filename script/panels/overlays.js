@@ -10,8 +10,10 @@ class ErrorOverlay extends Component {
 class RemoveOverlay extends Component {
     render({ remove, closeOverlay, header, fileType }) {
         return overlay({ closeOverlay, header }, [
-            button({ onclick: remove, className: 'initial-focus' }, 'yes!'),
-            button({ onclick: closeOverlay }, 'no, keep it')
+            row([
+                button({ onclick: remove, className: 'initial-focus' }, 'yes!'),
+                button({ onclick: closeOverlay }, 'no, keep it')
+            ])
         ])
     }
 }
@@ -19,7 +21,7 @@ class RemoveOverlay extends Component {
 class ImportOverlay extends Component {
     render({ onImport, closeOverlay, header, fileType, hideTextImport }) {
         let textImport = hideTextImport ? null :
-            div({}, [
+            div({ className: 'content' }, [
                 textarea({
                     value: '',
                     className: 'initial-focus',
@@ -40,7 +42,7 @@ class ImportOverlay extends Component {
 
 class ExportOverlay extends Component {
     render({ data, closeOverlay, header, fileName }) {
-        let textExport = div({}, [
+        let textExport = div({ className: 'content' }, [
             textarea({
                 value: data,
                 ref: node => { this.textarea = node }
@@ -160,7 +162,7 @@ class NewWorldOverlay extends Component {
             })
 
         return overlay({ closeOverlay, header: 'new world' }, [
-            div({}, [
+            row([
                 span({}, 'world size'),
                 numbox({
                     value: worldWidth,
@@ -176,7 +178,7 @@ class NewWorldOverlay extends Component {
                     onchange: e => this.setState({ worldHeight: parseInt(e.target.value) })
                 })
             ]),
-            div({}, [
+            row([
                 span({}, 'room size'),
                 numbox({
                     value: roomWidth,
@@ -192,7 +194,7 @@ class NewWorldOverlay extends Component {
                     onchange: e => this.setState({ roomHeight: parseInt(e.target.value) })
                 })
             ]),
-            div({}, [
+            row([
                 span({}, 'sprite size'),
                 numbox({
                     value: spriteWidth,

@@ -1,6 +1,5 @@
 // TODO: swipe controls on gameplay, mimic arrow keys, test with dialog
 // TODO: add share button to play panel
-// TODO: make ui nicer
 // TODO: test on mobile
 
 let FRAME_RATE = 400
@@ -345,7 +344,7 @@ class Main extends Component {
             })
 
         let header = tabVisibility.play ? null :
-            div({ className: 'editor-header' }, [
+            div({ className: 'editor-header row' }, [
                 backButton,
                 tabDropdown,
                 playButton
