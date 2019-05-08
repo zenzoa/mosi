@@ -131,16 +131,15 @@ let Sprite = {
             })
 
             // rename behavior references
-            // spriteList.forEach(({ behaviorList }) => {
-            //     behaviorList.forEach(behavior => {
-            //         if (behavior.itemName === oldName) {
-            //             behavior.itemName = newName
-            //         }
-            //         if (behavior.spriteName === oldName) {
-            //             behavior.spriteName = newName
-            //         }
-            //     })
-            // })
+            spriteList.forEach(s => {
+                s.behaviorList.forEach(b => {
+                    b.actionList.forEach(a => {
+                        if (a.spriteName && a.spriteName === oldName) {
+                            a.spriteName = newName
+                        }
+                    })
+                })
+            })
 
             sprite.name = newName
             that.setState({ spriteList, roomList })
@@ -160,8 +159,18 @@ let Sprite = {
             )
         )
 
-        // update sprite references
-        // TODO: remove sprite from behaviors
+        // remove sprite from behaviors
+        spriteList.forEach(s => {
+            s.behaviorList.forEach(b => {
+                b.actionList.forEach(a => {
+                    if (a.spriteName && a.spriteName === sprite.name) {
+                        a.spriteName = null
+                    }
+                })
+            })
+        })
+
+        // update current sprite index
         if (currentSpriteIndex >= spriteIndex && currentSpriteIndex > 0) {
             currentSpriteIndex--
         }
