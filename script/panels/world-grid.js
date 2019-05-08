@@ -171,6 +171,12 @@ class WorldGrid extends Component {
         this.node.removeEventListener('keyup', this.keyUp)
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.currentRoomIndex !== this.props.currentRoomIndex) {
+            this.setState({ roomIndex: nextProps.currentRoomIndex })
+        }
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         if (nextState.roomIndex !== this.state.roomIndex) return true
         return checkForUpdates(nextProps, this.props)
