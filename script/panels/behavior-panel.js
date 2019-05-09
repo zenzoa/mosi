@@ -20,17 +20,8 @@ class BehaviorPanel extends Component {
         addAction,
         updateAction,
         removeAction,
-        roomList,
-        roomWidth,
-        roomHeight,
-        worldWidth,
-        worldHeight,
         spriteList,
-        spriteWidth,
-        spriteHeight,
-        currentSpriteIndex,
-        paletteList,
-        colorList
+        currentSpriteIndex
     }, {
         currentBehaviorIndex,
         showRemoveEventOverlay
@@ -107,19 +98,10 @@ class BehaviorPanel extends Component {
 
         let actionComponents = currentBehavior.actionList.map((action, i) => {
             return h(BehaviorComponent, {
+                ...this.props,
+                action,
                 updateAction: (newAction) => updateAction(currentBehavior.event, i, newAction),
                 removeAction: () => removeAction(currentBehavior.event, i),
-                action,
-                roomList,
-                roomWidth,
-                roomHeight,
-                worldWidth,
-                worldHeight,
-                spriteList,
-                spriteWidth,
-                spriteHeight,
-                paletteList,
-                colorList,
                 firstAction: i === 0
             })
         })
@@ -151,7 +133,7 @@ class BehaviorPanel extends Component {
 }
 
 class BehaviorComponent extends Component {
-    constructor(props) {
+    constructor() {
         super()
 
         this.spriteOverlay = (spriteIndex, propName) => {
@@ -389,7 +371,7 @@ class BehaviorComponent extends Component {
     }
 
     renderSequence() {
-        let { action, updateAction, roomList, spriteList, colorList } = this.props
+        let { action, updateAction } = this.props
 
         let loopButton = button({
             className: 'toggle' + (action.isLooping ? ' selected' : ''),
@@ -403,12 +385,10 @@ class BehaviorComponent extends Component {
 
         let actionComponents = action.actionList.map((subAction, i) => {
             return h(BehaviorComponent, {
+                ...this.props,
                 updateAction: (newAction) => this.updateSubAction('actionList', i, newAction),
                 removeAction: () => this.removeSubAction('actionList', i),
-                action: subAction,
-                roomList,
-                spriteList,
-                colorList
+                action: subAction
             })
         })
 
@@ -429,7 +409,7 @@ class BehaviorComponent extends Component {
     }
 
     renderConditional() {
-        let { action, updateAction, roomList, spriteList, colorList } = this.props
+        let { action, updateAction, spriteList, colorList } = this.props
         let spriteIndex = spriteList.findIndex(s => s.name === action.spriteName)
         let sprite = spriteList[spriteIndex]
 
@@ -466,12 +446,10 @@ class BehaviorComponent extends Component {
 
         let actionComponents = action.actionList.map((subAction, i) => {
             return h(BehaviorComponent, {
+                ...this.props,
                 updateAction: (newAction) => this.updateSubAction('actionList', i, newAction),
                 removeAction: () => this.removeSubAction('actionList', i),
-                action: subAction,
-                roomList,
-                spriteList,
-                colorList
+                action: subAction
             })
         })
 
