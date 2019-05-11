@@ -16,12 +16,18 @@ class FontPanel extends Component {
         showImportOverlay
     }) {
 
-        let fontResolutionInput = numbox({
+        let fontResolutionDropdown = dropdown({
             value: fontResolution,
-            min: 1,
-            max: 4,
-            onchange: e => setFontResolution(parseInt(e.target.value))
-        })
+            onchange: e => setFontResolution(parseFloat(e.target.value))
+        }, [
+            option({ value: 0.125 }, '×1/16'),
+            option({ value: 0.25 }, '×1/4'),
+            option({ value: 0.5 }, '×1/2'),
+            option({ value: 1 }, '×1'),
+            option({ value: 2 }, '×2'),
+            option({ value: 3 }, '×3'),
+            option({ value: 4 }, '×4')
+        ])
     
         let fontDirectionButton = button({
             onclick: () => setFontDirection((fontDirection === 'ltr' ? 'rtl' : 'ltr'))
@@ -50,7 +56,7 @@ class FontPanel extends Component {
             div({ className: 'font-resolution' }, [
                 label({}, [
                     span({}, 'font resolution'),
-                    fontResolutionInput
+                    fontResolutionDropdown
                 ])
             ]),
             div({ className: 'font-direction' }, [
