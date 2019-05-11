@@ -1,21 +1,15 @@
 class Text {
 
     constructor(props) {
-        let { string, fontData, fontDirection, wrapper, padding, width, height, displayAtBottom } = props
+        let { fontData, fontDirection, wrapper, padding, width, height } = props
 
-        this.string = string
+        this.string = ''
         this.fontData = fontData
         this.fontDirection = fontDirection
         this.wrapper = wrapper
         this.width = width
         this.height = Math.floor(fontData.height * 2.5) + Math.floor(padding * 1.5)
         this.linesPerPage = 2
-
-        this.x = 0
-        this.y = displayAtBottom ? height - this.height - Math.floor(padding / 2) : Math.floor(padding / 2)
-        this.innerX = this.x + padding
-        this.innerY = this.y + Math.floor(padding * 0.75)
-        this.innerWidth = this.width - (padding * 2)
 
         this.wrapper.style.position = 'relative'
         this.canvas = document.createElement('canvas')
@@ -28,11 +22,23 @@ class Text {
         this.canvas.style.width = '100%'
         this.context = this.canvas.getContext('2d')
 
-        this.numCharsToShow = 0
-        this.currentPageIndex = 0
-        this.pageComplete = false
+        this.setPosition = (displayAtBottom) => {
+            this.x = 0
+            this.y = displayAtBottom ? height - this.height - Math.floor(padding / 2) : Math.floor(padding / 2)
+            this.innerX = this.x + padding
+            this.innerY = this.y + Math.floor(padding * 0.75)
+            this.innerWidth = this.width - (padding * 2)
+        }
 
-        this.begin = () => {
+        this.begin = (string, displayAtBottom) => {
+            this.string = string
+            this.setPosition(displayAtBottom)
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+            this.numCharsToShow = 0
+            this.currentPageIndex = 0
+            this.pageComplete = false
+
             this.wrapper.appendChild(this.canvas)
             this.pageList = this.preparePages(this.string)
         }
