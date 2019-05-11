@@ -6,8 +6,8 @@ class BehaviorPanel extends Component {
         }
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.currentSpriteIndex !== this.props.currentSpriteIndex) {
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.currentSpriteIndex !== this.props.currentSpriteIndex) {
             this.setState({ currentBehaviorIndex: 0 })
         }
     }
