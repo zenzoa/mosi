@@ -45,6 +45,7 @@ class Game {
 
             // initialize dialog variables
             this.showDialog = false
+            this.delayedActions = []
 
             // get starting room
             this.moveRooms(this.startingRoom())
@@ -267,6 +268,13 @@ class Game {
         this.runAction = ({ action, tile, tempPosition, id, roomIndex }) => {
             let { roomHeight, roomList, spriteList, paletteList } = this.world
             if (window.DEBUG === true) console.log(`${action.type.toUpperCase()} action (room ${roomIndex}, tile ${tile.x}×${tile.y})`)
+
+            if (this.showDialog) {
+                this.delayedActions.push(
+                    this.runAction.bind(this, { action, tile, tempPosition, id, roomIndex })
+                )
+                return
+            }
             
             if (action.type === 'dialog') {
                 let displayAtBottom = tempPosition.y < roomHeight / 2
@@ -316,7 +324,7 @@ class Game {
                     (comparison === '>' && numItems > quantity) ||
                     (comparison === '>=' && numItems >= quantity)
                 ) {
-                    actionList.forEach((a, i) => this.runAction({ action: a, tile, tempPosition, id: id + '-' + i }))
+                    actionList.forEach((a, i) => this.runAction({ action: a, tile, tempPosition, id: id + '-' + i, roomIndex }))
                 }
             }
             else if (action.type === 'sequence') {
@@ -344,7 +352,7 @@ class Game {
                 // run current action
                 let i = tile.seqOrderList[id][tile.seqIndexList[id]]
                 let a = actionList[i]
-                this.runAction({ action: a, tile, tempPosition, id: id + '-' + i })
+                this.runAction({ action: a, tile, tempPosition, id: id + '-' + i, roomIndex })
 
                 // get next action
                 tile.seqIndexList[id]++
@@ -477,6 +485,11 @@ class Game {
         this.endDialog = () => {
             this.showDialog = false
             this.dialog.end()
+
+            while (this.delayedActions.length > 0 && !this.showDialog) {
+                let runDelayedAction = this.delayedActions.shift()
+                runDelayedAction()
+            }
         }
 
         this.addEventListeners = () => {
