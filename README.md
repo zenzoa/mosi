@@ -14,7 +14,6 @@ A tiny game engine that lets you make tiny game worlds.
 - [bitsy](http://ledoux.io/bitsy/editor.html)
 
 ## Future features
-- documentation
 - music
 - text effects
 - import/export palettes
