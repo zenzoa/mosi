@@ -15,8 +15,7 @@ class RoomGrid extends Component {
             e.preventDefault()
             this.pointerIsDown = true
             let startOfDraw = true
-            let drawOnTop = this.metaKeyIsDown
-            this.pointerDraw(e, startOfDraw, drawOnTop)
+            this.pointerDraw(e, startOfDraw)
         }
 
         this.pointerMove = (e) => {
@@ -49,7 +48,6 @@ class RoomGrid extends Component {
                 return
             }
 
-            let drawOnTop = this.metaKeyIsDown
             let startOfDraw = false
             if (e.key === ' ') {
                 startOfDraw = true
@@ -57,7 +55,7 @@ class RoomGrid extends Component {
             }
 
             if (this.spaceIsDown) {
-                this.drawTile(x, y, startOfDraw, drawOnTop)
+                this.drawTile(x, y, startOfDraw)
             }
 
             this.setState({ lastTileX: x, lastTileY: y })
@@ -67,15 +65,7 @@ class RoomGrid extends Component {
             if (e.key === ' ') this.spaceIsDown = false
         }
 
-        this.metaKeyDown = (e) => {
-            if (e.key === 'Meta' || e.key === 'Control') this.metaKeyIsDown = true
-        }
-
-        this.metaKeyUp = (e) => {
-            if (e.key === 'Meta' || e.key === 'Control') this.metaKeyIsDown = false
-        }
-
-        this.pointerDraw = (e, startOfDraw, drawOnTop) => {
+        this.pointerDraw = (e, startOfDraw) => {
             let pointer = e.touches ? e.touches[0] : e
             let { roomWidth, roomHeight } = this.props
             let rect = this.node.getBoundingClientRect()
@@ -90,13 +80,13 @@ class RoomGrid extends Component {
             let x = Math.floor(relX / tileWidth)
             let y = Math.floor(relY / tileHeight)
 
-            this.drawTile(x, y, startOfDraw, drawOnTop)
+            this.drawTile(x, y, startOfDraw)
 
             this.setState({ lastTileX: x, lastTileY: y })
         }
 
-        this.drawTile = (x, y, startOfDraw, drawOnTop) => {
-            let { tileList, selectTile, drawTile, eraseTile, currentSpriteName } = this.props
+        this.drawTile = (x, y, startOfDraw) => {
+            let { tileList, selectTile, drawTile, eraseTile, currentSpriteName, spriteIsTransparent } = this.props
 
             // when selecting tiles
             if (selectTile) {
@@ -105,18 +95,16 @@ class RoomGrid extends Component {
 
             // when drawing/erasing tiles
             if (drawTile && eraseTile) {
-                let locationIsEmpty = drawOnTop || !tileList.find(l => l.x === x && l.y === y)
+                let spritesAtLocation = tileList.filter(l => l.x === x && l.y === y)
+                let locationIsEmpty = spritesAtLocation.length === 0
+                let spriteAlreadyAtLocation = spritesAtLocation.find(l => l.spriteName === currentSpriteName)
+                let canDrawOnTile = spriteIsTransparent ? !spriteAlreadyAtLocation : locationIsEmpty
 
                 if (startOfDraw) {
-                    this.isDrawing = locationIsEmpty
+                    this.isDrawing = canDrawOnTile
                 }
 
-                if (drawOnTop) {
-                    if (!tileList.find(l => l.x === x && l.y === y && l.spriteName === currentSpriteName)) {
-                        drawTile(x, y)
-                    }
-                }
-                else if (this.isDrawing && locationIsEmpty) {
+                if (this.isDrawing && canDrawOnTile) {
                     drawTile(x, y)
                 }
                 else if (!this.isDrawing) {
@@ -248,9 +236,6 @@ class RoomGrid extends Component {
         this.node.addEventListener('keydown', this.keyDown)
         this.node.addEventListener('keyup', this.keyUp)
 
-        document.addEventListener('keydown', this.metaKeyDown)
-        document.addEventListener('keyup', this.metaKeyUp)
-
         this.cacheSprites()
         this.update()
     }
@@ -267,9 +252,6 @@ class RoomGrid extends Component {
 
         this.node.removeEventListener('keydown', this.keyDown)
         this.node.removeEventListener('keyup', this.keyUp)
-
-        document.removeEventListener('keydown', this.metaKeyDown)
-        document.removeEventListener('keyup', this.metaKeyUp)
 
         window.cancelAnimationFrame(this.animationRequest)
     }

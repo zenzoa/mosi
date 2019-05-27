@@ -174,6 +174,7 @@ class RoomPanel extends Component {
             drawTile: (x, y) => addTile(x, y, currentSpriteIndex),
             eraseTile: (x, y) => clearTile(x, y),
             isAnimated: true,
+            spriteIsTransparent: sprite.isTransparent,
             colorList
         })
 
