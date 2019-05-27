@@ -18,6 +18,7 @@ class SpritePanel extends Component {
         exportSprite,
         setSpriteIsWall,
         setSpriteIsItem,
+        setSpriteIsTransparent,
         setColorIndex,
         removeSprite,
         duplicateSprite,
@@ -37,7 +38,7 @@ class SpritePanel extends Component {
     }) {
         if (!sprite) return
 
-        let { name, width, height, isAvatar, isWall, isItem, frameList, colorIndex } = sprite
+        let { name, width, height, isAvatar, isWall, isItem, isTransparent, frameList, colorIndex } = sprite
         let currentFrame = frameList[currentFrameIndex]
 
         while (colorIndex > 0 && !colorList[colorIndex]) colorIndex--
@@ -78,6 +79,11 @@ class SpritePanel extends Component {
                 className: 'toggle' + (isItem ? ' selected' : ''),
                 onclick: () => setSpriteIsItem(!isItem)
             }, 'item')
+    
+        let transparentButton = button({
+            className: 'toggle' + (isTransparent ? ' selected' : ''),
+            onclick: () => setSpriteIsTransparent(!isTransparent)
+        }, 'transparent')
     
         let behaviorButton = isAvatar ? null :
             button({
@@ -247,6 +253,7 @@ class SpritePanel extends Component {
             row([
                 nameTextbox,
                 menu({}, [
+                    transparentButton,
                     exportButton,
                     duplicateButton,
                     removeButton

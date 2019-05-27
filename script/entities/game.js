@@ -415,7 +415,7 @@ class Game {
             })
         }
 
-        this.getFrameData = (frame, color, flipped) => {
+        this.getFrameData = (frame, color, flipped, bgColor) => {
             let { spriteWidth, spriteHeight } = this.world
 
             let frameCanvas = document.createElement('canvas')
@@ -427,6 +427,12 @@ class Game {
                 context.translate(spriteWidth, 0)
                 context.scale(-1, 1)
             }
+
+            if (bgColor) {
+                context.fillStyle = bgColor
+                context.fillRect(0, 0, spriteWidth, spriteHeight)
+            }
+
             context.fillStyle = color
             this.drawFrame(frame, spriteWidth, context)
             
@@ -439,10 +445,11 @@ class Game {
             let colorIndex = sprite.colorIndex
             while (colorIndex > 0 && !colorList[colorIndex]) colorIndex--
             let color = colorList[colorIndex]
+            let bgColor = sprite.isTransparent ? null : colorList[0]
             
             if (sprite && !this.spriteFrameList[name]) {
                 this.spriteFrameList[name] = sprite.frameList.map(frame => {
-                    return this.getFrameData(frame, color, flipped)
+                    return this.getFrameData(frame, color, flipped, bgColor)
                 })
             }
         }

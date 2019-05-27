@@ -145,7 +145,7 @@ class RoomGrid extends Component {
         }
 
         this.cacheSprites = () => {
-            let { spriteList, tileList, colorList, drawBackground } = this.props
+            let { spriteList, tileList, colorList } = this.props
 
             this.spriteFrameList = {}
 
@@ -156,6 +156,7 @@ class RoomGrid extends Component {
                 let colorIndex = sprite.colorIndex
                 while (colorIndex > 0 && !colorList[colorIndex]) colorIndex--
                 let color = colorList[colorIndex]
+                let bgColor = colorList[0]
                 
                 if (sprite && !this.spriteFrameList[sprite.name]) {
                     this.spriteFrameList[sprite.name] = sprite.frameList.map(frame => {
@@ -164,6 +165,11 @@ class RoomGrid extends Component {
                         frameCanvas.height = sprite.height
 
                         let context = frameCanvas.getContext('2d')
+
+                        if (!sprite.isTransparent) {
+                            context.fillStyle = bgColor
+                            context.fillRect(0, 0, sprite.width, sprite.height)
+                        }
                         
                         context.fillStyle = color
                         this.drawFrame(frame, sprite.width, context)

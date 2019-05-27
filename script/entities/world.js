@@ -2,7 +2,7 @@ let World = {
 
     create: ({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight, randomStart }) => {
         let world = {
-            version: 0.4,
+            version: 0.5,
             
             currentSpriteIndex: 0,
             spriteList: [],
@@ -153,7 +153,7 @@ let World = {
 
 let convertOldWorld = (world) => {
     let newWorld = {
-        version: 0.4,
+        version: 0.5,
         currentSpriteIndex: 0,
         currentRoomIndex: 0
     }
@@ -179,6 +179,7 @@ let convertOldWorld = (world) => {
             isAvatar: i === world.avatarId,
             isWall: sprite.wall,
             isItem: sprite.item,
+            isTransparent: true,
             frameList: sprite.frames.map(frame => {
                 return frame.pixels
             })

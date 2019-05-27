@@ -272,6 +272,7 @@ class Main extends Component {
                 renameSprite: Sprite.rename.bind(this, this, currentSpriteIndex),
                 setSpriteIsWall: Sprite.setIsWall.bind(this, this, currentSpriteIndex),
                 setSpriteIsItem: Sprite.setIsItem.bind(this, this, currentSpriteIndex),
+                setSpriteIsTransparent: Sprite.setIsTransparent.bind(this, this, currentSpriteIndex),
                 setColorIndex: Sprite.setColorIndex.bind(this, this, currentSpriteIndex),
                 exportSprite: Sprite.export.bind(this, this, currentSpriteIndex),
                 removeSprite: Sprite.remove.bind(this, this, currentSpriteIndex),

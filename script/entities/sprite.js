@@ -1,11 +1,12 @@
 let Sprite = {
 
-    create: ({ name, isAvatar, isWall, isItem, spriteWidth, spriteHeight, randomStart }) => {
+    create: ({ name, isAvatar, isWall, isItem, isTransparent, spriteWidth, spriteHeight, randomStart }) => {
         let newSprite = {
             name: name || '',
             isAvatar: isAvatar || false,
             isWall: isWall || false,
             isItem: isItem || false,
+            isTransparent: isTransparent || false,
             colorIndex: 1,
             width: spriteWidth,
             height: spriteHeight,
@@ -95,6 +96,12 @@ let Sprite = {
     setIsItem: (that, spriteIndex, newValue) => {
         let spriteList = that.state.spriteList.slice()
         spriteList[spriteIndex].isItem = newValue
+        that.setState({ spriteList })
+    },
+
+    setIsTransparent: (that, spriteIndex, newValue) => {
+        let spriteList = that.state.spriteList.slice()
+        spriteList[spriteIndex].isTransparent = newValue
         that.setState({ spriteList })
     },
 
