@@ -8,9 +8,9 @@ class WelcomePanel extends Component {
                 strong('Welcome to môsi!'), ' It\'s still in alpha, so please back up your work often and report any bugs you find along the way. ', strong('Enjoy making tiny games!')
             ]),
             div({ className: 'welcome-links' }, [
-                a({ href: 'https://github.com/sarahgould/mosi/wiki', target: '_blank' }, 'documentation'),
+                a({ href: 'https://github.com/zenzoa/mosi/wiki', target: '_blank' }, 'documentation'),
                 ' | ',
-                a({ href: 'https://github.com/sarahgould/mosi/issues/new', target: '_blank' }, 'report issues')
+                a({ href: 'https://github.com/zenzoa/mosi/issues/new', target: '_blank' }, 'report issues')
             ]),
             div({ className: 'welcome-actions' },
                 button({
