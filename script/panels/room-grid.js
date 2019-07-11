@@ -3,6 +3,7 @@ class RoomGrid extends Component {
         super()
 
         this.state = {
+            usingKeyboard: false,
             lastTileX: props.selectedX || 0,
             lastTileY: props.selectedY || 0
         }
@@ -58,7 +59,7 @@ class RoomGrid extends Component {
                 this.drawTile(x, y, startOfDraw)
             }
 
-            this.setState({ lastTileX: x, lastTileY: y })
+            this.setState({ usingKeyboard: true, lastTileX: x, lastTileY: y })
         }
 
         this.keyUp = (e) => {
@@ -265,11 +266,22 @@ class RoomGrid extends Component {
         if (!this.props.isAnimated) this.update()
     }
 
-    render({ className, spriteWidth, spriteHeight, roomWidth, roomHeight }, { lastTileX, lastTileY }) {
+    render({ className, spriteWidth, spriteHeight, roomWidth, roomHeight }, { usingKeyboard, lastTileX, lastTileY }) {
         let tileWidth = 100 / roomWidth
         let tileHeight = 100 / roomHeight
         let tileX = lastTileX * tileWidth
         let tileY = lastTileY * tileHeight
+
+        let gridHighlight = !usingKeyboard ? null :
+            div({
+                className: 'grid-highlight',
+                style: {
+                    left: tileX + '%',
+                    top: tileY + '%',
+                    width: tileWidth + '%',
+                    height: tileHeight + '%'
+                }
+            })
 
         return div({
             class: 'grid roomgrid ' + className,
@@ -281,15 +293,7 @@ class RoomGrid extends Component {
                 height: spriteHeight * roomHeight,
                 ref: node => { this.canvas = node }
             }),
-            div({
-                className: 'grid-highlight',
-                style: {
-                    left: tileX + '%',
-                    top: tileY + '%',
-                    width: tileWidth + '%',
-                    height: tileHeight + '%'
-                }
-            })
+            gridHighlight
         ])
     }
 }

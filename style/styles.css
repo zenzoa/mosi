@@ -249,6 +249,7 @@ hr {
     box-shadow: 0 0 0 1px var(--highlight-color);
 }
 
+.worldgrid:not(:focus) .grid-highlight,
 .roomgrid:not(:focus) .grid-highlight,
 .spritegrid:not(:focus) .grid-highlight {
     display: none;

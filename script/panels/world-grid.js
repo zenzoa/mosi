@@ -3,6 +3,7 @@ class WorldGrid extends Component {
         super()
 
         this.state = {
+            usingKeyboard: false,
             roomIndex: props.currentRoomIndex
         }
 
@@ -59,7 +60,7 @@ class WorldGrid extends Component {
             }
 
             let newRoomIndex = worldWidth * y + x
-            this.setState({ roomIndex: newRoomIndex })
+            this.setState({ usingKeyboard: true, roomIndex: newRoomIndex })
         }
 
         this.keyUp = (e) => {
@@ -195,6 +196,7 @@ class WorldGrid extends Component {
         roomHeight,
         startRoomIndex
     }, {
+        usingKeyboard,
         roomIndex
     }) {
         let tileWidth = 100 / worldWidth
@@ -203,6 +205,28 @@ class WorldGrid extends Component {
         let tileY = Math.floor(roomIndex / worldWidth) * tileHeight
         let startX = Math.floor(startRoomIndex % worldWidth) * tileWidth
         let startY = Math.floor(startRoomIndex / worldWidth) * tileHeight
+
+        let gridHighlight = !usingKeyboard ? null :
+            div({
+                className: 'grid-highlight',
+                style: {
+                    left: tileX + '%',
+                    top: tileY + '%',
+                    width: tileWidth + '%',
+                    height: tileHeight + '%'
+                }
+            })
+
+        let avatarHighlight = isNaN(startRoomIndex) ? null :
+            div({
+                className: 'avatar-highlight avatar',
+                style: {
+                    left: startX + '%',
+                    top: startY + '%',
+                    width: tileWidth + '%',
+                    height: tileHeight + '%'
+                }
+            })
         
         return div({
             class: 'grid worldgrid ' + className,
@@ -214,25 +238,8 @@ class WorldGrid extends Component {
                 height: roomHeight * worldHeight,
                 ref: node => { this.canvas = node }
             }),
-            div({
-                className: 'grid-highlight',
-                style: {
-                    left: tileX + '%',
-                    top: tileY + '%',
-                    width: tileWidth + '%',
-                    height: tileHeight + '%'
-                }
-            }),
-            isNaN(startRoomIndex) ? null :
-                div({
-                    className: 'avatar-highlight avatar',
-                    style: {
-                        left: startX + '%',
-                        top: startY + '%',
-                        width: tileWidth + '%',
-                        height: tileHeight + '%'
-                    }
-                })
+            gridHighlight,
+            avatarHighlight
         ])
     }
 }

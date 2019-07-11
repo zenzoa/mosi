@@ -3,6 +3,7 @@ class SpriteGrid extends Component {
         super()
 
         this.state = {
+            usingKeyboard: false,
             lastTileX: 0,
             lastTileY: 0
         }
@@ -54,7 +55,7 @@ class SpriteGrid extends Component {
                 drawPixel(pixelIndex, this.pixelValue)
             }
 
-            this.setState({ lastTileX: x, lastTileY: y })
+            this.setState({ usingKeyboard: true, lastTileX: x, lastTileY: y })
         }
 
         this.keyUp = (e) => {
@@ -148,11 +149,22 @@ class SpriteGrid extends Component {
         this.update()
     }
 
-    render({ className, width, height }, { lastTileX, lastTileY }) {
+    render({ className, width, height }, { usingKeyboard, lastTileX, lastTileY }) {
         let tileWidth = 100 / width
         let tileHeight = 100 / height
         let tileX = lastTileX * tileWidth
         let tileY = lastTileY * tileHeight
+
+        let gridHighlight = !usingKeyboard ? null :
+            div({
+                className: 'grid-highlight',
+                style: {
+                    left: tileX + '%',
+                    top: tileY + '%',
+                    width: tileWidth + '%',
+                    height: tileHeight + '%'
+                }
+            })
 
         return div({
             className: 'grid spritegrid ' + className,
@@ -164,15 +176,7 @@ class SpriteGrid extends Component {
                 height,
                 ref: node => { this.canvas = node }
             }),
-            div({
-                className: 'grid-highlight',
-                style: {
-                    left: tileX + '%',
-                    top: tileY + '%',
-                    width: tileWidth + '%',
-                    height: tileHeight + '%'
-                }
-            })
+            gridHighlight
         ])
     }
 }
