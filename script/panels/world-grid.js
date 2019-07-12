@@ -3,7 +3,6 @@ class WorldGrid extends Component {
         super()
 
         this.state = {
-            usingKeyboard: false,
             roomIndex: props.currentRoomIndex
         }
 
@@ -60,7 +59,7 @@ class WorldGrid extends Component {
             }
 
             let newRoomIndex = worldWidth * y + x
-            this.setState({ usingKeyboard: true, roomIndex: newRoomIndex })
+            this.setState({ roomIndex: newRoomIndex })
         }
 
         this.keyUp = (e) => {
@@ -196,7 +195,6 @@ class WorldGrid extends Component {
         roomHeight,
         startRoomIndex
     }, {
-        usingKeyboard,
         roomIndex
     }) {
         let tileWidth = 100 / worldWidth
@@ -206,7 +204,7 @@ class WorldGrid extends Component {
         let startX = Math.floor(startRoomIndex % worldWidth) * tileWidth
         let startY = Math.floor(startRoomIndex / worldWidth) * tileHeight
 
-        let gridHighlight = !usingKeyboard ? null :
+        let gridHighlight =
             div({
                 className: 'grid-highlight',
                 style: {
@@ -227,6 +225,32 @@ class WorldGrid extends Component {
                     height: tileHeight + '%'
                 }
             })
+
+        let gridLinesRows = []
+        for (let y = 0; y < worldHeight; y++) {
+            let gridLinesCells = []
+            for (let x = 0; x < worldWidth; x++) {
+                gridLinesCells.push(
+                    h('td', {
+                        class: 'gridlines-cell',
+                        style: {
+                            width: tileWidth + '%',
+                            height: tileHeight + '%'
+                        }
+                    })
+                )
+            }
+            gridLinesRows.push(
+                h('tr', {
+                    class: 'gridlines-row',
+                    style: {
+                        // width: tileWidth + '%',
+                        height: tileHeight + '%'
+                    }
+                }, gridLinesCells)
+            )
+        }
+        let gridLines = div({ class: 'gridlines' }, h('table', {}, gridLinesRows))
         
         return div({
             class: 'grid worldgrid ' + className,
@@ -238,8 +262,9 @@ class WorldGrid extends Component {
                 height: roomHeight * worldHeight,
                 ref: node => { this.canvas = node }
             }),
-            gridHighlight,
-            avatarHighlight
+            avatarHighlight,
+            gridLines,
+            gridHighlight
         ])
     }
 }

@@ -249,7 +249,35 @@ hr {
     box-shadow: 0 0 0 1px var(--highlight-color);
 }
 
-.worldgrid:not(:focus) .grid-highlight,
+.gridlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.5;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.gridlines table {
+    width: 100%;
+    height: 100%;
+    border-collapse: collapse;
+}
+
+.gridlines-cell {
+    border: 1px solid black;
+}
+
+.gridlines-cell:hover {
+    background: rgba(255,255,255,0.5);
+}
+
 .roomgrid:not(:focus) .grid-highlight,
 .spritegrid:not(:focus) .grid-highlight {
     display: none;
