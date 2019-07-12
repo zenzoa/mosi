@@ -13,6 +13,7 @@ class SpritePanel extends Component {
     }
 
     render({
+        backButton,
         closeTab,
         renameSprite,
         exportSprite,
@@ -46,6 +47,7 @@ class SpritePanel extends Component {
         let backgroundColor = colorList[0]
 
         let nameTextbox = textbox({
+            class: 'simple',
             placeholder: 'sprite name',
             value: name,
             onchange: e => renameSprite(e.target.value)
@@ -70,29 +72,34 @@ class SpritePanel extends Component {
     
         let wallButton = isAvatar ? null :
             button({
-                className: 'toggle' + (isWall ? ' selected' : ''),
+                title: 'wall',
+                className: (isWall ? ' selected' : ''),
                 onclick: () => setSpriteIsWall(!isWall)
             }, 'wall')
     
         let itemButton = isAvatar ? null :
             button({
-                className: 'toggle' + (isItem ? ' selected' : ''),
+                title: 'item',
+                className: (isItem ? ' selected' : ''),
                 onclick: () => setSpriteIsItem(!isItem)
             }, 'item')
     
         let transparentButton = button({
-            className: 'toggle' + (isTransparent ? ' selected' : ''),
+            title: 'transparent',
+            className: (isTransparent ? ' selected' : ''),
             onclick: () => setSpriteIsTransparent(!isTransparent)
         }, 'transparent')
     
         let behaviorButton = isAvatar ? null :
             button({
+                title: 'behavior',
                 onclick: openBehaviorTab
             }, 'behavior')
     
         let exportButton = button({
+            title: 'export sprite',
             onclick: () => this.setState({ showExportOverlay: true })
-        }, 'export sprite')
+        }, 'export')
 
         let exportOverlay = !showExportOverlay ? null :
             h(ExportOverlay, {
@@ -104,8 +111,9 @@ class SpritePanel extends Component {
     
         let removeButton = isAvatar ? null :
             button({
+                title: 'remove sprite',
                 onclick: () => this.setState({ showRemoveSpriteOverlay: true }),
-            }, 'remove sprite')
+            }, 'remove')
 
         let removeSpriteOverlay = !showRemoveSpriteOverlay ? null :
             h(RemoveOverlay, {
@@ -118,8 +126,14 @@ class SpritePanel extends Component {
             })
 
         let duplicateButton = button({
+            title: 'duplicate sprite',
             onclick: duplicateSprite
-        }, 'duplicate sprite')
+        }, 'duplicate')
+
+        let gifButton = button({
+            title: 'create GIF',
+            // onclick: () => this.setState({ showGifOverlay: true })
+        }, 'gif')
     
         let frameButtonList = frameList.length === 1 ? null :
             frameList.map((frame, i) => {
@@ -173,9 +187,9 @@ class SpritePanel extends Component {
     
         let clearFrameButton = button({
             className: 'icon',
-            title: 'clear',
+            title: 'clear frame',
             onclick: () => this.setState({ showClearFrameOverlay: true })
-        }, '×')
+        }, 'clear')
 
         let clearFrameOverlay = !showClearFrameOverlay ? null :
             h(RemoveOverlay, {
@@ -190,9 +204,9 @@ class SpritePanel extends Component {
 
         let randomFrameButton = button({
             className: 'icon',
-            title: 'randomize',
+            title: 'randomize frame',
             onclick: () => this.setState({ showRandomFrameOverlay: true })
-        }, '?')
+        }, 'random')
 
         let randomFrameOverlay = !showRandomFrameOverlay ? null :
             h(RemoveOverlay, {
@@ -209,19 +223,19 @@ class SpritePanel extends Component {
             className: 'icon',
             title: 'flip left-right',
             onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, true))
-        }, '⇆')
+        }, 'flip h')
 
         let flipFrameVerticalButton = button({
             className: 'icon',
             title: 'flip up-down',
             onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, false))
-        }, '⇅')
+        }, 'flip v')
 
         let rotateFrameButton = button({
             className: 'icon',
             title: 'rotate',
             onclick: () => updateFrame(currentFrameIndex, Sprite.rotateFrame(width, height, currentFrame))
-        }, '⟳')
+        }, 'rotate')
     
         let drawPixel = (pixelIndex, newValue) => {
             let frame = frameList[currentFrameIndex].slice()
@@ -251,25 +265,12 @@ class SpritePanel extends Component {
     
         return panel({ header: 'sprite', closeTab }, [
             row([
+                backButton,
                 nameTextbox,
-                menu({}, [
-                    transparentButton,
-                    exportButton,
-                    duplicateButton,
-                    removeButton
-                ])
-            ]),
-            row([
                 wallButton,
                 itemButton,
+                transparentButton,
                 behaviorButton
-            ]),
-            row([
-                spritePreview,
-                frameListDivider,
-                frameButtonList,
-                addFrameButton,
-                removeFrameButton
             ]),
             div({
                 className: 'sprite-grid',
@@ -278,11 +279,23 @@ class SpritePanel extends Component {
                 spriteGrid
             ),
             row([
+                spritePreview,
+                frameListDivider,
+                frameButtonList,
+                addFrameButton,
+                removeFrameButton
+            ]),
+            row([
+                duplicateButton,
+                removeButton,
+                div({ class: 'vertical-divider short' }),
+                exportButton,
+                randomFrameButton,
                 clearFrameButton,
+                gifButton,
                 flipFrameHorizontalButton,
                 flipFrameVerticalButton,
-                rotateFrameButton,
-                randomFrameButton
+                rotateFrameButton
             ]),
             exportOverlay,
             removeSpriteOverlay,

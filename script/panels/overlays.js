@@ -160,34 +160,64 @@ class NewWorldOverlay extends Component {
     constructor({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight }) {
         super()
         this.state = {
-            worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight,
-            randomStart: true
+            worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight
         }
     }
-    render({ createWorld, closeOverlay }, { worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight, randomStart, showConfirmOverlay }) {
 
-        let randomStartButton = button({
-            className: 'toggle' + (randomStart ? ' selected' : ''),
-            onclick: () => this.setState({ randomStart: !randomStart })
-        }, 'randomize world')
+    render({
+        resize,
+        closeOverlay,
+        worldWrapHorizontal,
+        worldWrapVertical,
+        setWrapHorizontal,
+        setWrapVertical
+    }, {
+        worldWidth,
+        worldHeight,
+        roomWidth,
+        roomHeight,
+        spriteWidth,
+        spriteHeight,
+        showConfirmOverlay
+    }) {
+        let wrapHorizontalButton = button({
+            className: 'toggle' + (worldWrapHorizontal ? ' selected' : ''),
+            onclick: () => setWrapHorizontal(!worldWrapHorizontal)
+        }, 'wrap horizontally')
+    
+        let wrapVerticalButton = button({
+            className: 'toggle' + (worldWrapVertical ? ' selected' : ''),
+            onclick: () => setWrapVertical(!worldWrapVertical)
+        }, 'wrap vertically')
 
-        let createWorldButton = button({
-            onclick: () => this.setState({ showConfirmOverlay: true })
-        }, 'create world')
+        
+        let worldResized = worldWidth !== this.props.worldWidth || worldHeight !== this.props.worldHeight
+        let roomResized = roomWidth !== this.props.roomWidth || roomHeight !== this.props.roomHeight
+        let spriteResized = spriteWidth !== this.props.spriteWidth || spriteHeight !== this.props.spriteHeight
+        let resizedString = ''
+        if ((worldResized || roomResized) && !spriteResized) resizedString = 'rooms'
+        else if ((worldResized || roomResized)) resizedString = 'rooms and sprites'
+        else if (spriteResized)  resizedString = 'sprites'
+        
+        let resizeButton =
+            button({
+                disabled: !resizedString,
+                onclick: () => this.setState({ showConfirmOverlay: true })
+            }, 'resize')
 
         let confirmOverlay = !showConfirmOverlay ? null :
             h(RemoveOverlay, {
-                header: 'replace current world?',
+                header: `clear all ${resizedString}?`,
                 closeOverlay: () => this.setState({ showConfirmOverlay: false }),
                 remove: () => {
-                    createWorld(this.state)
+                    resize(this.state)
                     this.setState({ showConfirmOverlay: false })
                 }
             })
 
-        return overlay({ closeOverlay, header: 'new world' }, [
+        return overlay({ closeOverlay, header: 'world settings' }, [
             row([
-                span({}, 'world size'),
+                span({ class: 'label' }, 'world size'),
                 numbox({
                     value: worldWidth,
                     min: 1,
@@ -203,7 +233,7 @@ class NewWorldOverlay extends Component {
                 })
             ]),
             row([
-                span({}, 'room size'),
+                span({ class: 'label' }, 'room size'),
                 numbox({
                     value: roomWidth,
                     min: 1,
@@ -219,7 +249,7 @@ class NewWorldOverlay extends Component {
                 })
             ]),
             row([
-                span({}, 'sprite size'),
+                span({ class: 'label' }, 'sprite size'),
                 numbox({
                     value: spriteWidth,
                     min: 1,
@@ -232,9 +262,10 @@ class NewWorldOverlay extends Component {
                     max: 24,
                     onchange: e => this.setState({ spriteHeight: parseInt(e.target.value) }) })
             ]),
-            div({}, randomStartButton),
+            resizeButton,
             h('hr'),
-            div({}, createWorldButton),
+            wrapHorizontalButton,
+            wrapVerticalButton,
             confirmOverlay
         ])
     }

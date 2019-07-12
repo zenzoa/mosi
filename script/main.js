@@ -5,8 +5,8 @@ class Main extends Component {
         super()
 
         this.state = World.create({
-            worldWidth: 6,
-            worldHeight: 6,
+            worldWidth: 3,
+            worldHeight: 3,
             roomWidth: 12,
             roomHeight: 12,
             spriteWidth: 8,
@@ -164,29 +164,9 @@ class Main extends Component {
     }) {
         let backButton = !oneTabMode ? null :
             button({
+                title: 'back',
                 onclick: this.closeTab.bind(this, currentTab)
             }, 'back')
-
-        let tabDropdown = dropdown({
-            value: currentTab,
-            onchange: e => this.setCurrentTab(e.target.value)
-        }, [
-            option({ value: 'welcome' }, 'about'),
-            option({ value: 'world' }, 'world'),
-            option({ value: 'room' }, 'room'),
-            option({ value: 'spriteList' }, 'list of sprites'),
-            option({ value: 'sprite' }, 'sprite'),
-            option({ value: 'behavior' }, 'behavior'),
-            option({ value: 'color' }, 'colors'),
-            option({ value: 'font' }, 'font')
-        ])
-
-        let playButton = button({
-            onclick: () => {
-                if (tabVisibility.play) this.closeTab('play')
-                else this.setCurrentTab('play')
-            }
-        }, 'play')
 
         let playTab = !tabVisibility.play ? null :
             h(PlayPanel, {
@@ -228,6 +208,7 @@ class Main extends Component {
 
         let roomTab = !tabVisibility.room ? null :
             h(RoomPanel, {
+                backButton,
                 closeTab: this.closeTab.bind(this, 'room'),
                 renameRoom: Room.rename.bind(this, this, currentRoomIndex),
                 importRoom: Room.import.bind(this, this, currentRoomIndex),
@@ -268,6 +249,7 @@ class Main extends Component {
 
         let spriteTab = !tabVisibility.sprite ? null :
             h(SpritePanel, {
+                backButton,
                 closeTab: this.closeTab.bind(this, 'sprite'),
                 renameSprite: Sprite.rename.bind(this, this, currentSpriteIndex),
                 setSpriteIsWall: Sprite.setIsWall.bind(this, this, currentSpriteIndex),
@@ -287,6 +269,7 @@ class Main extends Component {
 
         let behaviorTab = !tabVisibility.behavior ? null :
             h(BehaviorPanel, {
+                backButton,
                 closeTab: this.closeTab.bind(this, 'behavior'),
                 addEvent: Behavior.addEvent.bind(this, this, currentSpriteIndex),
                 renameEvent: Behavior.renameEvent.bind(this, this, currentSpriteIndex),
@@ -339,9 +322,35 @@ class Main extends Component {
 
         let header = tabVisibility.play ? null :
             div({ className: 'editor-header row' }, [
-                backButton,
-                tabDropdown,
-                playButton
+                button({
+                    title: 'world',
+                    className:
+                        (tabVisibility.world || tabVisibility.room)
+                        ? 'selected' : '',
+                    onclick: () => this.setCurrentTab('world')
+                }, 'world'),
+                button({
+                    title: 'sprites',
+                    className:
+                        (tabVisibility.sprite || tabVisibility.spriteList || tabVisibility.behavior)
+                        ? 'selected' : '',
+                    onclick: () => this.setCurrentTab('spriteList')
+                }, 'sprites'),
+                button({
+                    title: 'colors',
+                    className:
+                        (tabVisibility.color)
+                        ? 'selected' : '',
+                    onclick: () => this.setCurrentTab('color')
+                }, 'colors'),
+                button({
+                    title: 'music',
+                    onclick: () => this.setCurrentTab('music')
+                }, 'music'),
+                button({
+                    title: 'play',
+                    onclick: () => this.setCurrentTab('play')
+                }, 'play')
             ])
 
         if (tabVisibility.play) {

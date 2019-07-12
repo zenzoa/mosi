@@ -15,6 +15,7 @@ class SpriteList extends Component {
     }
 
     render ({
+        backButton,
         selectSprite,
         editSprite,
         addSprite,
@@ -28,6 +29,7 @@ class SpriteList extends Component {
         filter
     }) {
         let filterInput = textbox({
+            class: 'simple',
             placeholder: 'search sprites',
             value: filter,
             onchange: e => this.setState({ filter: e.target.value })
@@ -66,15 +68,16 @@ class SpriteList extends Component {
             )
 
         let editSpriteButton = !editSprite ? null :
-            button({ onclick: editSprite }, 'edit sprite')
+            button({ title: 'edit sprite', onclick: editSprite }, 'edit')
 
         let addSpriteButton = !addSprite ? null :
-            button({ onclick: addSprite }, 'add sprite')
+            button({ title: 'add sprite', onclick: addSprite }, 'add')
 
         let importSpriteButton = !importSprite ? null :
             button({
+                title: 'import sprite',
                 onclick: () => this.setState({ showImportOverlay: true })
-            }, 'import sprite')
+            }, 'import')
 
         let importOverlay = !showImportOverlay ? null :
             h(ImportOverlay, {
@@ -89,13 +92,18 @@ class SpriteList extends Component {
 
         return div({ className: 'content' }, [
             row([
-                editSpriteButton,
-                addSpriteButton,
-                filterInput,
-                importSpriteButton ? menu({}, importSpriteButton) : null
+                backButton,
+                filterInput
             ]),
             div({ className: 'spritelist' }, [
                 spriteButtonList
+            ]),
+            h('hr'),
+            row([
+                importSpriteButton,
+                div({ class: 'fill' }),
+                editSpriteButton,
+                addSpriteButton
             ]),
             importOverlay
         ])

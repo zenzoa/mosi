@@ -13,6 +13,7 @@ class BehaviorPanel extends Component {
     }
 
     render ({
+        backButton,
         closeTab,
         addEvent,
         renameEvent,
@@ -107,9 +108,10 @@ class BehaviorPanel extends Component {
         })
 
         let addActionButton = button({
+            title: 'add action',
             className: currentBehavior.actionList.length === 0 ? 'initial-focus' : '',
             onclick: () => addAction(currentBehavior.event)
-        }, 'add action')
+        }, 'add')
 
         if (sprite.isAvatar) {
             return panel({ header: 'behaviors', closeTab }, [
@@ -119,12 +121,15 @@ class BehaviorPanel extends Component {
 
         return panel({ header: 'behaviors', closeTab }, [
             row([
+                backButton,
                 eventDropdown,
                 eventTextbox,
                 removeEventButton
             ]),
-            div({ className: 'behavior-actionList' }, [
-                actionComponents,
+            h('hr'),
+            actionComponents,
+            row([
+                div({ class: 'fill' }),
                 addActionButton
             ]),
             removeEventOverlay

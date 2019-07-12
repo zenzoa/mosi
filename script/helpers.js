@@ -159,7 +159,7 @@ class Menu extends Component {
                     if (showOverlay) this.setState({ showOverlay: false })
                     else this.setState({ showOverlay: true })
                 }
-            }, 'more'),
+            }, props.title || 'more'),
             menuOverlay
         ])
     }
@@ -181,6 +181,7 @@ let spriteButton = ({ className, onclick, sprite, isSelected, colorList }) => {
     let backgroundColor = colorList[0]
 
     return button({
+        title: spriteName,
         className: 'sprite-button ' + className + avatarClass + selectedClass,
         onclick,
     }, [
@@ -190,10 +191,7 @@ let spriteButton = ({ className, onclick, sprite, isSelected, colorList }) => {
             frameList: sprite.frameList,
             color,
             backgroundColor
-        })),
-        span({ className: 'sprite-button-name' },
-            spriteName
-        )
+        }))
     ])
 }
 

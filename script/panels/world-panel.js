@@ -30,43 +30,20 @@ class WorldPanel extends Component {
     }, {
         showImportOverlay,
         showExportOverlay,
-        showNewOverlay
+        showSettingsOverlay
     }) {
 
         let nameTextbox = textbox({
+            class: 'simple',
             placeholder: 'name of world',
             value: worldName,
             onchange: e => renameWorld(e.target.value)
         })
-    
-        let wrapHorizontalButton = button({
-            className: 'toggle' + (worldWrapHorizontal ? ' selected' : ''),
-            onclick: () => setWrapHorizontal(!worldWrapHorizontal)
-        }, 'wrap horizontally')
-    
-        let wrapVerticalButton = button({
-            className: 'toggle' + (worldWrapVertical ? ' selected' : ''),
-            onclick: () => setWrapVertical(!worldWrapVertical)
-        }, 'wrap vertically')
-
-        let newWorldButton = button({
-            onclick: () => this.setState({ showNewOverlay: true })
-        }, 'new world')
-
-        let newOverlay = !showNewOverlay ? null :
-            h(NewWorldOverlay, {
-                worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight,
-                createWorld: (props) => {
-                    let newWorld = World.create(props)
-                    this.setState({ showNewOverlay: false })
-                    updateWorld(newWorld)
-                },
-                closeOverlay: () => this.setState({ showNewOverlay: false })
-            })
 
         let importButton = button({
+            title: 'import world',
             onclick: () => this.setState({ showImportOverlay: true })
-        }, 'import world')
+        }, 'import')
 
         let importOverlay = !showImportOverlay ? null :
             h(ImportOverlay, {
@@ -80,8 +57,9 @@ class WorldPanel extends Component {
             })
 
         let exportButton = button({
+            title: 'export world',
             onclick: () => this.setState({ showExportOverlay: true })
-        }, 'export world')
+        }, 'export')
 
         let exportOverlay = !showExportOverlay ? null :
             h(ExportOverlay, {
@@ -89,6 +67,36 @@ class WorldPanel extends Component {
                 fileName: `${worldName || 'untitled'}.mosi`,
                 data: exportWorld(),
                 closeOverlay: () => this.setState({ showExportOverlay: false })
+            })
+
+        let randomButton = button({
+            title: 'randomize world',
+            onclick: () => {}
+        }, 'random')
+
+        let clearButton = button({
+            title: 'clear world',
+            onclick: () => {}
+        }, 'clear')
+
+        let settingsButton = button({
+            title: 'world settings',
+            onclick: () => this.setState({ showSettingsOverlay: true })
+        }, 'settings')
+
+        let settingsOverlay = !showSettingsOverlay ? null :
+            h(NewWorldOverlay, {
+                worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight,
+                worldWrapHorizontal,
+                worldWrapVertical,
+                setWrapHorizontal,
+                setWrapVertical,
+                resize: (props) => {
+                    // let newWorld = World.create(props)
+                    // this.setState({ showNewOverlay: false })
+                    // updateWorld(newWorld)
+                },
+                closeOverlay: () => this.setState({ showSettingsOverlay: false })
             })
 
         let worldGrid = h(WorldGrid, {
@@ -107,12 +115,7 @@ class WorldPanel extends Component {
 
         return panel({ header: 'world', closeTab }, [
             row([
-                nameTextbox,
-                menu({}, [
-                    newWorldButton,
-                    importButton,
-                    exportButton
-                ])
+                nameTextbox
             ]),
             div({
                 className: 'world-grid',
@@ -121,12 +124,16 @@ class WorldPanel extends Component {
                 worldGrid
             ),
             row([
-                wrapHorizontalButton,
-                wrapVerticalButton
+                exportButton,
+                importButton,
+                randomButton,
+                clearButton,
+                div({ class: 'fill' }),
+                settingsButton
             ]),
-            newOverlay,
             importOverlay,
-            exportOverlay
+            exportOverlay,
+            settingsOverlay
         ])
     }
 }
