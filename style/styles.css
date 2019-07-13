@@ -234,6 +234,11 @@ hr {
     -ms-user-select: none;
 }
 
+.grid:focus {
+    outline-color: transparent;
+    outline-style: none;
+}
+
 .grid canvas {
     width: 100%;
 }
