@@ -70,13 +70,28 @@ let Color = {
         that.setState({ paletteList, roomList })
     },
 
+    contrastingColors: () => {
+        let bgColor = chroma.random()
+        let fgColor = chroma.random()
+        while (chroma.contrast(bgColor, fgColor) < 4.5) {
+            bgColor = chroma.random()
+            fgColor = chroma.random()
+        }
+        return [
+            bgColor.hex(),
+            fgColor.hex()
+        ]
+    },
+
     randomPalette: (that, paletteIndex) => {
         let paletteList = that.state.paletteList.slice()
         let palette = paletteList[paletteIndex]
-        palette.colorList = palette.colorList.map(color => {
-            let newColor = chroma.random().hex()
-            return newColor
-        })
+        let extraColors = palette.colorList.length - 2
+        palette.colorList = Color.contrastingColors()
+        while (extraColors > 0) {
+            palette.colorList.push(chroma.random().hex())
+            extraColors--
+        }
         that.setState({ paletteList })
     },
 

@@ -183,10 +183,11 @@ class Main extends Component {
         let worldTab = !tabVisibility.world ? null :
             h(WorldPanel, {
                 closeTab: this.closeTab.bind(this, 'world'),
-                updateWorld: this.updateWorld.bind(this),
                 renameWorld: World.rename.bind(this, this),
                 importWorld: World.import.bind(this, this),
                 exportWorld: World.export.bind(this, this.state),
+                randomWorld: World.random.bind(this, this, this.state),
+                clearWorld: World.clear.bind(this, this, this.state),
                 setWrapHorizontal: World.setWrapHorizontal.bind(this, this),
                 setWrapVertical: World.setWrapVertical.bind(this, this),
                 selectRoom: Room.select.bind(this, this),

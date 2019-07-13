@@ -55,18 +55,9 @@ let World = {
         }
 
         // pick contrasting colors for initial palette
-        let bgColor = chroma.random()
-        let fgColor = chroma.random()
-        while(chroma.contrast(bgColor, fgColor) < 4.5) {
-            bgColor = chroma.random()
-            fgColor = chroma.random()
-        }
         world.paletteList.push({
             name: 'palette 1',
-            colorList: [
-                bgColor.hex(),
-                fgColor.hex()
-            ]
+            colorList: Color.contrastingColors()
         })
 
         // place random tiles throughout world
@@ -104,6 +95,33 @@ let World = {
         })
 
         return world
+    },
+
+    random: (that, world) => {
+        let { roomWidth, roomHeight, spriteList, paletteList } = world
+        let roomList = world.roomList.slice()
+        roomList.forEach(room => {
+            room.tileList = Room.randomTileList(roomWidth, roomHeight, spriteList)
+            let paletteIndex = Math.floor(Math.random() * paletteList.length)
+            let paletteName = paletteList[paletteIndex].name
+            room.paletteName = paletteName
+        })
+        that.setState({ roomList: roomList })
+    },
+
+    clear: (that, world) => {
+        let { worldWidth, worldHeight, paletteList } = world
+        let defaultPaletteName = paletteList[0].name
+        let roomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
+            let x = Math.floor(i % worldWidth) + 1
+            let y = Math.floor(i / worldWidth) + 1
+            return {
+                name: 'room-' + x + '-' + y,
+                paletteName: defaultPaletteName,
+                tileList: []
+            }
+        })
+        that.setState({ roomList: roomList})
     },
     
     rename: (that, newName) => {

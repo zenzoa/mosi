@@ -6,10 +6,11 @@ class WorldPanel extends Component {
 
     render({
         closeTab,
-        updateWorld,
         renameWorld,
         importWorld,
         exportWorld,
+        randomWorld,
+        clearWorld,
         setWrapHorizontal,
         setWrapVertical,
         selectRoom,
@@ -30,6 +31,8 @@ class WorldPanel extends Component {
     }, {
         showImportOverlay,
         showExportOverlay,
+        showRandomOverlay,
+        showClearOverlay,
         showSettingsOverlay
     }) {
 
@@ -71,13 +74,33 @@ class WorldPanel extends Component {
 
         let randomButton = button({
             title: 'randomize world',
-            onclick: () => {}
+            onclick: () => this.setState({ showRandomOverlay: true })
         }, 'random')
+
+        let randomOverlay = !showRandomOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'randomize all rooms in world?',
+                closeOverlay: () => this.setState({ showRandomOverlay: false }),
+                remove: () => {
+                    randomWorld()
+                    this.setState({ showRandomOverlay: false })
+                }
+            })
 
         let clearButton = button({
             title: 'clear world',
-            onclick: () => {}
+            onclick: () => this.setState({ showClearOverlay: true })
         }, 'clear')
+
+        let clearOverlay = !showClearOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'clear all rooms in world?',
+                closeOverlay: () => this.setState({ showClearOverlay: false }),
+                remove: () => {
+                    clearWorld()
+                    this.setState({ showClearOverlay: false })
+                }
+            })
 
         let settingsButton = button({
             title: 'world settings',
@@ -133,6 +156,8 @@ class WorldPanel extends Component {
             ]),
             importOverlay,
             exportOverlay,
+            randomOverlay,
+            clearOverlay,
             settingsOverlay
         ])
     }
