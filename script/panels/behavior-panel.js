@@ -119,7 +119,7 @@ class BehaviorPanel extends Component {
             ])
         }
 
-        return panel({ header: 'behaviors', closeTab }, [
+        return panel({ header: 'behaviors', className: 'sprite-panel', closeTab }, [
             row([
                 backButton,
                 eventDropdown,

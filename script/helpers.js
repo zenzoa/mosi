@@ -84,7 +84,7 @@ class Panel extends Component {
     }
 
     render(props) {
-        props.className = 'panel'
+        props.className = 'panel ' + (props.className ? props.className : '')
         props.ref = node => { this.node = node }
         return div(props, [
             div({ className: 'panel-header' }, [
@@ -116,7 +116,7 @@ class Overlay extends Component {
     }
 
     render(props) {
-        props.className = 'overlay'
+        props.className = 'overlay ' + (props.className ? props.className : '')
         return div(
             {
                 className: 'overlay-wrapper',

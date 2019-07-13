@@ -178,7 +178,7 @@ class ColorPanel extends Component {
                 }
             })
 
-        return panel({ header: 'colors', closeTab }, [
+        return panel({ header: 'colors', className: 'color-panel', closeTab }, [
             row([
                 paletteDropdown
             ]),

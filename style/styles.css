@@ -1,3 +1,27 @@
+:root {
+    --panel-bg-color: #9CDBE0;
+    --world-panel-color: #E5FCC2;
+    --sprite-panel-color: #C0EEB7;
+    --color-panel-color: #9CE0AD;
+    --music-panel-color: #70C6AA;
+    --play-panel-color: #45ADA8;
+
+    --main-bg-color: #666;
+    --header-bg-color: rgba(0,0,0,0.2);  
+    --panel-fg-color: rgba(0,0,0,0.8);
+    --panel-secondary-color: rgba(0,0,0,0.3);
+    --panel-shadow-color: rgba(0,0,0,0.5);
+    --overlay-bg-color: rgba(50,50,50,0.8);
+    --input-bg-color: white;
+    --placeholder-color: rgba(0,0,0,0.25);
+    --button-bg-color: rgba(250,250,250,0.5);
+    --button-shadow-color: rgba(0,0,0,0.5);
+    --button-selected-fg-color: white;
+    --button-selected-bg-color: rgba(0,0,0,0.4);
+    --highlight-color: deeppink;
+    --highlight-fg-color: white;  
+}
+
 * {
     box-sizing: border-box;
 }
@@ -40,9 +64,8 @@ body.no-scroll {
 
 .panel-header {
     display: inline-block;
-    margin-left: 8px;
     margin-bottom: -8px;
-    padding-top: 4px;
+    padding-bottom: 8px;
     padding-left: 20px;
     padding-right: 8px;
     border-top-left-radius: 4px;
@@ -76,7 +99,11 @@ body.no-scroll {
     margin: 0 auto;
     border-radius: 4px;
     box-shadow: 4px 4px 0 0 var(--panel-shadow-color);
-    background: var(--panel-bg-color);
+    background: var(--header-bg-color);
+}
+
+.one-tab-mode .editor-header {
+    justify-content: space-evenly;
 }
 
 .one-tab-mode .tabs {
@@ -84,18 +111,23 @@ body.no-scroll {
 }
 
 .one-tab-mode .panel {
+    display: flex;
+    flex-direction: column;
     flex-grow: 1;
     overflow-y: auto;
-    border-top: 1px solid var(--main-bg-color);
 }
 
 .one-tab-mode .panel-header {
     display: none;
 }
 
+.one-tab-mode .panel-content {
+    flex-grow: 1;
+}
+
 .multi-tab-mode .editor-header {
-    background: var(--panel-bg-color);
-    box-shadow: 0 6px 0 0 var(--panel-shadow-color);
+    background: var(--header-bg-color);
+    box-shadow: 0 4px 0 0 var(--panel-shadow-color);
     z-index: 1;
 }
 
@@ -223,6 +255,7 @@ hr {
 .sprite-grid {
     padding: 8px;
     border-radius: 4px;
+    box-shadow: 0 0 0 2px white;
 }
 
 .grid {
@@ -327,6 +360,7 @@ select:focus {
 select::-moz-focus-inner,
 button::-moz-focus-inner {
     border: none;
+    outline: none;
 }
 
 button:active(:not:disabled),
@@ -421,6 +455,10 @@ select {
 
 input {
     background: var(--input-bg-color);
+}
+
+input::placeholder {
+    color: var(--placeholder-color);
 }
 
 textarea {
@@ -544,13 +582,14 @@ a:visited {
     box-shadow: 2px 2px 0 0 var(--button-shadow-color);
 }
 
-.behavior-settings > * {
-    margin-top: 8px;
+.behavior:focus {
+    box-shadow: 0 0 0 2px var(--button-shadow-color), -2px -2px 0 0 var(--button-shadow-color) inset;
+    outline-color: transparent;
+    outline-style: none;
 }
 
-.behavior button:not(.simple):not(.selected),
-.behavior select:not(.simple):not(.selected) {
-    background: var(--button-dark-bg-color);
+.behavior-settings > * {
+    margin-top: 8px;
 }
 
 .behaviorList {
@@ -580,6 +619,7 @@ a:visited {
     width: 42px;
     height: 42px;
     padding: 0;
+    border: 1px solid white;
     box-shadow: none;
     overflow: hidden;
 }
@@ -589,6 +629,7 @@ a:visited {
 }
 
 .color-button.selected {
+    border: none;
     padding: 2px;
 }
 
@@ -613,4 +654,34 @@ a:visited {
     textarea {
         padding: 8px;
     }
+}
+
+.world-panel .panel-content,
+.world-panel .panel-header,
+.world-panel-button {
+    background: var(--world-panel-color);
+}
+
+.sprite-panel .panel-content,
+.sprite-panel .panel-header,
+.sprite-panel-button {
+    background: var(--sprite-panel-color);
+}
+
+.color-panel .panel-content,
+.color-panel .panel-header,
+.color-panel-button {
+    background: var(--color-panel-color);
+}
+
+.music-panel .panel-content,
+.music-panel .panel-header,
+.music-panel-button {
+    background: var(--music-panel-color);
+}
+
+.play-panel .panel-content,
+.play-panel .panel-header,
+.play-panel-button {
+    background: var(--play-panel-color);
 }

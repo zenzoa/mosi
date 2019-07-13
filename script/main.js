@@ -20,7 +20,6 @@ class Main extends Component {
         this.state.oneTabMode = true
         this.state.showErrorOverlay = false
         this.state.errorMessage = ''
-        this.state.themeName = 'light'
 
         this.setCurrentTab = (tab, skipHistory) => {
             let { currentTab, tabVisibility, tabHistory, oneTabMode } = this.state
@@ -90,7 +89,6 @@ class Main extends Component {
                     console.log('found world data from previous version of mosi', oldData)
                     World.import(this, oldData)
                 }
-                this.applyTheme(this.state.themeName)
             } catch(e) {
                 console.error('unable to load editor state', e)
             }
@@ -98,20 +96,6 @@ class Main extends Component {
 
         this.updateWorld = (newWorldState) => {
             this.setState(newWorldState)
-        }
-
-        this.applyTheme = (themeName) => {
-            let theme = THEMES[themeName]
-            if (!theme) return
-            Object.keys(theme).forEach(key => {
-                let value = theme[key]
-                document.body.style.setProperty(key, value)
-            })
-        }
-
-        // TODO: remove once UI is added for changing themes
-        window.changeTheme = (themeName) => {
-            if (THEMES[themeName]) this.setState({ themeName })
         }
     }
 
@@ -125,10 +109,7 @@ class Main extends Component {
         window.removeEventListener('resize', this.resize)
     }
 
-    componentDidUpdate(_, prevState) {
-        if (prevState.themeName !== this.state.themeName) {
-            this.applyTheme(this.state.themeName)
-        }
+    componentDidUpdate() {
         this.save()
     }
 
@@ -325,31 +306,35 @@ class Main extends Component {
             div({ className: 'editor-header row' }, [
                 button({
                     title: 'world',
-                    className:
-                        (tabVisibility.world || tabVisibility.room)
-                        ? 'selected' : '',
+                    className: 'world-panel-button' +
+                        (tabVisibility.world || tabVisibility.room
+                        ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('world')
                 }, 'world'),
                 button({
                     title: 'sprites',
-                    className:
-                        (tabVisibility.sprite || tabVisibility.spriteList || tabVisibility.behavior)
-                        ? 'selected' : '',
+                    className: 'sprite-panel-button' +
+                        (tabVisibility.sprite || tabVisibility.spriteList || tabVisibility.behavior
+                        ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('spriteList')
                 }, 'sprites'),
                 button({
                     title: 'colors',
-                    className:
-                        (tabVisibility.color)
-                        ? 'selected' : '',
+                    className: 'color-panel-button' +
+                        (tabVisibility.color
+                        ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('color')
                 }, 'colors'),
                 button({
                     title: 'music',
+                    className: 'music-panel-button' +
+                        (tabVisibility.music
+                        ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('music')
                 }, 'music'),
                 button({
                     title: 'play',
+                    className: 'play-panel-button',
                     onclick: () => this.setCurrentTab('play')
                 }, 'play')
             ])
