@@ -246,8 +246,8 @@ hr {
 .grid-highlight {
     position: absolute;
     border-radius: 4px;
-    border: 1px solid var(--highlight-color);
-    box-shadow: 0 0 0 1px var(--highlight-color);
+    box-shadow: 0 0 0 4px black;
+    filter: invert(100%);
 }
 
 .gridlines {
@@ -272,11 +272,12 @@ hr {
 }
 
 .gridlines-cell {
-    border: 1px solid black;
+    border: 1px solid white;
+    filter: invert(100%);
 }
 
 .gridlines-cell:hover {
-    background: rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.5);
 }
 
 .roomgrid:not(:focus) .grid-highlight,
