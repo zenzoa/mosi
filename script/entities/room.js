@@ -94,21 +94,77 @@ let Room = {
     },
 
     randomTileList: (width, height, spriteList) => {
+        console.log('--randomTileList--')
         let tileList = []
-        let spriteNames = spriteList.filter(s => !s.isAvatar).map(s => s.name)
 
-        for (let x = 0; x < width; x++) {
-            for (let y = 0; y < height; y++) {
-                if (Math.random() < 0.1) {
-                    let spriteNameIndex = Math.floor(Math.random() * spriteNames.length)
-                    let spriteName = spriteNames[spriteNameIndex]
-                    tileList.push({
-                        spriteName,
-                        x,
-                        y
-                    })
+        let terrainSprites = spriteList.filter(s => {
+            let pushEvent = s.behaviorList.find(b => b.event === 'push')
+            let hasActions = pushEvent && pushEvent.actionList.length > 0
+            return !s.isAvatar && !s.isItem && !hasActions
+        })
+
+        let interactionSprites = spriteList.filter(s => {
+            let pushEvent = s.behaviorList.find(b => b.event === 'push')
+            let hasActions = pushEvent && pushEvent.actionList.length > 0
+            return !s.isAvatar && (s.isItem || hasActions)
+        })
+
+        let floorTiles = terrainSprites.filter(s => !s.isWall)
+        let wallTiles = terrainSprites.filter(s => s.isWall)
+        console.log(floorTiles, wallTiles)
+
+        let randomWalk = (sprite, density, distance, overwrite) => {
+            let x = Math.floor(Math.random() * width)
+            let y = Math.floor(Math.random() * height)
+
+            while (distance > 0) {
+                x += Math.floor(Math.random() * 3 - 1)
+                y += Math.floor(Math.random() * 3 - 1)
+
+                if (x < 0) x = 0
+                else if (x >= width) x = width - 1
+                if (y < 0) y = 0
+                else if (y >= height) y = height - 1
+
+                if (Math.random() < density) {
+                    if (overwrite || !tileList.find(t => t.x === x && t.y === y)) {
+                        tileList.push({
+                            spriteName: sprite.name,
+                            x,
+                            y
+                        })
+                    }
                 }
+
+                distance--
             }
+        }
+
+        // place walls
+        for (let i = 0; i < 3; i++) {
+            let id = Math.floor(Math.random() * wallTiles.length)
+            let sprite = wallTiles[id]
+            let density = Math.random() * 0.5 + 0.5
+            let distance = width * height * 0.1
+            if (sprite) randomWalk(sprite, density, distance)
+        }
+
+        // place floor
+        for (let i = 0; i < 3; i++) {
+            let id = Math.floor(Math.random() * floorTiles.length)
+            let sprite = floorTiles[id]
+            let density = Math.random() * 0.5
+            let distance = width * height
+            if (sprite) randomWalk(sprite, density, distance)
+        }
+
+        // place items & sprites with push behaviors
+        for (let i = 0; i < 3; i++) {
+            let id = Math.floor(Math.random() * interactionSprites.length)
+            let sprite = interactionSprites[id]
+            let density = Math.random() * 0.01
+            let distance = width * height
+            if (sprite) randomWalk(sprite, density, distance)
         }
 
         return tileList

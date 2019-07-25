@@ -4,22 +4,14 @@ class Main extends Component {
     constructor() {
         super()
 
-        this.state = World.create({
-            worldWidth: 3,
-            worldHeight: 3,
-            roomWidth: 12,
-            roomHeight: 12,
-            spriteWidth: 8,
-            spriteHeight: 8,
-            randomStart: true
-        })
-
-        this.state.currentTab = 'welcome'
-        this.state.tabVisibility = { welcome: true }
-        this.state.tabHistory = []
-        this.state.oneTabMode = true
-        this.state.showErrorOverlay = false
-        this.state.errorMessage = ''
+        this.state = {
+            currentTab: 'welcome',
+            tabVisibility: { welcome: true },
+            tabHistory: [],
+            oneTabMode: true,
+            showErrorOverlay: false,
+            errorState: ''
+        }
 
         this.setCurrentTab = (tab, skipHistory) => {
             let { currentTab, tabVisibility, tabHistory, oneTabMode } = this.state
@@ -85,6 +77,7 @@ class Main extends Component {
                 if (data) {
                     let newState = JSON.parse(data)
                     this.setState(newState)
+                    return true
                 } else if (oldData) {
                     console.log('found world data from previous version of mosi', oldData)
                     World.import(this, oldData)
@@ -97,12 +90,26 @@ class Main extends Component {
         this.updateWorld = (newWorldState) => {
             this.setState(newWorldState)
         }
+
+        // load previous world or create a new one
+        let loadedSuccessfully = this.load()
+        if (!loadedSuccessfully) {
+            let newWorldState = World.create({
+                worldWidth: 3,
+                worldHeight: 3,
+                roomWidth: 12,
+                roomHeight: 12,
+                spriteWidth: 8,
+                spriteHeight: 8,
+                randomStart: true
+            })
+            this.setState(newWorldState)
+        }
     }
 
     componentDidMount() {
         window.addEventListener('resize', this.resize, true)
         this.resize()
-        this.load()
     }
 
     componentWillUnmount() {
