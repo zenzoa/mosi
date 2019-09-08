@@ -88,7 +88,7 @@ class Panel extends Component {
         props.ref = node => { this.node = node }
         return div(props, [
             div({ className: 'panel-header' }, [
-                span({}, props.header),
+                span({}, icon(props.header)),
                 span({}, button({
                     onclick: props.closeTab,
                     className: 'simple icon' 

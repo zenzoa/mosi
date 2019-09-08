@@ -67,7 +67,7 @@ class RoomPanel extends Component {
             )
         )
     
-        let clearButton = button({
+        let clearButton = iconButton({
             title: 'clear room',
             onclick: () => this.setState({ showClearOverlay: true })
         }, 'clear')
@@ -82,7 +82,7 @@ class RoomPanel extends Component {
                 }
             })
 
-        let randomButton = button({
+        let randomButton = iconButton({
             title: 'randomize room',
             onclick: () => this.setState({ showRandomOverlay: true })
         }, 'random')
@@ -97,7 +97,7 @@ class RoomPanel extends Component {
                 }
             })
 
-        let importButton = button({
+        let importButton = iconButton({
             title: 'import room',
             onclick: () => this.setState({ showImportOverlay: true })
         }, 'import')
@@ -113,7 +113,7 @@ class RoomPanel extends Component {
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
     
-        let exportButton = button({
+        let exportButton = iconButton({
             title: 'export room',
             onclick: () => this.setState({ showExportOverlay: true })
         }, 'export')
@@ -126,7 +126,7 @@ class RoomPanel extends Component {
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })
     
-        let gifButton = button({
+        let gifButton = iconButton({
             title: 'create GIF',
             onclick: () => this.setState({ showGifOverlay: true })
         }, 'gif')
@@ -191,7 +191,7 @@ class RoomPanel extends Component {
                 nameTextbox
             ]),
             div({
-                className: 'room-grid',
+                className: 'room-grid grid-container',
                 style: { backgroundColor: colorList[0] }
             },
                 roomGrid

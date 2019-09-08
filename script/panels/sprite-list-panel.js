@@ -1,6 +1,6 @@
 class SpriteListPanel extends Component {
     render ({ closeTab }) {
-        return panel({ header: 'list of sprites', className: 'sprite-panel', closeTab }, [
+        return panel({ header: 'sprites', className: 'sprite-panel', closeTab }, [
             h(SpriteList, this.props)
         ])
     }
@@ -68,13 +68,13 @@ class SpriteList extends Component {
             )
 
         let editSpriteButton = !editSprite ? null :
-            button({ title: 'edit sprite', onclick: editSprite }, 'edit')
+            iconButton({ title: 'edit sprite', onclick: editSprite }, 'edit')
 
         let addSpriteButton = !addSprite ? null :
-            button({ title: 'add sprite', onclick: addSprite }, 'add')
+            iconButton({ title: 'add sprite', onclick: addSprite }, 'add')
 
         let importSpriteButton = !importSprite ? null :
-            button({
+            iconButton({
                 title: 'import sprite',
                 onclick: () => this.setState({ showImportOverlay: true })
             }, 'import')

@@ -43,7 +43,7 @@ class WorldPanel extends Component {
             onchange: e => renameWorld(e.target.value)
         })
 
-        let importButton = button({
+        let importButton = iconButton({
             title: 'import world',
             onclick: () => this.setState({ showImportOverlay: true })
         }, 'import')
@@ -59,7 +59,7 @@ class WorldPanel extends Component {
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
 
-        let exportButton = button({
+        let exportButton = iconButton({
             title: 'export world',
             onclick: () => this.setState({ showExportOverlay: true })
         }, 'export')
@@ -72,7 +72,7 @@ class WorldPanel extends Component {
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })
 
-        let randomButton = button({
+        let randomButton = iconButton({
             title: 'randomize world',
             onclick: () => this.setState({ showRandomOverlay: true })
         }, 'random')
@@ -87,7 +87,7 @@ class WorldPanel extends Component {
                 }
             })
 
-        let clearButton = button({
+        let clearButton = iconButton({
             title: 'clear world',
             onclick: () => this.setState({ showClearOverlay: true })
         }, 'clear')
@@ -102,7 +102,7 @@ class WorldPanel extends Component {
                 }
             })
 
-        let settingsButton = button({
+        let settingsButton = iconButton({
             title: 'world settings',
             onclick: () => this.setState({ showSettingsOverlay: true })
         }, 'settings')
@@ -141,7 +141,7 @@ class WorldPanel extends Component {
                 nameTextbox
             ]),
             div({
-                className: 'world-grid',
+                className: 'world-grid grid-container',
                 style: { backgroundColor: paletteList[0].colorList[0] }
             },
                 worldGrid

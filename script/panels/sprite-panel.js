@@ -71,32 +71,32 @@ class SpritePanel extends Component {
         }))
     
         let wallButton = isAvatar ? null :
-            button({
+            iconButton({
                 title: 'wall',
                 className: (isWall ? ' selected' : ''),
                 onclick: () => setSpriteIsWall(!isWall)
             }, 'wall')
     
         let itemButton = isAvatar ? null :
-            button({
+            iconButton({
                 title: 'item',
                 className: (isItem ? ' selected' : ''),
                 onclick: () => setSpriteIsItem(!isItem)
             }, 'item')
     
-        let transparentButton = button({
+        let transparentButton = iconButton({
             title: 'transparent',
             className: (isTransparent ? ' selected' : ''),
             onclick: () => setSpriteIsTransparent(!isTransparent)
         }, 'transparent')
     
         let behaviorButton = isAvatar ? null :
-            button({
+            iconButton({
                 title: 'behavior',
                 onclick: openBehaviorTab
             }, 'behavior')
     
-        let exportButton = button({
+        let exportButton = iconButton({
             title: 'export sprite',
             onclick: () => this.setState({ showExportOverlay: true })
         }, 'export')
@@ -110,10 +110,10 @@ class SpritePanel extends Component {
             })
     
         let removeButton = isAvatar ? null :
-            button({
+            iconButton({
                 title: 'remove sprite',
                 onclick: () => this.setState({ showRemoveSpriteOverlay: true }),
-            }, 'remove')
+            }, 'delete')
 
         let removeSpriteOverlay = !showRemoveSpriteOverlay ? null :
             h(RemoveOverlay, {
@@ -125,12 +125,12 @@ class SpritePanel extends Component {
                 }
             })
 
-        let duplicateButton = button({
+        let duplicateButton = iconButton({
             title: 'duplicate sprite',
             onclick: duplicateSprite
         }, 'duplicate')
 
-        let gifButton = button({
+        let gifButton = iconButton({
             title: 'create GIF',
             // onclick: () => this.setState({ showGifOverlay: true })
         }, 'gif')
@@ -155,7 +155,7 @@ class SpritePanel extends Component {
             div({ className: 'vertical-divider' })
     
         let addFrameButton = frameList.length >= 4 ? null :
-            button({
+            iconButton({
                 className: frameList.length === 1 ? '' : 'icon',
                 title: 'add frame',
                 onclick: () => {
@@ -163,14 +163,14 @@ class SpritePanel extends Component {
                     addFrame(newFrame)
                     this.setState({ currentFrameIndex: frameList.length - 1 })
                 }
-            }, frameList.length === 1 ? 'animate' : '+')
+            }, 'add')
     
         let removeFrameButton = frameList.length <= 1 ? null :
-            button({
+            iconButton({
                 className: 'icon',
                 title: 'remove frame',
                 onclick: () => this.setState({ showRemoveFrameOverlay: true })
-            }, '-')
+            }, 'remove')
 
         let removeFrameOverlay = !showRemoveFrameOverlay ? null :
             h(RemoveOverlay, {
@@ -185,7 +185,7 @@ class SpritePanel extends Component {
                 }
             })
     
-        let clearFrameButton = button({
+        let clearFrameButton = iconButton({
             className: 'icon',
             title: 'clear frame',
             onclick: () => this.setState({ showClearFrameOverlay: true })
@@ -202,7 +202,7 @@ class SpritePanel extends Component {
                 }
             })
 
-        let randomFrameButton = button({
+        let randomFrameButton = iconButton({
             className: 'icon',
             title: 'randomize frame',
             onclick: () => this.setState({ showRandomFrameOverlay: true })
@@ -219,19 +219,19 @@ class SpritePanel extends Component {
                 }
             })
 
-        let flipFrameHorizontalButton = button({
+        let flipFrameHorizontalButton = iconButton({
             className: 'icon',
             title: 'flip left-right',
             onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, true))
-        }, 'flip h')
+        }, 'flip-h')
 
-        let flipFrameVerticalButton = button({
+        let flipFrameVerticalButton = iconButton({
             className: 'icon',
             title: 'flip up-down',
             onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, false))
-        }, 'flip v')
+        }, 'flip-v')
 
-        let rotateFrameButton = button({
+        let rotateFrameButton = iconButton({
             className: 'icon',
             title: 'rotate',
             onclick: () => updateFrame(currentFrameIndex, Sprite.rotateFrame(width, height, currentFrame))
@@ -273,7 +273,7 @@ class SpritePanel extends Component {
                 behaviorButton
             ]),
             div({
-                className: 'sprite-grid',
+                className: 'sprite-grid grid-container',
                 style: { backgroundColor }
             },
                 spriteGrid

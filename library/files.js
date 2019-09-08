@@ -1,18 +1,18 @@
 let Files = {
 
     loadResource: (filename, onready) => {
-        let client = new XMLHttpRequest()
+        // let client = new XMLHttpRequest()
         
-        client.open('GET', './' + filename)
-        client.responseType = 'text'
+        // client.open('GET', './' + filename)
+        // client.responseType = 'text'
 
-        client.onreadystatechange = () => {
-            if (client.readyState === 4 && client.status === 200) {
-                if (onready) onready(client.responseText)
-            }
-        }
+        // client.onreadystatechange = () => {
+        //     if (client.readyState === 4 && client.status === 200) {
+        //         if (onready) onready(client.responseText)
+        //     }
+        // }
 
-        client.send()
+        // client.send()
     },
 
     upload: (fileEvent, callback) => {

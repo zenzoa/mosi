@@ -151,7 +151,7 @@ class Main extends Component {
         fontData
     }) {
         let backButton = !oneTabMode ? null :
-            button({
+            iconButton({
                 title: 'back',
                 onclick: this.closeTab.bind(this, currentTab)
             }, 'back')
@@ -311,39 +311,41 @@ class Main extends Component {
 
         let header = tabVisibility.play ? null :
             div({ className: 'editor-header row' }, [
-                button({
+                iconButton({
                     title: 'world',
                     className: 'world-panel-button' +
                         (tabVisibility.world || tabVisibility.room
                         ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('world')
                 }, 'world'),
-                button({
+                iconButton({
                     title: 'sprites',
                     className: 'sprite-panel-button' +
                         (tabVisibility.sprite || tabVisibility.spriteList || tabVisibility.behavior
                         ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('spriteList')
                 }, 'sprites'),
-                button({
+                iconButton({
                     title: 'colors',
                     className: 'color-panel-button' +
                         (tabVisibility.color
                         ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('color')
                 }, 'colors'),
-                button({
+                iconButton({
                     title: 'music',
                     className: 'music-panel-button' +
                         (tabVisibility.music
                         ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('music')
                 }, 'music'),
-                button({
+                iconButton({
                     title: 'play',
                     className: 'play-panel-button',
                     onclick: () => this.setCurrentTab('play')
-                }, 'play')
+                }, 'play'),
+                fill(),
+                icon('logo')
             ])
 
         if (tabVisibility.play) {

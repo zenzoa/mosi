@@ -11,8 +11,8 @@ class RemoveOverlay extends Component {
     render({ remove, closeOverlay, header, fileType }) {
         return overlay({ closeOverlay, header }, [
             row([
-                button({ onclick: remove, className: 'initial-focus' }, 'yes!'),
-                button({ onclick: closeOverlay }, 'no, keep it')
+                button({ onclick: remove, className: 'initial-focus fill' }, 'yes!'),
+                button({ onclick: closeOverlay, className: 'fill' }, 'no, keep it')
             ])
         ])
     }
