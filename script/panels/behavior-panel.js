@@ -126,7 +126,7 @@ class BehaviorPanel extends Component {
                 eventTextbox,
                 removeEventButton
             ]),
-            h('hr'),
+            hr(),
             actionComponents,
             row([
                 div({ class: 'fill' }),

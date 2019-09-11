@@ -20,6 +20,7 @@ let World = {
             worldWrapHorizontal: false,
             worldWrapVertical: false,
 
+            currentPaletteIndex: 0,
             paletteList: [],
 
             fontResolution: 1,
@@ -173,7 +174,8 @@ let convertOldWorld = (world) => {
     let newWorld = {
         version: 0.5,
         currentSpriteIndex: 0,
-        currentRoomIndex: 0
+        currentRoomIndex: 0,
+        currentPaletteIndex: 0
     }
 
     // convert colors

@@ -144,12 +144,17 @@ class Main extends Component {
         worldWrapHorizontal,
         worldWrapVertical,
 
+        currentPaletteIndex,
         paletteList,
 
         fontResolution,
         fontDirection,
         fontData
     }) {
+        let roomPaletteName = roomList[currentRoomIndex].paletteName
+        let roomPaletteIndex = paletteList.findIndex(p => p.name === roomPaletteName)
+        let roomPalette = paletteList[roomPaletteIndex]
+
         let backButton = !oneTabMode ? null :
             iconButton({
                 title: 'back',
@@ -204,26 +209,30 @@ class Main extends Component {
                 exportRoom: Room.export.bind(this, this, currentRoomIndex),
                 clearRoom: Room.clear.bind(this, this, currentRoomIndex),
                 randomRoom: Room.random.bind(this, this, currentRoomIndex),
-                setPaletteName: Room.setPaletteName.bind(this, this, currentRoomIndex),
                 createRoomGif: Room.createGif.bind(this, this, currentRoomIndex),
                 addTile: Room.addTile.bind(this, this, currentRoomIndex),
                 clearTile: Room.clearTile.bind(this, this, currentRoomIndex),
+
+                setPalette: Room.setPalette.bind(this, this, currentRoomIndex),
+                editPalette: Palette.select.bind(this, this, roomPaletteIndex, 'palette'),
+                addPalette: Palette.add.bind(this, this),
+                importPalette: Palette.import.bind(this, this),
+
                 selectSprite: Sprite.select.bind(this, this),
                 editSprite: Sprite.select.bind(this, this, currentSpriteIndex, 'sprite'),
                 addSprite: Sprite.add.bind(this, this),
                 importSprite: Sprite.import.bind(this, this),
+
                 room: roomList[currentRoomIndex],
                 roomWidth,
                 roomHeight,
                 spriteWidth,
                 spriteHeight,
                 spriteList,
+                currentPaletteIndex: roomPaletteIndex,
                 currentSpriteIndex,
                 paletteList
             })
-
-        let currentPaletteName = roomList[currentRoomIndex].paletteName
-        let currentPalette = paletteList.find(p => p.name === currentPaletteName)
 
         let spriteListTab = !tabVisibility.spriteList ? null :
             h(SpriteListPanel, {
@@ -233,7 +242,7 @@ class Main extends Component {
                 importSprite: Sprite.import.bind(this, this),
                 spriteList,
                 currentSpriteIndex,
-                colorList: currentPalette.colorList
+                colorList: roomPalette.colorList
             })
 
         let spriteTab = !tabVisibility.sprite ? null :
@@ -253,7 +262,7 @@ class Main extends Component {
                 updateFrame: Sprite.updateFrame.bind(this, this, currentSpriteIndex),
                 openBehaviorTab: this.setCurrentTab.bind(this, 'behavior'),
                 sprite: spriteList[currentSpriteIndex],
-                colorList: currentPalette.colorList
+                colorList: roomPalette.colorList
             })
 
         let behaviorTab = !tabVisibility.behavior ? null :
@@ -276,20 +285,33 @@ class Main extends Component {
                 spriteHeight,
                 currentSpriteIndex,
                 paletteList,
-                colorList: currentPalette.colorList
+                colorList: roomPalette.colorList
             })
 
-        let colorTab = !tabVisibility.color ? null :
-            h(ColorPanel, {
-                closeTab: this.closeTab.bind(this, 'color'),
-                addPalette: Color.addPalette.bind(this, this),
-                renamePalette: Color.renamePalette.bind(this, this),
-                removePalette: Color.removePalette.bind(this, this),
-                randomPalette: Color.randomPalette.bind(this, this),
-                addColor: Color.addColor.bind(this, this),
-                updateColor: Color.updateColor.bind(this, this),
-                removeColor: Color.removeColor.bind(this, this),
+        let paletteListTab = !tabVisibility.paletteList ? null :
+            h(PaletteListPanel, {
+                closeTab: this.closeTab.bind(this, 'paletteList'),
+                selectPalette: Palette.select.bind(this, this),
+                addPalette: Palette.add.bind(this, this),
+                importPalette: Palette.import.bind(this, this),
+                currentPaletteIndex: roomPaletteIndex,
                 paletteList
+            })
+
+        let paletteTab = !tabVisibility.palette ? null :
+            h(PalettePanel, {
+                backButton,
+                closeTab: this.closeTab.bind(this, 'palette'),
+                renamePalette: Palette.rename.bind(this, this, currentPaletteIndex),
+                removePalette: Palette.remove.bind(this, this, currentPaletteIndex),
+                randomPalette: Palette.random.bind(this, this, currentPaletteIndex),
+                duplicatePalette: Palette.add.bind(this, this, paletteList[currentPaletteIndex]),
+                addColor: Palette.addColor.bind(this, this, currentPaletteIndex),
+                updateColor: Palette.updateColor.bind(this, this, currentPaletteIndex),
+                removeColor: Palette.removeColor.bind(this, this, currentPaletteIndex),
+                currentPaletteIndex,
+                paletteList,
+                palette: paletteList[currentPaletteIndex],
             })
 
         let fontTab = !tabVisibility.font ? null :
@@ -327,11 +349,11 @@ class Main extends Component {
                 }, 'sprites'),
                 iconButton({
                     title: 'colors',
-                    className: 'color-panel-button' +
-                        (tabVisibility.color
+                    className: 'palette-panel-button' +
+                        (tabVisibility.paletteList
                         ? ' selected' : ''),
-                    onclick: () => this.setCurrentTab('color')
-                }, 'colors'),
+                    onclick: () => this.setCurrentTab('paletteList')
+                }, 'palettes'),
                 iconButton({
                     title: 'music',
                     className: 'music-panel-button' +
@@ -362,7 +384,8 @@ class Main extends Component {
                 spriteListTab,
                 spriteTab,
                 behaviorTab,
-                colorTab,
+                paletteListTab,
+                paletteTab,
                 fontTab
             ]),
             errorOverlay

@@ -94,7 +94,6 @@ let Room = {
     },
 
     randomTileList: (width, height, spriteList) => {
-        console.log('--randomTileList--')
         let tileList = []
 
         let terrainSprites = spriteList.filter(s => {
@@ -214,11 +213,14 @@ let Room = {
         that.setState({ roomList })
     },
 
-    setPaletteName: (that, roomIndex, newPaletteName) => {
+    setPalette: (that, roomIndex, paletteIndex) => {
+        let paletteList = that.state.paletteList
+        let palette = paletteList[paletteIndex]
         let roomList = that.state.roomList.slice()
         let room = roomList[roomIndex]
-        room.paletteName = newPaletteName
-        that.setState({ roomList })
+        room.paletteName = palette.name
+        let currentPaletteIndex = paletteIndex
+        that.setState({ roomList, currentPaletteIndex })
     },
 
     createGif: (that, roomIndex, scale, colorList, onComplete) => {

@@ -7,25 +7,34 @@ class RoomPanel extends Component {
     render({
         backButton,
         closeTab,
+        
         renameRoom,
         importRoom,
         exportRoom,
         clearRoom,
         randomRoom,
-        setPaletteName,
         createRoomGif,
+
         addTile,
         clearTile,
+
+        setPalette,
+        editPalette,
+        addPalette,
+        importPalette,
+
         selectSprite,
         editSprite,
         addSprite,
         importSprite,
+
         room,
         roomWidth,
         roomHeight,
         spriteWidth,
         spriteHeight,
         spriteList,
+        currentPaletteIndex,
         currentSpriteIndex,
         paletteList
     }, {
@@ -33,12 +42,11 @@ class RoomPanel extends Component {
         showImportOverlay,
         showExportOverlay,
         showGifOverlay,
+        showPaletteOverlay,
         showSpriteOverlay,
         showRandomOverlay
     }) {
-
         let sprite = spriteList[currentSpriteIndex]
-        let currentPaletteIndex = paletteList.findIndex(p => p.name === room.paletteName)
         let currentPalette = paletteList[currentPaletteIndex]
         let colorList = currentPalette.colorList
 
@@ -48,24 +56,6 @@ class RoomPanel extends Component {
             value: room.name,
             onchange: e => renameRoom(e.target.value)
         })
-
-        let paletteDropdown = dropdown({
-            value: room.paletteName,
-            onchange: e => setPaletteName(e.target.value)
-        }, paletteList.slice()
-            // sort alphabetically
-            .sort((p1, p2) => {
-                let name1 = p1.name.toUpperCase()
-                let name2 = p2.name.toUpperCase()
-                if (name1 < name2) return -1
-                if (name1 > name2) return 1
-                else return 0
-            })
-            // convert to options
-            .map(palette =>
-                option({ value: palette.name }, palette.name)
-            )
-        )
     
         let clearButton = iconButton({
             title: 'clear room',
@@ -138,6 +128,35 @@ class RoomPanel extends Component {
                 closeOverlay: () => this.setState({ showGifOverlay: false })
             })
 
+        let currentPaletteButton =
+            paletteButton({
+                onclick: () => this.setState({ showPaletteOverlay: true }),
+                palette: currentPalette
+            })
+            
+        let paletteOverlay = !showPaletteOverlay ? null :
+            h(PaletteListOverlay, {
+                closeOverlay: () => this.setState({ showPaletteOverlay: false }),
+                selectPalette: paletteIndex => {
+                    setPalette(paletteIndex)
+                    this.setState({ showPaletteOverlay: false })
+                },
+                editPalette: () => {
+                    editPalette()
+                    this.setState({ showPaletteOverlay: false })
+                },
+                addPalette: palette => {
+                    addPalette(palette)
+                    this.setState({ showPaletteOverlay: false })
+                },
+                importPalette: paletteData => {
+                    importPalette(paletteData)
+                    this.setState({ showPaletteOverlay: false })
+                },
+                currentPaletteIndex,
+                paletteList
+            })
+
         let currentSpriteButton = !sprite ? null :
             spriteButton({
                 onclick: () => this.setState({ showSpriteOverlay: true }),
@@ -203,13 +222,14 @@ class RoomPanel extends Component {
                 clearButton,
                 gifButton,
                 div({ class: 'fill' }),
-                paletteDropdown,
+                currentPaletteButton,
                 currentSpriteButton
             ]),
             clearOverlay,
             importOverlay,
             exportOverlay,
             gifOverlay,
+            paletteOverlay,
             spriteOverlay,
             randomOverlay
         ])

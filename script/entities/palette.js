@@ -1,11 +1,29 @@
-let Color = {
+let Palette = {
+    create: ({ name, colorList }) => {
+        if (!colorList || colorList.length < 2) {
+            colorList = Palette.randomColors(2)
+        }
 
-    addPalette: (that, colorList) => {
-        let paletteList = that.state.paletteList.slice()
-        let palette = {
-            name: 'palette 1',
+        let newPalette = {
+            name: name || 'palette 1',
             colorList
         }
+
+        return newPalette
+    },
+
+    select: (that, paletteIndex, nextTab) => {
+        let currentPaletteIndex = paletteIndex
+        if (nextTab) that.setCurrentTab(nextTab)
+        that.setState({ currentPaletteIndex })
+    },
+
+    add: (that, palette) => {
+        let paletteList = that.state.paletteList.slice()
+        palette = !(palette instanceof MouseEvent) ? deepClone(palette) :
+            Palette.create({
+                name: 'palette 1'
+            })
 
         // get a unique name
         let baseName = palette.name
@@ -22,12 +40,20 @@ let Color = {
         }
 
         paletteList.push(palette)
-        that.setState({ paletteList })
-
-        return palette.name
+        let currentPaletteIndex = paletteList.length - 1
+        that.setCurrentTab('palette')
+        that.setState({ paletteList, currentPaletteIndex })
     },
 
-    renamePalette: (that, paletteIndex, newName) => {
+    import: () => {
+        console.log('import palette')
+    },
+
+    export: () => {
+        console.log('export palette')
+    },
+
+    rename:  (that, paletteIndex, newName) => {
         let paletteList = that.state.paletteList.slice()
         let palette = paletteList[paletteIndex]
         let oldName = palette.name
@@ -54,27 +80,39 @@ let Color = {
         }
     },
 
-    removePalette: (that, paletteIndex) => {
+    remove: (that, paletteIndex) => {
         let paletteList = that.state.paletteList.slice()
+        let roomList = that.state.roomList.slice()
+        let currentPaletteIndex = that.state.currentPaletteIndex
+        
+        // update current palette index
+        if (currentPaletteIndex >= paletteIndex && currentPaletteIndex > 0) {
+            currentPaletteIndex--
+        }
+
+        // remove palette from list
         let oldName = paletteList[paletteIndex].name
         paletteList.splice(paletteIndex, 1)
         let newName = paletteList[0].name
-
-        let roomList = that.state.roomList.slice()
+        
+        // remove palette from rooms
         roomList.forEach(room => {
             if (room.paletteName === oldName) {
                 room.paletteName = newName
             }
         })
 
-        that.setState({ paletteList, roomList })
+        if (that.state.oneTabMode) that.closeTab('palette')
+
+        that.setState({ paletteList, roomList, currentPaletteIndex })
     },
 
-    contrastingColors: () => {
-        let bgColor = chroma.random()
+    contrastingColors: (initialColor) => {
+        initialColor = typeof initialColor === 'string' ? chroma(initialColor) : null
+        let bgColor = initialColor || chroma.random()
         let fgColor = chroma.random()
         while (chroma.contrast(bgColor, fgColor) < 4.5) {
-            bgColor = chroma.random()
+            bgColor = initialColor || chroma.random()
             fgColor = chroma.random()
         }
         return [
@@ -83,31 +121,40 @@ let Color = {
         ]
     },
 
-    randomPalette: (that, paletteIndex) => {
-        let paletteList = that.state.paletteList.slice()
-        let palette = paletteList[paletteIndex]
-        let extraColors = palette.colorList.length - 2
-        palette.colorList = Color.contrastingColors()
-        while (extraColors > 0) {
+    randomColors: (colorCount) => {
+        let colorList = Palette.contrastingColors()
+        colorCount =- 2
+        while (colorCount > 0) {
             palette.colorList.push(chroma.random().hex())
-            extraColors--
+            colorCount--
         }
+        return colorList
+    },
+
+    random: (that, paletteIndex) => {
+        let paletteList = that.state.paletteList.slice()
+        let palette = paletteList[paletteIndex]
+        let colorCount = palette.colorList.length
+        palette.colorList = Palette.randomColors(colorCount)
         that.setState({ paletteList })
     },
 
-    addColor: (that, paletteIndex, color) => {
+    addColor: (that, paletteIndex) => {
         let paletteList = that.state.paletteList.slice()
         let palette = paletteList[paletteIndex]
+        let bgColor = palette.colorList[0]
+        let newColor = Palette.contrastingColors(bgColor)[1]
         palette.colorList = palette.colorList.slice()
-        palette.colorList.push(color)
+        palette.colorList.push(newColor)
         that.setState({ paletteList })
     },
 
-    updateColor: (that, paletteIndex, colorIndex, newValue) => {
+    updateColor: (that, paletteIndex, colorIndex, newColor) => {
+        console.log('update color')
         let paletteList = that.state.paletteList.slice()
         let palette = paletteList[paletteIndex]
         palette.colorList = palette.colorList.slice()
-        palette.colorList[colorIndex] = newValue
+        palette.colorList[colorIndex] = newColor
         that.setState({ paletteList })
     },
 
@@ -118,5 +165,4 @@ let Color = {
         palette.colorList.splice(colorIndex, 1)
         that.setState({ paletteList })
     }
-
 }

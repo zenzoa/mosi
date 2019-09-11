@@ -1,6 +1,6 @@
 class SpriteListPanel extends Component {
     render ({ closeTab }) {
-        return panel({ header: 'sprites', className: 'sprite-panel', closeTab }, [
+        return panel({ header: 'sprites', className: 'sprite-list-panel', closeTab }, [
             h(SpriteList, this.props)
         ])
     }
@@ -59,7 +59,7 @@ class SpriteList extends Component {
             // convert to components
             .map(({ sprite, i }) =>
                 spriteButton({
-                    className: i === 0 ? 'initial-focus' : '',
+                    className: i === currentSpriteIndex ? 'initial-focus' : '',
                     onclick: () => selectSprite(i, 'sprite'),
                     sprite,
                     colorList,
@@ -98,7 +98,7 @@ class SpriteList extends Component {
             div({ className: 'spritelist' }, [
                 spriteButtonList
             ]),
-            h('hr'),
+            hr(),
             row([
                 importSpriteButton,
                 div({ class: 'fill' }),

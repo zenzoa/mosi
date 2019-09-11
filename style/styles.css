@@ -97,7 +97,7 @@ canvas {
 }
 
 .multi-tab-mode .panel {
-    flex-basis: 300px;
+    flex-basis: 400px;
     flex-shrink: 0;
     max-width: calc(100vh - var(--button-size) * 6 - var(--big-padding) * 6);
 }
@@ -173,11 +173,16 @@ canvas {
 
 .row {
     display: flex;
+    align-items: center;
 }
 
 .fill {
     flex-basis: 100%;
     flex-grow: 1;
+}
+
+.vertical-divider {
+    height: var(--button-size);
 }
 
 .overlay-wrapper {
@@ -193,6 +198,30 @@ canvas {
 .overlay {
     max-height: 100%;
     overflow-y: auto;
+}
+
+.color-blocks {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.color-block {
+    flex-grow: 1;
+}
+
+.color-block:first-child {
+    flex-grow: 2;
+}
+
+.welcome-logo img {
+    width: 100%;
+}
+
+label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 /* FORM BASICS */
@@ -286,6 +315,22 @@ input[type="file"] {
     background: var(--button-bg);
 }
 
+.color-textbox {
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    text-shadow:
+        -1px 0px 0 black,
+        1px 0px 0 black,
+        0px -1px 0 black,
+        0px 1px 0 black,
+        -1px 1px 0 black,
+        1px -1px 0 black,
+        -1px -1px 0 black,
+        1px 1px 0 black
+        ;
+}
+
 .overlay input {
     margin-left: 0;
     margin-right: 0;
@@ -300,7 +345,7 @@ textarea {
 button,
 input[type="file"],
 .dropdown {
-    min-width: var(--button-size);
+    width: var(--button-size);
     min-height: var(--button-size);
     border-radius: var(--small-radius);
     box-shadow:
@@ -421,6 +466,14 @@ body {
     background: var(--main-bg);
 }
 
+.row > span {
+    margin: var(--small-padding);
+}
+
+span.label {
+    flex-basis: 33%;
+}
+
 .grid-container {
     margin: var(--small-padding);
 }
@@ -483,4 +536,16 @@ svg.logo {
     margin-bottom: 0;
     fill: var(--main-bg-2);
     stroke: none;
+}
+
+.color-picker {
+    margin: var(--big-padding) auto var(--small-padding);
+}
+
+.one-tab-mode .color-picker {
+    max-width: calc(100vh - var(--button-size) * 6 - var(--big-padding) * 8);
+}
+
+.multi-tab-mode .color-picker {
+    max-width: calc(100vh - var(--button-size) * 8 - var(--big-padding) * 10);
 }

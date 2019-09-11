@@ -156,7 +156,6 @@ class SpritePanel extends Component {
     
         let addFrameButton = frameList.length >= 4 ? null :
             iconButton({
-                className: frameList.length === 1 ? '' : 'icon',
                 title: 'add frame',
                 onclick: () => {
                     let newFrame = currentFrame.slice()
@@ -167,7 +166,6 @@ class SpritePanel extends Component {
     
         let removeFrameButton = frameList.length <= 1 ? null :
             iconButton({
-                className: 'icon',
                 title: 'remove frame',
                 onclick: () => this.setState({ showRemoveFrameOverlay: true })
             }, 'remove')
@@ -288,11 +286,11 @@ class SpritePanel extends Component {
             row([
                 duplicateButton,
                 removeButton,
-                div({ class: 'vertical-divider short' }),
                 exportButton,
+                gifButton,
+                div({ class: 'vertical-divider' }),
                 randomFrameButton,
                 clearFrameButton,
-                gifButton,
                 flipFrameHorizontalButton,
                 flipFrameVerticalButton,
                 rotateFrameButton

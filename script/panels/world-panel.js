@@ -108,7 +108,7 @@ class WorldPanel extends Component {
         }, 'settings')
 
         let settingsOverlay = !showSettingsOverlay ? null :
-            h(NewWorldOverlay, {
+            h(WorldSettingsOverlay, {
                 worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight,
                 worldWrapHorizontal,
                 worldWrapVertical,

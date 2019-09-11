@@ -76,6 +76,7 @@ let em = (children) => h('em', {}, children)
 let strong = (children) => h('strong', {}, children)
 let row = (children) => div({ className: 'row' }, children)
 let fill = () => div({ className: 'fill' })
+let hr = () => h('hr')
 
 class Panel extends Component {
     componentDidMount() {
@@ -195,13 +196,43 @@ let spriteButton = ({ className, onclick, sprite, isSelected, colorList }) => {
     ])
 }
 
+let paletteButton = ({ className, onclick, palette, isSelected }) => {
+    let selectedClass = isSelected ? ' selected' : ''
+    let paletteName = palette.name
+
+    let colorBlocks = palette.colorList.map(color => {
+        return div({ className: 'color-block', style: { backgroundColor: color }})
+    })
+
+    return button({
+        title: paletteName,
+        className: 'palette-button ' + className + selectedClass,
+        onclick
+    },
+        div({ className: 'color-blocks'}, colorBlocks)
+    )
+}
+
+let colorButton = ({ className, onclick, color, isSelected }) => {
+    let selectedClass = isSelected ? ' selected' : ''
+    let colorBlock = div({ className: 'color-block', style: { backgroundColor: color }})
+
+    return button({
+        title: color,
+        className: 'color-button ' + className + selectedClass,
+        onclick
+    },
+        div({ className: 'color-blocks'}, colorBlock)
+    )
+}
+
 class ColorPicker extends Component {
     constructor() {
         super()
 
         this.resize = () => {
             let rect = this.el.getBoundingClientRect()
-            let width = Math.min(rect.width, 320) - 16
+            let width = rect.width
             this.colorPicker.resize(width)
         }
     }
@@ -211,8 +242,8 @@ class ColorPicker extends Component {
         this.colorPicker.on('color:change', color => {
             if (this.props.onColorChange) this.props.onColorChange(color)
         })
-        this.resize()
         window.addEventListener('resize', this.resize)
+        window.setTimeout(this.resize, 1)
     }
 
     componentWillUnmount() {
@@ -227,6 +258,6 @@ class ColorPicker extends Component {
     }
   
     render() {
-        return div({ ref: el => { this.el = el } })
+        return div({ className: 'color-picker', ref: el => { this.el = el } })
     }
 }

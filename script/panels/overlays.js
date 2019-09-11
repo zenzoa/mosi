@@ -27,8 +27,13 @@ class ImportOverlay extends Component {
                     className: 'initial-focus',
                     ref: node => { this.textarea = node }
                 }),
-                button({ onclick: () => onImport(this.textarea.value) }, 'import from text'),
-                h('hr')
+                row([
+                    button({
+                        className: 'fill',
+                        onclick: () => onImport(this.textarea.value)
+                    }, 'import from text')
+                ]),
+                hr()
             ])
 
         let fileImport = div({}, [
@@ -47,18 +52,21 @@ class ExportOverlay extends Component {
                 value: data,
                 ref: node => { this.textarea = node }
             }),
-            button({
-                className: 'initial-focus',
-                onclick: () => {
-                    this.textarea.select()
-                    document.execCommand('copy')
-                }
-            }, 'copy text'),
-            h('hr')
+            row([
+                button({
+                    className: 'initial-focus fill',
+                    onclick: () => {
+                        this.textarea.select()
+                        document.execCommand('copy')
+                    }
+                }, 'copy text'),
+            ]),
+            hr()
         ])
 
-        let fileExport = div({}, [
+        let fileExport = row([
             button({
+                className: 'fill',
                 onclick: () => Files.download(fileName, data)
             }, 'download file')
         ])
@@ -128,6 +136,14 @@ class RoomGifOverlay extends Component {
     }
 }
 
+class PaletteListOverlay extends Component {
+    render({ closeOverlay }) {
+        return overlay({ closeOverlay, header: 'choose palette' }, [
+            h(PaletteList, this.props)
+        ])
+    }
+}
+
 class SpriteListOverlay extends Component {
     render({ closeOverlay }) {
         return overlay({ closeOverlay, header: 'choose sprite' }, [
@@ -156,7 +172,7 @@ class TilePickerOverlay extends Component {
     }
 }
 
-class NewWorldOverlay extends Component {
+class WorldSettingsOverlay extends Component {
     constructor({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight }) {
         super()
         this.state = {
@@ -181,16 +197,15 @@ class NewWorldOverlay extends Component {
         showConfirmOverlay
     }) {
         let wrapHorizontalButton = button({
-            className: 'toggle' + (worldWrapHorizontal ? ' selected' : ''),
+            className: 'fill toggle' + (worldWrapHorizontal ? ' selected' : ''),
             onclick: () => setWrapHorizontal(!worldWrapHorizontal)
         }, 'wrap horizontally')
     
         let wrapVerticalButton = button({
-            className: 'toggle' + (worldWrapVertical ? ' selected' : ''),
+            className: 'fill toggle' + (worldWrapVertical ? ' selected' : ''),
             onclick: () => setWrapVertical(!worldWrapVertical)
         }, 'wrap vertically')
 
-        
         let worldResized = worldWidth !== this.props.worldWidth || worldHeight !== this.props.worldHeight
         let roomResized = roomWidth !== this.props.roomWidth || roomHeight !== this.props.roomHeight
         let spriteResized = spriteWidth !== this.props.spriteWidth || spriteHeight !== this.props.spriteHeight
@@ -201,6 +216,7 @@ class NewWorldOverlay extends Component {
         
         let resizeButton =
             button({
+                className: 'fill',
                 disabled: !resizedString,
                 onclick: () => this.setState({ showConfirmOverlay: true })
             }, 'resize')
@@ -262,10 +278,12 @@ class NewWorldOverlay extends Component {
                     max: 24,
                     onchange: e => this.setState({ spriteHeight: parseInt(e.target.value) }) })
             ]),
-            resizeButton,
-            h('hr'),
-            wrapHorizontalButton,
-            wrapVerticalButton,
+            row([ resizeButton ]),
+            hr(),
+            row([
+                wrapHorizontalButton,
+                wrapVerticalButton
+            ]),
             confirmOverlay
         ])
     }
