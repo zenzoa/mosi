@@ -110,7 +110,6 @@ let Room = {
 
         let floorTiles = terrainSprites.filter(s => !s.isWall)
         let wallTiles = terrainSprites.filter(s => s.isWall)
-        console.log(floorTiles, wallTiles)
 
         let randomWalk = (sprite, density, distance, overwrite) => {
             let x = Math.floor(Math.random() * width)

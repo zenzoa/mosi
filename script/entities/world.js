@@ -55,11 +55,8 @@ let World = {
             ]
         }
 
-        // pick contrasting colors for initial palette
-        world.paletteList.push({
-            name: 'palette 1',
-            colorList: Color.contrastingColors()
-        })
+        // create initial palette
+        world.paletteList.push(Palette.create({}))
 
         // place random tiles throughout world
         if (randomStart) {
