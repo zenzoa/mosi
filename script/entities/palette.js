@@ -45,12 +45,32 @@ let Palette = {
         that.setState({ paletteList, currentPaletteIndex })
     },
 
-    import: () => {
-        console.log('import palette')
+    import: (that, paletteData) => {
+        try {
+            let palette = JSON.parse(paletteData)
+
+            // check for color list
+            if (!palette.colorList || !palette.colorList.length) {
+                throw('this palette does not have a valid list of colors')
+            }
+
+            // check for number of colors
+            if (palette.colorList.length < 2) {
+                throw('this palette has too few colors, you need at least 2')
+            }
+
+            Palette.add(that, palette)
+        }
+        catch (e) {
+            console.error('unable to import palette!', e)
+            that.setState({ showErrorOverlay: true, errorMessage: 'unable to import palette!' })
+        }
     },
 
-    export: () => {
-        console.log('export palette')
+    export: (that, paletteIndex) => {
+        let palette = that.state.paletteList[paletteIndex]
+        let paletteData = JSON.stringify(palette)
+        return paletteData
     },
 
     rename:  (that, paletteIndex, newName) => {

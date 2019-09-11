@@ -345,7 +345,7 @@ textarea {
 button,
 input[type="file"],
 .dropdown {
-    width: var(--button-size);
+    min-width: var(--button-size);
     min-height: var(--button-size);
     border-radius: var(--small-radius);
     box-shadow:

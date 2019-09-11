@@ -305,6 +305,7 @@ class Main extends Component {
                 renamePalette: Palette.rename.bind(this, this, currentPaletteIndex),
                 removePalette: Palette.remove.bind(this, this, currentPaletteIndex),
                 randomPalette: Palette.random.bind(this, this, currentPaletteIndex),
+                exportPalette: Palette.export.bind(this, this, currentPaletteIndex),
                 duplicatePalette: Palette.add.bind(this, this, paletteList[currentPaletteIndex]),
                 addColor: Palette.addColor.bind(this, this, currentPaletteIndex),
                 updateColor: Palette.updateColor.bind(this, this, currentPaletteIndex),

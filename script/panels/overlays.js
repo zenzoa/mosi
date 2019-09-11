@@ -20,28 +20,31 @@ class RemoveOverlay extends Component {
 
 class ImportOverlay extends Component {
     render({ onImport, closeOverlay, header, fileType, hideTextImport }) {
-        let textImport = hideTextImport ? null :
-            div({ className: 'content' }, [
-                textarea({
-                    value: '',
-                    className: 'initial-focus',
-                    ref: node => { this.textarea = node }
-                }),
-                row([
-                    button({
-                        className: 'fill',
-                        onclick: () => onImport(this.textarea.value)
-                    }, 'import from text')
-                ]),
-                hr()
-            ])
+        let textImport = hideTextImport ? [] : [
+            textarea({
+                value: '',
+                className: 'initial-focus',
+                ref: node => { this.textarea = node }
+            }),
+            row([
+                button({
+                    className: 'fill',
+                    onclick: () => onImport(this.textarea.value)
+                }, 'import from text')
+            ]),
+            hr()
+        ]
 
         let fileImport = div({}, [
             div({}, 'import from file:'),
             fileinput({ onUpload: onImport, fileType })
         ])
 
-        return overlay({ closeOverlay, header }, [ textImport, fileImport ])
+        return overlay({ closeOverlay, header },
+            div({ className: 'content' }, 
+                textImport.concat(fileImport)
+            )
+        )
     }
 }
 
