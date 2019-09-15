@@ -155,6 +155,9 @@ class SpriteGrid extends Component {
         let tileX = lastTileX * tileWidth
         let tileY = lastTileY * tileHeight
 
+        let widthRatio = width > height ? 1 : width / height
+        let heightRatio = width > height ? height / width : 1
+
         let gridHighlight = !usingKeyboard ? null :
             div({
                 className: 'grid-highlight',
@@ -168,6 +171,10 @@ class SpriteGrid extends Component {
 
         return div({
             className: 'grid spritegrid ' + className,
+            style: {
+                width: widthRatio * 100 + '%',
+                paddingTop: heightRatio * 100 + '%'
+            },
             ref: node => { this.node = node },
             tabindex: 0
         }, [

@@ -10,6 +10,7 @@ class WorldPanel extends Component {
         importWorld,
         exportWorld,
         randomWorld,
+        resizeWorld,
         clearWorld,
         setWrapHorizontal,
         setWrapVertical,
@@ -115,9 +116,8 @@ class WorldPanel extends Component {
                 setWrapHorizontal,
                 setWrapVertical,
                 resize: (props) => {
-                    // let newWorld = World.create(props)
-                    // this.setState({ showNewOverlay: false })
-                    // updateWorld(newWorld)
+                    resizeWorld(props)
+                    this.setState({ showSettingsOverlay: false })
                 },
                 closeOverlay: () => this.setState({ showSettingsOverlay: false })
             })
@@ -140,12 +140,7 @@ class WorldPanel extends Component {
             row([
                 nameTextbox
             ]),
-            div({
-                className: 'world-grid grid-container',
-                style: { backgroundColor: paletteList[0].colorList[0] }
-            },
-                worldGrid
-            ),
+            worldGrid,
             row([
                 exportButton,
                 importButton,

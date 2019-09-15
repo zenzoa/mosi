@@ -204,6 +204,11 @@ class WorldGrid extends Component {
         let startX = Math.floor(startRoomIndex % worldWidth) * tileWidth
         let startY = Math.floor(startRoomIndex / worldWidth) * tileHeight
 
+        let width = worldWidth * roomWidth
+        let height = worldHeight * roomHeight
+        let widthRatio = width > height ? 1 : width / height
+        let heightRatio = width > height ? height / width : 1
+
         let gridHighlight =
             div({
                 className: 'grid-highlight',
@@ -254,12 +259,16 @@ class WorldGrid extends Component {
         
         return div({
             class: 'grid worldgrid ' + className,
+            style: {
+                width: widthRatio * 100 + '%',
+                paddingTop: heightRatio * 100 + '%'
+            },
             ref: node => { this.node = node },
             tabindex: 0
         }, [
             canvas({
-                width: roomWidth * worldWidth,
-                height: roomHeight * worldHeight,
+                width,
+                height,
                 ref: node => { this.canvas = node }
             }),
             avatarHighlight,

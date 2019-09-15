@@ -11,7 +11,6 @@ class Text {
         this.height = Math.floor(fontData.height * 2.5) + Math.floor(padding * 1.5)
         this.linesPerPage = 2
 
-        this.wrapper.style.position = 'relative'
         this.canvas = document.createElement('canvas')
         this.canvas.width = width
         this.canvas.height = height

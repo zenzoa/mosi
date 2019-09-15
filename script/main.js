@@ -180,6 +180,7 @@ class Main extends Component {
                 importWorld: World.import.bind(this, this),
                 exportWorld: World.export.bind(this, this.state),
                 randomWorld: World.random.bind(this, this, this.state),
+                resizeWorld: World.resize.bind(this, this, this.state),
                 clearWorld: World.clear.bind(this, this, this.state),
                 setWrapHorizontal: World.setWrapHorizontal.bind(this, this),
                 setWrapVertical: World.setWrapVertical.bind(this, this),

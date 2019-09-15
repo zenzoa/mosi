@@ -4,14 +4,19 @@ class Game {
         this.world = world
 
         this.wrapper = document.createElement('div')
+        this.wrapper.style.position = 'relative'
+        this.wrapper.style.paddingTop = '100%'
         this.wrapper.style.margin = '0 auto'
         el.appendChild(this.wrapper)
 
         this.canvas = document.createElement('canvas')
         this.canvas.width = world.roomWidth * world.spriteWidth
-        this.canvas.height = world.roomHeight * world.spriteWidth
-        this.canvas.style.width = '100%'
+        this.canvas.height = world.roomHeight * world.spriteHeight
+        this.canvas.style.position = 'absolute'
         this.canvas.style.display = 'block'
+        this.canvas.style.top = '0'
+        this.canvas.style.left = '0'
+        this.canvas.style.width = '100%'
         this.wrapper.appendChild(this.canvas)
         this.context = this.canvas.getContext('2d')
 
@@ -602,20 +607,12 @@ class Game {
         }
 
         this.resize = () => {
-            let container = this.wrapper.parentElement.parentElement
-            let rect = container.getBoundingClientRect()
-            if (this.canvas.height > this.canvas.width) {
-                let widthA = rect.height * (this.canvas.width / this.canvas.height)
-                let widthB = rect.width
-                let minWidth = Math.min(widthA, widthB)
-                this.wrapper.style.width = minWidth + 'px'
-            } else {
-                let heightA = rect.width * (this.canvas.height / this.canvas.width)
-                let heightB = rect.height
-                let minHeight = Math.min(heightA, heightB)
-                let width = (this.canvas.width / this.canvas.height) * minHeight
-                this.wrapper.style.width = width + 'px'
-            }
+            let width = this.canvas.width
+            let height = this.canvas.height
+            let widthRatio = width > height ? 1 : width / height
+            let heightRatio = width > height ? height / width : 1
+            this.wrapper.style.width = widthRatio * 100 + '%',
+            this.wrapper.style.paddingTop = heightRatio * 100 + '%'
         }
     }
 

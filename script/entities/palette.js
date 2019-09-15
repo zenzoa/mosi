@@ -170,7 +170,6 @@ let Palette = {
     },
 
     updateColor: (that, paletteIndex, colorIndex, newColor) => {
-        console.log('update color')
         let paletteList = that.state.paletteList.slice()
         let palette = paletteList[paletteIndex]
         palette.colorList = palette.colorList.slice()

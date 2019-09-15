@@ -266,11 +266,16 @@ class RoomGrid extends Component {
         if (!this.props.isAnimated) this.update()
     }
 
-    render({ className, spriteWidth, spriteHeight, roomWidth, roomHeight }, { usingKeyboard, lastTileX, lastTileY }) {
+    render({ className, spriteWidth, spriteHeight, roomWidth, roomHeight, colorList }, { usingKeyboard, lastTileX, lastTileY }) {
         let tileWidth = 100 / roomWidth
         let tileHeight = 100 / roomHeight
         let tileX = lastTileX * tileWidth
         let tileY = lastTileY * tileHeight
+
+        let width = spriteWidth * roomWidth
+        let height = spriteHeight * roomHeight
+        let widthRatio = width > height ? 1 : width / height
+        let heightRatio = width > height ? height / width : 1
 
         let gridHighlight = !usingKeyboard ? null :
             div({
@@ -285,12 +290,17 @@ class RoomGrid extends Component {
 
         return div({
             class: 'grid roomgrid ' + className,
+            style: {
+                width: widthRatio * 100 + '%',
+                paddingTop: heightRatio * 100 + '%',
+                backgroundColor: colorList[0]
+            },
             ref: node => { this.node = node },
             tabindex: 0
         }, [
             canvas({
-                width: spriteWidth * roomWidth,
-                height: spriteHeight * roomHeight,
+                width,
+                height,
                 ref: node => { this.canvas = node }
             }),
             gridHighlight

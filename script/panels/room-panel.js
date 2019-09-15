@@ -209,12 +209,7 @@ class RoomPanel extends Component {
                 backButton,
                 nameTextbox
             ]),
-            div({
-                className: 'room-grid grid-container',
-                style: { backgroundColor: colorList[0] }
-            },
-                roomGrid
-            ),
+            roomGrid,
             row([
                 exportButton,
                 importButton,

@@ -221,7 +221,6 @@ let Sprite = {
     flipFrame: (width, height, frame, horizontal) => {
         let rows = []
         for (let i = 0; i < height; i++) {
-            console.log(i, i * width, (i * width) + width)
             rows.push(
                 frame.slice(i * width, i * width + width)
             )

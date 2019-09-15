@@ -16,6 +16,7 @@
     --font-size: 12px;
     --small-font-size: 10px;
     --button-size: 40px;
+    --button-canvas-size: 32px;
 
     --big-padding: 8px;
     --small-padding: 4px;
@@ -126,7 +127,13 @@ canvas {
 }
 
 .grid canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
     width: 100%;
+    height: 100%;
 }
 
 .grid-highlight {
@@ -262,7 +269,9 @@ select {
 }
 
 button canvas {
-    width: 100%;
+    object-fit: contain;
+    width: var(--button-canvas-size);
+    height: var(--button-canvas-size);
 }
 
 .dropdown {
@@ -474,12 +483,13 @@ span.label {
     flex-basis: 33%;
 }
 
-.grid-container {
-    margin: var(--small-padding);
+.grid {
+    margin: var(--small-padding) auto;
+    cursor: pointer;
 }
 
-.grid {
-    cursor: pointer;
+.grid:focus {
+    box-shadow: 0 0 0 2px var(--focus-color);
 }
 
 .overlay-wrapper {
@@ -548,4 +558,14 @@ svg.logo {
 
 .multi-tab-mode .color-picker {
     max-width: calc(100vh - var(--button-size) * 8 - var(--big-padding) * 10);
+}
+
+.one-tab-mode .play-panel {
+    margin: var(--big-padding);
+    max-width: calc(100vh - var(--button-size) * 1 - var(--big-padding) * 3);
+}
+
+.multi-tab-mode .play-panel {
+    margin: 0 var(--big-padding);
+    max-width: calc(100vh - var(--button-size) * 1 - var(--big-padding) * 5);
 }

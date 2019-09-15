@@ -40,20 +40,7 @@ let World = {
         })
 
         // create avatar
-        world.spriteList.push(Sprite.create({
-            name: 'avatar',
-            isAvatar: true,
-            spriteWidth,
-            spriteHeight,
-            randomStart: true
-        }))
-
-        if (spriteWidth === 8 && spriteHeight === 8) {
-            world.spriteList[0].frameList = [
-                [0,0,0,0,1,0,0,1,0,1,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,0,1,0,0,1,0,0],
-                [0,0,0,0,1,0,0,1,1,0,0,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,0,0,1,1,1,1,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,1,0]
-            ]
-        }
+        world.spriteList.push(World.createAvatar(spriteWidth, spriteHeight))
 
         // create initial palette
         world.paletteList.push(Palette.create({}))
@@ -95,6 +82,25 @@ let World = {
         return world
     },
 
+    createAvatar: (spriteWidth, spriteHeight) => {
+        let avatar = Sprite.create({
+            name: 'avatar',
+            isAvatar: true,
+            spriteWidth,
+            spriteHeight,
+            randomStart: true
+        })
+
+        if (spriteWidth === 8 && spriteHeight === 8) {
+            avatar.frameList = [
+                [0,0,0,0,1,0,0,1,0,1,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,0,0,0,0,1,0,0,1,0,0],
+                [0,0,0,0,1,0,0,1,1,0,0,0,1,1,1,1,0,1,0,0,1,1,1,1,0,1,0,0,1,1,1,1,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,0,1,1,1,1,1,0,0,1,0,1,0,0,1,0]
+            ]
+        }
+
+        return avatar
+    },
+
     random: (that, world) => {
         let { roomWidth, roomHeight, spriteList, paletteList } = world
         let roomList = world.roomList.slice()
@@ -107,7 +113,7 @@ let World = {
         that.setState({ roomList: roomList })
     },
 
-    clear: (that, world) => {
+    clear: (that, world, passthrough) => {
         let { worldWidth, worldHeight, paletteList } = world
         let defaultPaletteName = paletteList[0].name
         let roomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
@@ -119,11 +125,44 @@ let World = {
                 tileList: []
             }
         })
+        
+        if (passthrough) return roomList
+
         that.setState({ roomList: roomList})
     },
     
     rename: (that, newName) => {
         that.setState({ worldName: newName })
+    },
+
+    resize: (that, world, props) => {
+        let { roomList, spriteList, paletteList } = world
+        let { worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight } = props
+
+        let worldResized = world.worldWidth !== worldWidth || world.worldHeight !== worldHeight
+        let roomResized = world.roomWidth !== roomWidth || world.roomHeight !== roomHeight
+        let spriteResized = world.spriteWidth !== spriteWidth || world.spriteHeight !== spriteHeight
+
+        if (worldResized || roomResized) {
+            roomList = World.clear(that, { worldWidth, worldHeight, paletteList }, true)
+        }
+
+        if (spriteResized) {
+            spriteList = spriteList.slice()
+            spriteList.forEach(sprite => {
+                sprite.frameList = [Array(spriteWidth * spriteHeight).fill(0)]
+                sprite.width = spriteWidth
+                sprite.height = spriteHeight
+            })
+        }
+
+        that.setState({
+            roomList,
+            spriteList,
+            worldWidth, worldHeight,
+            roomWidth, roomHeight,
+            spriteWidth, spriteHeight
+        })
     },
 
     import: (that, worldData) => {

@@ -26,7 +26,7 @@ class PlayPanel extends Component {
                     onclick: () => this.setState({ showShareOverlay: true })
                 }, 'share')
             ]),
-            div({ className: 'play-canvas-wrapper' }, 
+            div({ className: 'play-panel' }, 
                 div({
                     className: 'play-canvas',
                     ref: n => this.gameWrapper = n

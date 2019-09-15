@@ -270,12 +270,7 @@ class SpritePanel extends Component {
                 transparentButton,
                 behaviorButton
             ]),
-            div({
-                className: 'sprite-grid grid-container',
-                style: { backgroundColor }
-            },
-                spriteGrid
-            ),
+            spriteGrid,
             row([
                 spritePreview,
                 frameListDivider,
