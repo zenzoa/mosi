@@ -90,9 +90,14 @@ class SpritePanel extends Component {
             onclick: () => setSpriteIsTransparent(!isTransparent)
         }, 'transparent')
     
+        let behaviorCount = 0
+        sprite.behaviorList.forEach(event => {
+            if (event.actionList) behaviorCount += event.actionList.length
+        })
         let behaviorButton = isAvatar ? null :
             iconButton({
                 title: 'behavior',
+                className: (behaviorCount ? ' selected' : ''),
                 onclick: openBehaviorTab
             }, 'behavior')
     

@@ -78,11 +78,10 @@ class BehaviorPanel extends Component {
             })
 
         let removeEventButton = currentBehavior.event === 'push' ? null :
-            button({
-                className: 'icon',
+            iconButton({
                 title: 'remove event',
                 onclick: () => this.setState({ showRemoveEventOverlay: true }),
-            }, '×')
+            }, 'delete')
 
         let removeEventOverlay = !showRemoveEventOverlay ? null :
             h(RemoveOverlay, {
@@ -107,7 +106,7 @@ class BehaviorPanel extends Component {
             })
         })
 
-        let addActionButton = button({
+        let addActionButton = iconButton({
             title: 'add action',
             className: currentBehavior.actionList.length === 0 ? 'initial-focus' : '',
             onclick: () => addAction(currentBehavior.event)
@@ -129,7 +128,7 @@ class BehaviorPanel extends Component {
             hr(),
             actionComponents,
             row([
-                div({ class: 'fill' }),
+                fill(),
                 addActionButton
             ]),
             removeEventOverlay
@@ -397,9 +396,9 @@ class BehaviorComponent extends Component {
             })
         })
 
-        let addActionButton = button({
+        let addActionButton = iconButton({
             onclick: () => this.addSubAction('actionList')
-        }, 'add action')
+        }, 'add')
 
         return [
             row([
@@ -408,7 +407,10 @@ class BehaviorComponent extends Component {
             ]),
             div({ className: 'behaviorList' }, [
                 actionComponents,
-                addActionButton
+                row([
+                    fill(),
+                    addActionButton
+                ])
             ])
         ]
     }
@@ -458,9 +460,9 @@ class BehaviorComponent extends Component {
             })
         })
 
-        let addActionButton = button({
+        let addActionButton = iconButton({
             onclick: () => this.addSubAction('actionList')
-        }, 'add action')
+        }, 'add')
 
         return [
             row([
@@ -470,7 +472,10 @@ class BehaviorComponent extends Component {
             ]),
             div({ className: 'behaviorList' }, [
                 actionComponents,
-                addActionButton
+                row([
+                    fill(),
+                    addActionButton
+                ])
             ]),
             spriteOverlay
         ]
@@ -500,11 +505,10 @@ class BehaviorComponent extends Component {
             option({ value: 'conditional' }, 'conditional')
         ])
 
-        let removeButton = button({
-            className: 'simple icon',
+        let removeButton = iconButton({
             title: 'remove action',
             onclick: () => this.setState({ showRemoveOverlay: true }),
-        }, '×')
+        }, 'delete')
 
         let removeOverlay = !showRemoveOverlay ? null :
             h(RemoveOverlay, {
@@ -548,7 +552,6 @@ class BehaviorComponent extends Component {
         }, [
             row([
                 actionTypeDropdown,
-                fill(),
                 removeButton
             ]),
             div({ className: 'behavior-settings' },

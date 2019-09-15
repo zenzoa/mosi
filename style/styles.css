@@ -42,6 +42,7 @@
     --main-bg-2: #666;
     --overlay-bg: rgba(0,0,0,0.7);
     --overlay-header-bg: white;
+    --behavior-bg: rgba(0,0,0,0.1);
 }
 
 /* BASICS */
@@ -87,6 +88,10 @@ canvas {
     display: none;
 }
 
+.one-tab-mode .tabs {
+    overflow-y: auto;
+}
+
 .one-tab-mode .panel {
     max-width: calc(100vh - var(--button-size) * 4 - var(--big-padding) * 6);
 }
@@ -105,7 +110,7 @@ canvas {
 .multi-tab-mode .panel {
     flex-basis: 400px;
     flex-shrink: 0;
-    max-width: calc(100vh - var(--button-size) * 6 - var(--big-padding) * 6);
+    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 12);
 }
 
 .multi-tab-mode .panel-header {
@@ -186,7 +191,7 @@ canvas {
 .row {
     display: flex;
     align-items: center;
-    overflow-y: auto;
+    overflow-x: auto;
 }
 
 .fill {
@@ -308,7 +313,8 @@ button,
 }
 
 input,
-textarea {
+textarea,
+.dropdown {
     width: 100%;
     padding: var(--small-padding) var(--big-padding);
 }
@@ -319,7 +325,9 @@ textarea:focus {
 }
 
 input:hover,
-input:focus {
+input:focus,
+textarea:hover,
+textarea:focus {
     background: var(--input-bg);
     box-shadow:
         0 2px 0 0 var(--button-bg) inset,
@@ -352,9 +360,9 @@ input[type="file"] {
 }
 
 textarea {
-    width: 100%;
-    margin: 0;
-    background: var(--input-bg);
+    margin-left: 0;
+    margin-right: 0;
+    padding: var(--big-padding);
 }
 
 button,
@@ -574,4 +582,28 @@ svg.logo {
 .multi-tab-mode .play-panel {
     margin: 0 var(--big-padding);
     max-width: calc(100vh - var(--button-size) * 1 - var(--big-padding) * 5);
+}
+
+.behavior {
+    margin: var(--big-padding) 0;
+    padding: var(--big-padding);
+    border-radius: var(--big-radius);
+    background: var(--behavior-bg);
+    box-shadow:
+        0 1px 0 0 var(--button-highlight) inset,
+        0 -1px 0 0 var(--button-highlight2) inset,
+        0 4px 0 0 var(--button-shadow);
+}
+
+.behavior:focus {
+    outline: none;
+    box-shadow:
+        0 1px 0 0 var(--button-highlight) inset,
+        0 -1px 0 0 var(--button-highlight2) inset,
+        0 4px 0 2px var(--focus-color),
+        0 0 0 2px var(--focus-color);
+}
+
+.behavior-settings {
+    /* margin-top: var(--small-padding); */
 }

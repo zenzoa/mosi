@@ -80,8 +80,9 @@ class ExportOverlay extends Component {
 
 class ShareOverlay extends Component {
     render({ closeOverlay, world }) {
-        let downloadButton = div({}, [
+        let downloadButton =
             button({
+                className: 'fill',
                 onclick: () => {
                     let template = window.resources['export-template.html']
                     let data = Files.fillTemplate(template, {
@@ -94,10 +95,9 @@ class ShareOverlay extends Component {
                     Files.download(filename, data)
                 }
             }, 'download game file')
-        ])
 
         return overlay({ closeOverlay, header: 'share' }, [
-            downloadButton
+            row([ downloadButton ])
         ])
     }
 }
