@@ -17,6 +17,7 @@ class SpritePanel extends Component {
         closeTab,
         renameSprite,
         exportSprite,
+        createSpriteGif,
         setSpriteIsWall,
         setSpriteIsItem,
         setSpriteIsTransparent,
@@ -33,6 +34,7 @@ class SpritePanel extends Component {
         currentFrameIndex,
         showRemoveSpriteOverlay,
         showExportOverlay,
+        showGifOverlay,
         showRemoveFrameOverlay,
         showClearFrameOverlay,
         showRandomFrameOverlay,
@@ -141,8 +143,16 @@ class SpritePanel extends Component {
 
         let gifButton = iconButton({
             title: 'create GIF',
-            onclick: () => this.setState({ showExtrasOverlay: false })
+            onclick: () => this.setState({ showExtrasOverlay: false, showGifOverlay: true })
         }, 'gif')
+
+        let gifOverlay = !showGifOverlay ? null :
+            h(GifOverlay, {
+                colorList,
+                createGif: createSpriteGif,
+                maxScale: 8,
+                closeOverlay: () => this.setState({ showGifOverlay: false })
+            })
 
         let extrasButton = iconButton({
             title: 'sprite actions',
@@ -314,6 +324,7 @@ class SpritePanel extends Component {
                 rotateFrameButton
             ]),
             exportOverlay,
+            gifOverlay,
             removeSpriteOverlay,
             removeFrameOverlay,
             clearFrameOverlay,

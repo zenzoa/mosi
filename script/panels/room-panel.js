@@ -123,9 +123,10 @@ class RoomPanel extends Component {
         }, 'gif')
 
         let gifOverlay = !showGifOverlay ? null :
-            h(RoomGifOverlay, {
+            h(GifOverlay, {
                 colorList,
                 createGif: createRoomGif,
+                maxScale: 4,
                 closeOverlay: () => this.setState({ showGifOverlay: false })
             })
 

@@ -257,6 +257,7 @@ class Main extends Component {
                 setColorIndex: Sprite.setColorIndex.bind(this, this, currentSpriteIndex),
                 exportSprite: Sprite.export.bind(this, this, currentSpriteIndex),
                 removeSprite: Sprite.remove.bind(this, this, currentSpriteIndex),
+                createSpriteGif: Sprite.createGif.bind(this, this, currentSpriteIndex),
                 duplicateSprite: Sprite.add.bind(this, this, spriteList[currentSpriteIndex]),
                 addFrame: Sprite.addFrame.bind(this, this, currentSpriteIndex),
                 removeFrame: Sprite.removeFrame.bind(this, this, currentSpriteIndex),

@@ -112,7 +112,7 @@ class ShareOverlay extends Component {
     }
 }
 
-class RoomGifOverlay extends Component {
+class GifOverlay extends Component {
     constructor() {
         super()
         this.state = {
@@ -134,12 +134,17 @@ class RoomGifOverlay extends Component {
         this.updateGif(2)
     }
 
-    render({ closeOverlay }, { scale, imageUri }) {
+    render({ closeOverlay, maxScale }, { scale, imageUri }) {
         let gif = imageUri ? img({ src: imageUri }) : null
 
         let scaleTextbox = label({}, [
             span({}, 'image scale'),
-            numbox({ value: scale, min: 1, max: 4, onchange: e => this.updateGif(parseInt(e.target.value)) })
+            numbox({
+                value: scale,
+                min: 1,
+                max: maxScale,
+                onchange: e => this.updateGif(parseInt(e.target.value))
+            })
         ])
 
         return overlay({ closeOverlay, header: 'create gif' }, [

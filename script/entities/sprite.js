@@ -268,6 +268,41 @@ let Sprite = {
         }
     
         return newFrame
-    }
+    },
+
+    createGif: (that, spriteIndex, scale, colorList, onComplete) => {
+        let { spriteList, spriteWidth, spriteHeight } = that.state
+        let sprite = spriteList[spriteIndex]
+
+        let width = spriteWidth * scale
+        let height = spriteHeight * scale
+
+        let frameCount = 12
+        let frames = Array(frameCount).fill(0).map(() =>
+            Array(width * height).fill(0)
+        )
+
+        frames.forEach((frame, i) => {
+            let frameIndex = i % sprite.frameList.length
+            let spriteFrame = sprite.frameList[frameIndex]
+
+            let colorIndex = sprite.colorIndex
+            while (colorIndex > 0 && !colorList[colorIndex]) colorIndex--
+
+            spriteFrame.forEach((pixel, j) => {
+                if (!pixel) return
+                let pxOffset = Math.floor(j % spriteWidth) * scale
+                let pyOffset = Math.floor(j / spriteWidth) * scale
+                for (let x = 0; x < scale; x++) {
+                    for (let y = 0; y < scale; y++) {
+                        let pixelIndex = x + pxOffset + ((y + pyOffset) * width)
+                        frame[pixelIndex] = colorIndex
+                    }
+                }
+            })
+        })
+
+        GIF.encode(width, height, frames, FRAME_RATE, colorList, onComplete)
+    },
 
 }
