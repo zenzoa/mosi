@@ -29,7 +29,6 @@ class SpriteList extends Component {
         filter
     }) {
         let filterInput = textbox({
-            class: 'simple',
             placeholder: 'search sprites',
             value: filter,
             onchange: e => this.setState({ filter: e.target.value })
@@ -101,7 +100,7 @@ class SpriteList extends Component {
             hr(),
             row([
                 importSpriteButton,
-                div({ class: 'fill' }),
+                fill(),
                 editSpriteButton,
                 addSpriteButton
             ]),

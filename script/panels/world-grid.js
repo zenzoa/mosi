@@ -237,7 +237,7 @@ class WorldGrid extends Component {
             for (let x = 0; x < worldWidth; x++) {
                 gridLinesCells.push(
                     h('td', {
-                        class: 'gridlines-cell',
+                        className: 'gridlines-cell',
                         style: {
                             width: tileWidth + '%',
                             height: tileHeight + '%'
@@ -247,7 +247,7 @@ class WorldGrid extends Component {
             }
             gridLinesRows.push(
                 h('tr', {
-                    class: 'gridlines-row',
+                    className: 'gridlines-row',
                     style: {
                         // width: tileWidth + '%',
                         height: tileHeight + '%'
@@ -255,10 +255,10 @@ class WorldGrid extends Component {
                 }, gridLinesCells)
             )
         }
-        let gridLines = div({ class: 'gridlines' }, h('table', {}, gridLinesRows))
+        let gridLines = div({ className: 'gridlines' }, h('table', {}, gridLinesRows))
         
         return div({
-            class: 'grid worldgrid ' + className,
+            className: 'grid worldgrid ' + className,
             style: {
                 width: widthRatio * 100 + '%',
                 paddingTop: heightRatio * 100 + '%'

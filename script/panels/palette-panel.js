@@ -48,7 +48,6 @@ class PalettePanel extends Component {
         let currentColor = palette.colorList[currentColorIndex]
 
         let nameTextbox = textbox({
-            class: 'simple',
             placeholder: 'palette name',
             value: palette.name,
             onchange: e => renamePalette(e.target.value)

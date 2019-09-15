@@ -33,7 +33,6 @@ class BehaviorPanel extends Component {
         let currentBehavior = behaviorList[currentBehaviorIndex]
 
         let eventDropdown = dropdown({
-            className: 'simple',
             value: currentBehaviorIndex,
             onchange: e => {
                 if (e.target.value === 'add') {
@@ -491,7 +490,6 @@ class BehaviorComponent extends Component {
     }) {
 
         let actionTypeDropdown = dropdown({
-            className: 'simple',
             value: action.type,
             onchange: e => updateAction({ type: e.target.value })
         }, [

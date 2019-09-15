@@ -203,7 +203,13 @@ class WorldSettingsOverlay extends Component {
         worldWrapHorizontal,
         worldWrapVertical,
         setWrapHorizontal,
-        setWrapVertical
+        setWrapVertical,
+        setFontResolution,
+        setFontDirection,
+        setFontData,
+        fontResolution,
+        fontDirection,
+        fontData
     }, {
         worldWidth,
         worldHeight,
@@ -211,7 +217,8 @@ class WorldSettingsOverlay extends Component {
         roomHeight,
         spriteWidth,
         spriteHeight,
-        showConfirmOverlay
+        showConfirmResizeOverlay,
+        showImportFontOverlay
     }) {
         let wrapHorizontalButton = button({
             className: 'fill toggle' + (worldWrapHorizontal ? ' selected' : ''),
@@ -235,22 +242,59 @@ class WorldSettingsOverlay extends Component {
             button({
                 className: 'fill',
                 disabled: !resizedString,
-                onclick: () => this.setState({ showConfirmOverlay: true })
+                onclick: () => this.setState({ showConfirmResizeOverlay: true })
             }, 'resize')
 
-        let confirmOverlay = !showConfirmOverlay ? null :
+        let confirmResizeOverlay = !showConfirmResizeOverlay ? null :
             h(RemoveOverlay, {
                 header: `clear all ${resizedString}?`,
-                closeOverlay: () => this.setState({ showConfirmOverlay: false }),
+                closeOverlay: () => this.setState({ showConfirmResizeOverlay: false }),
                 remove: () => {
                     resize(this.state)
-                    this.setState({ showConfirmOverlay: false })
+                    this.setState({ showConfirmResizeOverlay: false })
                 }
             })
 
+        let importFontButton =
+            button({
+                className: 'fill',
+                onclick: () => this.setState({ showImportFontOverlay: true })
+            }, 'import new font')
+
+        let importFontOverlay = !showImportFontOverlay ? null :
+            h(ImportOverlay, {
+                header: 'import font',
+                onImport: data => {
+                    let fontData = Font.parse(data)
+                    setFontData(fontData)
+                    this.setState({ showImportFontOverlay: false })
+                },
+                fileType: '.bitsyfont',
+                hideTextImport: true,
+                closeOverlay: () => this.setState({ showImportFontOverlay: false })
+            })
+
+        let fontResolutionDropdown = dropdown({
+            value: fontResolution,
+            onchange: e => setFontResolution(parseFloat(e.target.value))
+        }, [
+            option({ value: 0.125 }, '×1/16'),
+            option({ value: 0.25 }, '×1/4'),
+            option({ value: 0.5 }, '×1/2'),
+            option({ value: 1 }, '×1'),
+            option({ value: 2 }, '×2'),
+            option({ value: 3 }, '×3'),
+            option({ value: 4 }, '×4')
+        ])
+    
+        let fontDirectionButton = button({
+            className: 'fill',
+            onclick: () => setFontDirection((fontDirection === 'ltr' ? 'rtl' : 'ltr'))
+        }, (fontDirection === 'ltr' ? 'left to right' : 'right to left'))
+
         return overlay({ closeOverlay, header: 'world settings' }, [
             row([
-                span({ class: 'label' }, 'world size'),
+                span({ className: 'label' }, 'world size'),
                 numbox({
                     value: worldWidth,
                     min: 1,
@@ -266,7 +310,7 @@ class WorldSettingsOverlay extends Component {
                 })
             ]),
             row([
-                span({ class: 'label' }, 'room size'),
+                span({ className: 'label' }, 'room size'),
                 numbox({
                     value: roomWidth,
                     min: 1,
@@ -282,7 +326,7 @@ class WorldSettingsOverlay extends Component {
                 })
             ]),
             row([
-                span({ class: 'label' }, 'sprite size'),
+                span({ className: 'label' }, 'sprite size'),
                 numbox({
                     value: spriteWidth,
                     min: 1,
@@ -297,11 +341,23 @@ class WorldSettingsOverlay extends Component {
             ]),
             row([ resizeButton ]),
             hr(),
+            row([ span({}, ['current font: ', strong(fontData.name)]) ]),
+            row([
+                span({ className: 'label' }, 'text resolution'),
+                fontResolutionDropdown
+            ]),
+            row([
+                span({ className: 'label' }, 'text direction'),
+                fontDirectionButton
+            ]),
+            row([ importFontButton ]),
+            hr(),
             row([
                 wrapHorizontalButton,
                 wrapVerticalButton
             ]),
-            confirmOverlay
+            confirmResizeOverlay,
+            importFontOverlay
         ])
     }
 }

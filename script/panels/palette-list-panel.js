@@ -58,7 +58,7 @@ class PaletteList extends Component {
             hr(),
             row([
                 importPaletteButton,
-                div({ class: 'fill' }),
+                fill(),
                 editPaletteButton,
                 addPaletteButton
             ]),

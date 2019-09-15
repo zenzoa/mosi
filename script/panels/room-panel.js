@@ -52,7 +52,6 @@ class RoomPanel extends Component {
         let colorList = currentPalette.colorList
 
         let nameTextbox = textbox({
-            class: 'simple',
             placeholder: 'room name',
             value: room.name,
             onchange: e => renameRoom(e.target.value)
@@ -232,7 +231,7 @@ class RoomPanel extends Component {
             roomGrid,
             row([
                 extrasButton,
-                div({ class: 'fill' }),
+                fill(),
                 currentPaletteButton,
                 currentSpriteButton
             ]),

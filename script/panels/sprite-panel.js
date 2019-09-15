@@ -50,7 +50,6 @@ class SpritePanel extends Component {
         let backgroundColor = colorList[0]
 
         let nameTextbox = textbox({
-            class: 'simple',
             placeholder: 'sprite name',
             value: name,
             onchange: e => renameSprite(e.target.value)

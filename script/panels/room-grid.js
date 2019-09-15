@@ -289,7 +289,7 @@ class RoomGrid extends Component {
             })
 
         return div({
-            class: 'grid roomgrid ' + className,
+            className: 'grid roomgrid ' + className,
             style: {
                 width: widthRatio * 100 + '%',
                 paddingTop: heightRatio * 100 + '%',

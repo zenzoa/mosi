@@ -32,7 +32,7 @@ let icons = {
 let icon = (iconName) => {
     let icon = icons[iconName]
     return div({
-        class: 'icon-container',
+        className: 'icon-container',
         dangerouslySetInnerHTML: !icon ? null : {
             __html: icon
         }

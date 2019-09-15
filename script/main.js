@@ -186,6 +186,12 @@ class Main extends Component {
                 setWrapVertical: World.setWrapVertical.bind(this, this),
                 selectRoom: Room.select.bind(this, this),
                 startRoomIndex: Room.roomWithAvatar(this),
+                setFontResolution: fontResolution => this.setState({ fontResolution }),
+                setFontDirection: fontDirection => this.setState({ fontDirection }),
+                setFontData: fontData => this.setState({ fontData }),
+                fontResolution,
+                fontDirection,
+                fontData,
                 currentRoomIndex,
                 roomList,
                 roomWidth,
@@ -317,17 +323,6 @@ class Main extends Component {
                 palette: paletteList[currentPaletteIndex],
             })
 
-        let fontTab = !tabVisibility.font ? null :
-            h(FontPanel, {
-                closeTab: this.closeTab.bind(this, 'font'),
-                setFontResolution: fontResolution => this.setState({ fontResolution }),
-                setFontDirection: fontDirection => this.setState({ fontDirection }),
-                setFontData: fontData => this.setState({ fontData }),
-                fontResolution,
-                fontDirection,
-                fontData
-            })
-
         let errorOverlay = !showErrorOverlay ? null :
             h(ErrorOverlay, {
                 errorMessage,
@@ -385,8 +380,7 @@ class Main extends Component {
                 spriteTab,
                 behaviorTab,
                 paletteListTab,
-                paletteTab,
-                fontTab
+                paletteTab
             ]),
             errorOverlay
         ])

@@ -72,7 +72,6 @@ class SpriteCanvas extends Component {
 
     render({ width, height, backgroundColor }) {
         return canvas({
-            class: 'spritecanvas',
             style: {
                 borderColor: backgroundColor,
                 backgroundColor

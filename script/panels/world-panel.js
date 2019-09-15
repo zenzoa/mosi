@@ -28,7 +28,13 @@ class WorldPanel extends Component {
         spriteList,
         spriteWidth,
         spriteHeight,
-        paletteList
+        paletteList,
+        setFontResolution,
+        setFontDirection,
+        setFontData,
+        fontResolution,
+        fontDirection,
+        fontData
     }, {
         showImportOverlay,
         showExportOverlay,
@@ -39,7 +45,6 @@ class WorldPanel extends Component {
     }) {
 
         let nameTextbox = textbox({
-            class: 'simple',
             placeholder: 'name of world',
             value: worldName,
             onchange: e => renameWorld(e.target.value)
@@ -133,6 +138,12 @@ class WorldPanel extends Component {
                 worldWrapVertical,
                 setWrapHorizontal,
                 setWrapVertical,
+                setFontResolution,
+                setFontDirection,
+                setFontData,
+                fontResolution,
+                fontDirection,
+                fontData,
                 resize: (props) => {
                     resizeWorld(props)
                     this.setState({ showSettingsOverlay: false })
@@ -161,7 +172,7 @@ class WorldPanel extends Component {
             worldGrid,
             row([
                 extrasButton,
-                div({ class: 'fill' }),
+                fill(),
                 settingsButton
             ]),
             importOverlay,
