@@ -94,11 +94,10 @@ class ShareOverlay extends Component {
             button({
                 className: 'fill',
                 onclick: () => {
-                    let template = window.resources['export-template.html']
-                    let data = Files.fillTemplate(template, {
+                    let data = Files.fillTemplate(gameTemplate, {
                         'TITLE': world.name || 'untitled',
-                        'GAME_SCRIPT': window.resources['game.js'],
-                        'TEXT_SCRIPT': window.resources['text.js'],
+                        'GAME_SCRIPT': gameScript,
+                        'TEXT_SCRIPT': textScript,
                         'GAME_DATA': World.export(world)
                     })
                     let filename = (world.name || 'untitled') + '.html'

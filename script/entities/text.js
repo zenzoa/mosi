@@ -1,4 +1,5 @@
-class Text {
+let textScript = `
+return class {
 
     constructor(props) {
         let { fontData, fontDirection, wrapper, padding, width, height } = props
@@ -50,10 +51,10 @@ class Text {
             let { width, characterList } = this.fontData
 
             let textData = this.string
-            let linebreaks = textData.split(/\n/g)
+            let linebreaks = textData.split(/\\n/g)
             textData = linebreaks.join(' {br} ')
             textData = textData.replace(/{.+?}/g, ' $& ')
-            let words = textData.split(/\s/g)
+            let words = textData.split(/\\s/g)
 
             let pages = []
     
@@ -210,3 +211,7 @@ class Text {
     }
 
 }
+`
+
+let generateTextScript = new Function(textScript)
+let Text = generateTextScript()

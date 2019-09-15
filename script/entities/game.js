@@ -1,4 +1,5 @@
-class Game {
+let gameScript = `
+return class {
 
     constructor(world, el) {
         this.world = world
@@ -272,7 +273,6 @@ class Game {
 
         this.runAction = ({ action, tile, tempPosition, id, roomIndex }) => {
             let { roomHeight, roomList, spriteList, paletteList } = this.world
-            if (window.DEBUG === true) console.log(`${action.type.toUpperCase()} action (room ${roomIndex}, tile ${tile.x}×${tile.y})`)
 
             if (this.showDialog) {
                 this.delayedActions.push(
@@ -357,7 +357,7 @@ class Game {
                 // run current action
                 let i = tile.seqOrderList[id][tile.seqIndexList[id]]
                 let a = actionList[i]
-                this.runAction({ action: a, tile, tempPosition, id: id + '-' + i, roomIndex })
+                if (a) this.runAction({ action: a, tile, tempPosition, id: id + '-' + i, roomIndex })
 
                 // get next action
                 tile.seqIndexList[id]++
@@ -617,3 +617,7 @@ class Game {
     }
 
 }
+`
+
+let generateGameScript = new Function(gameScript)
+let Game = generateGameScript()

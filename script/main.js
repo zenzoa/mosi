@@ -398,9 +398,4 @@ class Main extends Component {
 
 window.onload = () => {
     render(h(Main), document.body)
-
-    window.resources = {}
-    Files.loadResource('export-template.html', data => window.resources['export-template.html'] = data)
-    Files.loadResource('script/entities/game.js', data => window.resources['game.js'] = data)
-    Files.loadResource('script/entities/text.js', data => window.resources['text.js'] = data)
 }

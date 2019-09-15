@@ -189,7 +189,6 @@ let World = {
         delete world.oneTabMode
         delete world.showErrorOverlay
         delete world.errorMessage
-        delete world.themeName
 
         let worldData = JSON.stringify(world)
         return worldData
