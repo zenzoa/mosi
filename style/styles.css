@@ -27,6 +27,7 @@
 
     --text-color: #444;
     --focus-color: rgba(0,0,0,0.5);
+    --link-color: hotpink;
 
     --selected-fg: white;
     --selected-bg: #666;
@@ -82,10 +83,7 @@ canvas {
 
 .editor-header {
     flex-shrink: 0;
-}
-
-.one-tab-mode .editor-header .logo {
-    display: none;
+    align-items: center;
 }
 
 .one-tab-mode .tabs {
@@ -93,6 +91,7 @@ canvas {
 }
 
 .one-tab-mode .panel {
+    margin: 0 auto;
     max-width: calc(100vh - var(--button-size) * 4 - var(--big-padding) * 6);
 }
 
@@ -433,6 +432,19 @@ body {
     background: var(--main-bg);
 }
 
+a,
+a:visited,
+a:active,
+a:hover {
+    color: hotpink;
+}
+
+a:hover,
+a:active,
+a:focus {
+    font-weight: bold;
+}
+
 .editor-header {
     align-items: center;
     padding: 0 var(--big-padding);
@@ -602,4 +614,13 @@ svg.logo {
         0 -1px 0 0 var(--button-highlight2) inset,
         0 4px 0 2px var(--focus-color),
         0 0 0 2px var(--focus-color);
+}
+
+.welcome-logo {
+    margin: var(--big-padding) 0;
+}
+
+.welcome-links {
+    margin: var(--big-padding) 0;
+    text-align: center;
 }

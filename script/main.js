@@ -338,39 +338,36 @@ class Main extends Component {
             div({ className: 'editor-header row' }, [
                 iconButton({
                     title: 'world',
-                    className: 'world-panel-button' +
-                        (tabVisibility.world || tabVisibility.room
-                        ? ' selected' : ''),
+                    className: (tabVisibility.world || tabVisibility.room ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('world')
                 }, 'world'),
                 iconButton({
                     title: 'sprites',
-                    className: 'sprite-panel-button' +
-                        (tabVisibility.sprite || tabVisibility.spriteList || tabVisibility.behavior
-                        ? ' selected' : ''),
+                    className: (tabVisibility.sprite || tabVisibility.spriteList || tabVisibility.behavior ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('spriteList')
                 }, 'sprites'),
                 iconButton({
                     title: 'colors',
-                    className: 'palette-panel-button' +
-                        (tabVisibility.paletteList
-                        ? ' selected' : ''),
+                    className: (tabVisibility.paletteList ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('paletteList')
                 }, 'palettes'),
                 iconButton({
                     title: 'music',
-                    className: 'music-panel-button' +
-                        (tabVisibility.music
-                        ? ' selected' : ''),
+                    className: (tabVisibility.music ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('music')
                 }, 'music'),
                 iconButton({
                     title: 'play',
-                    className: 'play-panel-button',
                     onclick: () => this.setCurrentTab('play')
                 }, 'play'),
-                fill(),
-                icon('logo')
+                oneTabMode ? fill() : null,
+                iconButton({
+                    title: 'help',
+                    className: 'simple',
+                    onclick: () => this.setCurrentTab('welcome')
+                }, 'help'),
+                !oneTabMode ? fill() : null,
+                !oneTabMode ? icon('logo') : null
             ])
 
         if (tabVisibility.play) {
