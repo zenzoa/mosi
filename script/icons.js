@@ -38,10 +38,3 @@ let icon = (iconName) => {
         }
     })
 }
-
-let iconButton = (props, iconName) => {
-    let icon = icons[iconName]
-    if (!icon) return button(props)
-    props.dangerouslySetInnerHTML = {__html: icon}
-    return button(props)
-}

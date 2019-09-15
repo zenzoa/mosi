@@ -170,6 +170,19 @@ let menu = (props, children) => {
     return h(Menu, props, children)
 }
 
+class IconButton extends Component {
+    render(props) {
+        if (!props.icon) return button(props)
+        props.dangerouslySetInnerHTML = { __html: props.icon }
+        return button(props)
+    }
+}
+
+let iconButton = (props, iconName) => {
+    props.icon = icons[iconName]
+    return h(IconButton, props)
+}
+
 let spriteButton = ({ className, onclick, sprite, isSelected, colorList }) => {
     let avatarClass = sprite.isAvatar ? ' avatar' : ''
     let selectedClass = isSelected ? ' selected' : ''

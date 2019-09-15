@@ -59,6 +59,11 @@ html, body {
     font-size: var(--font-size);
 }
 
+body.no-scroll {
+    height: 100%;
+    overflow: hidden;
+}
+
 canvas {
     display: block;
     image-rendering: pixelated;
@@ -83,7 +88,7 @@ canvas {
 }
 
 .one-tab-mode .panel {
-    max-width: calc(100vh - var(--button-size) * 4 - var(--big-padding) * 4);
+    max-width: calc(100vh - var(--button-size) * 4 - var(--big-padding) * 6);
 }
 
 .one-tab-mode .panel-header {
@@ -181,6 +186,7 @@ canvas {
 .row {
     display: flex;
     align-items: center;
+    overflow-y: auto;
 }
 
 .fill {
@@ -484,7 +490,7 @@ span.label {
 }
 
 .grid {
-    margin: var(--small-padding) auto;
+    margin: var(--big-padding) auto var(--small-padding) ;
     cursor: pointer;
 }
 
