@@ -34,6 +34,7 @@ class WorldPanel extends Component {
         showExportOverlay,
         showRandomOverlay,
         showClearOverlay,
+        showExtrasOverlay,
         showSettingsOverlay
     }) {
 
@@ -46,7 +47,7 @@ class WorldPanel extends Component {
 
         let importButton = iconButton({
             title: 'import world',
-            onclick: () => this.setState({ showImportOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showImportOverlay: true })
         }, 'import')
 
         let importOverlay = !showImportOverlay ? null :
@@ -62,7 +63,7 @@ class WorldPanel extends Component {
 
         let exportButton = iconButton({
             title: 'export world',
-            onclick: () => this.setState({ showExportOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
         let exportOverlay = !showExportOverlay ? null :
@@ -75,7 +76,7 @@ class WorldPanel extends Component {
 
         let randomButton = iconButton({
             title: 'randomize world',
-            onclick: () => this.setState({ showRandomOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
         }, 'random')
 
         let randomOverlay = !showRandomOverlay ? null :
@@ -90,7 +91,7 @@ class WorldPanel extends Component {
 
         let clearButton = iconButton({
             title: 'clear world',
-            onclick: () => this.setState({ showClearOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showClearOverlay: true })
         }, 'clear')
 
         let clearOverlay = !showClearOverlay ? null :
@@ -101,6 +102,23 @@ class WorldPanel extends Component {
                     clearWorld()
                     this.setState({ showClearOverlay: false })
                 }
+            })
+
+        let extrasButton = iconButton({
+            title: 'world actions',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, 'extras')
+
+        let extrasOverlay = !showExtrasOverlay ? null :
+            h(ExtrasOverlay, {
+                header: 'world actions',
+                buttons: [
+                    exportButton,
+                    importButton,
+                    randomButton,
+                    clearButton
+                ],
+                closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
 
         let settingsButton = iconButton({
@@ -142,10 +160,7 @@ class WorldPanel extends Component {
             ]),
             worldGrid,
             row([
-                exportButton,
-                importButton,
-                randomButton,
-                clearButton,
+                extrasButton,
                 div({ class: 'fill' }),
                 settingsButton
             ]),
@@ -153,6 +168,7 @@ class WorldPanel extends Component {
             exportOverlay,
             randomOverlay,
             clearOverlay,
+            extrasOverlay,
             settingsOverlay
         ])
     }

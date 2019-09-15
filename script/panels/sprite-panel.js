@@ -35,7 +35,8 @@ class SpritePanel extends Component {
         showExportOverlay,
         showRemoveFrameOverlay,
         showClearFrameOverlay,
-        showRandomFrameOverlay
+        showRandomFrameOverlay,
+        showExtrasOverlay
     }) {
         if (!sprite) return
 
@@ -103,7 +104,7 @@ class SpritePanel extends Component {
     
         let exportButton = iconButton({
             title: 'export sprite',
-            onclick: () => this.setState({ showExportOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
         let exportOverlay = !showExportOverlay ? null :
@@ -117,7 +118,7 @@ class SpritePanel extends Component {
         let removeButton = isAvatar ? null :
             iconButton({
                 title: 'remove sprite',
-                onclick: () => this.setState({ showRemoveSpriteOverlay: true }),
+                onclick: () => this.setState({ showExtrasOverlay: false, showRemoveSpriteOverlay: true }),
             }, 'delete')
 
         let removeSpriteOverlay = !showRemoveSpriteOverlay ? null :
@@ -132,13 +133,33 @@ class SpritePanel extends Component {
 
         let duplicateButton = iconButton({
             title: 'duplicate sprite',
-            onclick: duplicateSprite
+            onclick: () => {
+                this.setState({ showExtrasOverlay: false })
+                duplicateSprite()
+            }
         }, 'duplicate')
 
         let gifButton = iconButton({
             title: 'create GIF',
-            // onclick: () => this.setState({ showGifOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false })
         }, 'gif')
+
+        let extrasButton = iconButton({
+            title: 'sprite actions',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, 'extras')
+
+        let extrasOverlay = !showExtrasOverlay ? null :
+            h(ExtrasOverlay, {
+                header: 'sprite actions',
+                buttons: [
+                    duplicateButton,
+                    removeButton,
+                    exportButton,
+                    gifButton
+                ],
+                closeOverlay: () => this.setState({ showExtrasOverlay: false })
+            })
     
         let frameButtonList = frameList.length === 1 ? null :
             frameList.map((frame, i) => {
@@ -284,11 +305,8 @@ class SpritePanel extends Component {
                 removeFrameButton
             ]),
             row([
-                duplicateButton,
-                removeButton,
-                exportButton,
-                gifButton,
-                div({ class: 'vertical-divider' }),
+                extrasButton,
+                fill(),
                 randomFrameButton,
                 clearFrameButton,
                 flipFrameHorizontalButton,
@@ -299,7 +317,8 @@ class SpritePanel extends Component {
             removeSpriteOverlay,
             removeFrameOverlay,
             clearFrameOverlay,
-            randomFrameOverlay
+            randomFrameOverlay,
+            extrasOverlay
         ])
     }
 }

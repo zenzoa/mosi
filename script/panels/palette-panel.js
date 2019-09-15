@@ -42,7 +42,8 @@ class PalettePanel extends Component {
         showExportOverlay,
         showRemovePaletteOverlay,
         showRandomOverlay,
-        showRemoveColorOverlay
+        showRemoveColorOverlay,
+        showExtrasOverlay
     }) {
         let currentColor = palette.colorList[currentColorIndex]
 
@@ -55,7 +56,7 @@ class PalettePanel extends Component {
     
         let exportButton = iconButton({
             title: 'export palette',
-            onclick: () => this.setState({ showExportOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
         let exportOverlay = !showExportOverlay ? null :
@@ -69,7 +70,7 @@ class PalettePanel extends Component {
         let removeButton = currentPaletteIndex === 0 ? null :
             iconButton({
                 title: 'remove palette',
-                onclick: () => this.setState({ showRemovePaletteOverlay: true }),
+                onclick: () => this.setState({ showExtrasOverlay: false, showRemovePaletteOverlay: true }),
             }, 'delete')
 
         let removePaletteOverlay = !showRemovePaletteOverlay ? null :
@@ -84,13 +85,16 @@ class PalettePanel extends Component {
 
         let duplicateButton = iconButton({
             title: 'duplicate palette',
-            onclick: duplicatePalette
+            onclick: () => {
+                this.setState({ showExtrasOverlay: false })
+                duplicatePalette()
+            }
         }, 'duplicate')
 
         let randomButton = iconButton({
             className: 'icon',
             title: 'randomize palette',
-            onclick: () => this.setState({ showRandomOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
         }, 'random')
 
         let randomOverlay = !showRandomOverlay ? null :
@@ -140,6 +144,23 @@ class PalettePanel extends Component {
                 }
             })
 
+        let extrasButton = iconButton({
+            title: 'palette actions',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, 'extras')
+
+        let extrasOverlay = !showExtrasOverlay ? null :
+            h(ExtrasOverlay, {
+                header: 'palette actions',
+                buttons: [
+                    duplicateButton,
+                    removeButton,
+                    exportButton,
+                    randomButton
+                ],
+                closeOverlay: () => this.setState({ showExtrasOverlay: false })
+            })
+
         let colorPicker = !currentColor ? null :
             h(ColorPicker, {
                 color: currentColor,
@@ -173,17 +194,15 @@ class PalettePanel extends Component {
                 ])
             ),
             colorPicker,
-            row([ colorTextbox ]),
             row([
-                duplicateButton,
-                removeButton,
-                exportButton,
-                randomButton
+                extrasButton,
+                colorTextbox
             ]),
             exportOverlay,
             removePaletteOverlay,
             randomOverlay,
-            removeColorOverlay
+            removeColorOverlay,
+            extrasOverlay
         ])
     }
 }

@@ -44,7 +44,8 @@ class RoomPanel extends Component {
         showGifOverlay,
         showPaletteOverlay,
         showSpriteOverlay,
-        showRandomOverlay
+        showRandomOverlay,
+        showExtrasOverlay
     }) {
         let sprite = spriteList[currentSpriteIndex]
         let currentPalette = paletteList[currentPaletteIndex]
@@ -59,7 +60,7 @@ class RoomPanel extends Component {
     
         let clearButton = iconButton({
             title: 'clear room',
-            onclick: () => this.setState({ showClearOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showClearOverlay: true })
         }, 'clear')
 
         let clearOverlay = !showClearOverlay ? null :
@@ -74,7 +75,7 @@ class RoomPanel extends Component {
 
         let randomButton = iconButton({
             title: 'randomize room',
-            onclick: () => this.setState({ showRandomOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
         }, 'random')
 
         let randomOverlay = !showRandomOverlay ? null :
@@ -89,7 +90,7 @@ class RoomPanel extends Component {
 
         let importButton = iconButton({
             title: 'import room',
-            onclick: () => this.setState({ showImportOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showImportOverlay: true })
         }, 'import')
 
         let importOverlay = !showImportOverlay ? null :
@@ -105,7 +106,7 @@ class RoomPanel extends Component {
     
         let exportButton = iconButton({
             title: 'export room',
-            onclick: () => this.setState({ showExportOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
         let exportOverlay = !showExportOverlay ? null :
@@ -118,7 +119,7 @@ class RoomPanel extends Component {
     
         let gifButton = iconButton({
             title: 'create GIF',
-            onclick: () => this.setState({ showGifOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showGifOverlay: true })
         }, 'gif')
 
         let gifOverlay = !showGifOverlay ? null :
@@ -126,6 +127,24 @@ class RoomPanel extends Component {
                 colorList,
                 createGif: createRoomGif,
                 closeOverlay: () => this.setState({ showGifOverlay: false })
+            })
+
+        let extrasButton = iconButton({
+            title: 'room actions',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, 'extras')
+
+        let extrasOverlay = !showExtrasOverlay ? null :
+            h(ExtrasOverlay, {
+                header: 'room actions',
+                buttons: [
+                    exportButton,
+                    importButton,
+                    randomButton,
+                    clearButton,
+                    gifButton
+                ],
+                closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
 
         let currentPaletteButton =
@@ -211,11 +230,7 @@ class RoomPanel extends Component {
             ]),
             roomGrid,
             row([
-                exportButton,
-                importButton,
-                randomButton,
-                clearButton,
-                gifButton,
+                extrasButton,
                 div({ class: 'fill' }),
                 currentPaletteButton,
                 currentSpriteButton
@@ -226,7 +241,8 @@ class RoomPanel extends Component {
             gifOverlay,
             paletteOverlay,
             spriteOverlay,
-            randomOverlay
+            randomOverlay,
+            extrasOverlay
         ])
     }
 }

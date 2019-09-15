@@ -567,11 +567,11 @@ svg.logo {
 }
 
 .one-tab-mode .color-picker {
-    max-width: calc(100vh - var(--button-size) * 6 - var(--big-padding) * 8);
+    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 7);
 }
 
 .multi-tab-mode .color-picker {
-    max-width: calc(100vh - var(--button-size) * 8 - var(--big-padding) * 10);
+    max-width: calc(100vh - var(--button-size) * 7 - var(--big-padding) * 9);
 }
 
 .one-tab-mode .play-panel {
@@ -602,8 +602,4 @@ svg.logo {
         0 -1px 0 0 var(--button-highlight2) inset,
         0 4px 0 2px var(--focus-color),
         0 0 0 2px var(--focus-color);
-}
-
-.behavior-settings {
-    /* margin-top: var(--small-padding); */
 }

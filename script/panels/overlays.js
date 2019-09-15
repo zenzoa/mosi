@@ -18,6 +18,16 @@ class RemoveOverlay extends Component {
     }
 }
 
+class ExtrasOverlay extends Component {
+    render({ header, buttons, closeOverlay }) {
+        return overlay({ closeOverlay, header },
+            div({ className: 'content' }, 
+                row(buttons)
+            )
+        )
+    }
+}
+
 class ImportOverlay extends Component {
     render({ onImport, closeOverlay, header, fileType, hideTextImport }) {
         let textImport = hideTextImport ? [] : [
