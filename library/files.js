@@ -31,6 +31,8 @@ let Files = {
 
             let blob = new Blob([contents], { type: 'plain/text' })
             let blobURL = URL.createObjectURL(blob)
+
+            filename = filename.replace(/\s+/g, '_')
             
             let downloadLink = document.createElement('a')
             downloadLink.download = encodeURIComponent(filename)
