@@ -73,14 +73,10 @@ class Main extends Component {
         this.load = () => {
             try {
                 let data = window.localStorage.getItem('mosi-state')
-                let oldData = window.localStorage.getItem('world')
                 if (data) {
                     let newState = JSON.parse(data)
                     this.setState(newState)
                     return true
-                } else if (oldData) {
-                    console.log('found world data from previous version of mosi', oldData)
-                    World.import(this, oldData)
                 }
             } catch(e) {
                 console.error('unable to load editor state', e)
@@ -145,7 +141,10 @@ class Main extends Component {
         worldWrapVertical,
 
         currentPaletteIndex,
-        paletteList,
+        paletteList = [],
+
+        currentMusicIndex,
+        musicList = [],
 
         fontResolution,
         fontDirection,
@@ -154,6 +153,9 @@ class Main extends Component {
         let roomPaletteName = roomList[currentRoomIndex].paletteName
         let roomPaletteIndex = paletteList.findIndex(p => p.name === roomPaletteName)
         let roomPalette = paletteList[roomPaletteIndex]
+
+        let roomMusicName = roomList[currentRoomIndex].musicName
+        let roomMusicIndex = musicList.findIndex(p => p.name === roomMusicName)
 
         let backButton = !oneTabMode ? null :
             iconButton({
@@ -323,6 +325,30 @@ class Main extends Component {
                 palette: paletteList[currentPaletteIndex],
             })
 
+        let musicListTab = !tabVisibility.musicList ? null :
+            h(MusicListPanel, {
+                closeTab: this.closeTab.bind(this, 'musicList'),
+                selectMusic: Music.select.bind(this, this),
+                addMusic: Music.add.bind(this, this),
+                importMusic: Music.import.bind(this, this),
+                currentMusicIndex: roomMusicIndex,
+                musicList
+            })
+
+        let musicTab = !tabVisibility.music ? null :
+            h(MusicPanel, {
+                backButton,
+                closeTab: this.closeTab.bind(this, 'music'),
+                renameMusic: Music.rename.bind(this, this, currentMusicIndex),
+                removeMusic: Music.remove.bind(this, this, currentMusicIndex),
+                randomMusic: Music.random.bind(this, this, currentMusicIndex),
+                exportMusic: Music.export.bind(this, this, currentMusicIndex),
+                duplicateMusic: Music.add.bind(this, this, musicList[currentMusicIndex]),
+                currentMusicIndex,
+                musicList,
+                music: musicList[currentMusicIndex],
+            })
+
         let errorOverlay = !showErrorOverlay ? null :
             h(ErrorOverlay, {
                 errorMessage,
@@ -348,8 +374,8 @@ class Main extends Component {
                 }, 'palettes'),
                 iconButton({
                     title: 'music',
-                    className: (tabVisibility.music ? ' selected' : ''),
-                    onclick: () => this.setCurrentTab('music')
+                    className: (tabVisibility.music || tabVisibility.musicList ? ' selected' : ''),
+                    onclick: () => this.setCurrentTab('musicList')
                 }, 'music'),
                 iconButton({
                     title: 'play',
@@ -380,7 +406,9 @@ class Main extends Component {
                 spriteTab,
                 behaviorTab,
                 paletteListTab,
-                paletteTab
+                paletteTab,
+                musicListTab,
+                musicTab
             ]),
             errorOverlay
         ])
@@ -388,5 +416,11 @@ class Main extends Component {
 }
 
 window.onload = () => {
+    let musicInitEvent = () => {
+        MusicPlayer.init()
+        document.removeEventListener('click', musicInitEvent)
+    }
+    document.addEventListener('click', musicInitEvent)
+
     render(h(Main), document.body)
 }

@@ -36,6 +36,7 @@ class PalettePanel extends Component {
         updateColor,
         removeColor,
         currentPaletteIndex,
+        paletteList,
         palette
     }, {
         currentColorIndex,
@@ -66,7 +67,7 @@ class PalettePanel extends Component {
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })
     
-        let removeButton = currentPaletteIndex === 0 ? null :
+        let removeButton = paletteList.length < 2 ? null :
             iconButton({
                 title: 'remove palette',
                 onclick: () => this.setState({ showExtrasOverlay: false, showRemovePaletteOverlay: true }),

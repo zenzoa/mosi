@@ -19,7 +19,7 @@ let Palette = {
     },
 
     add: (that, palette) => {
-        let paletteList = that.state.paletteList.slice()
+        let paletteList = that.state.paletteList ? that.state.paletteList.slice() : []
         palette = !(palette instanceof MouseEvent) ? deepClone(palette) :
             Palette.create({
                 name: 'palette 1'

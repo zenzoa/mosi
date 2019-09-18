@@ -14,7 +14,7 @@ class PaletteList extends Component {
         addPalette,
         importPalette,
         currentPaletteIndex,
-        paletteList
+        paletteList = []
     }, {
         showImportOverlay
     }) {

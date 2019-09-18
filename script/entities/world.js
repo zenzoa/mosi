@@ -23,6 +23,9 @@ let World = {
             currentPaletteIndex: 0,
             paletteList: [],
 
+            currentMusicIndex: 0,
+            musicList: [],
+
             fontResolution: 1,
             fontDirection: 'ltr',
             fontData: Font.parse(ASCII_TINY)
@@ -35,6 +38,7 @@ let World = {
             return {
                 name: 'room-' + x + '-' + y,
                 paletteName: 'palette 1',
+                musicName: 'song 1',
                 tileList: []
             }
         })
@@ -44,6 +48,9 @@ let World = {
 
         // create initial palette
         world.paletteList.push(Palette.create({}))
+
+        // create initial music
+        world.musicList.push(Music.create({}))
 
         // place random tiles throughout world
         if (randomStart) {
