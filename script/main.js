@@ -93,8 +93,8 @@ class Main extends Component {
             let newWorldState = World.create({
                 worldWidth: 3,
                 worldHeight: 3,
-                roomWidth: 12,
-                roomHeight: 12,
+                roomWidth: 16,
+                roomHeight: 16,
                 spriteWidth: 8,
                 spriteHeight: 8,
                 randomStart: true

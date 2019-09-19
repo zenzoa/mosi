@@ -237,21 +237,13 @@ class WorldGrid extends Component {
             for (let x = 0; x < worldWidth; x++) {
                 gridLinesCells.push(
                     h('td', {
-                        className: 'gridlines-cell',
-                        style: {
-                            width: tileWidth + '%',
-                            height: tileHeight + '%'
-                        }
+                        className: 'gridlines-cell'
                     })
                 )
             }
             gridLinesRows.push(
                 h('tr', {
-                    className: 'gridlines-row',
-                    style: {
-                        // width: tileWidth + '%',
-                        height: tileHeight + '%'
-                    }
+                    className: 'gridlines-row'
                 }, gridLinesCells)
             )
         }

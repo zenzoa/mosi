@@ -163,12 +163,15 @@ let World = {
             })
         }
 
+        let currentRoomIndex = 0
+
         that.setState({
             roomList,
             spriteList,
             worldWidth, worldHeight,
             roomWidth, roomHeight,
-            spriteWidth, spriteHeight
+            spriteWidth, spriteHeight,
+            currentRoomIndex
         })
     },
 
