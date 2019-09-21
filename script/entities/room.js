@@ -212,6 +212,16 @@ let Room = {
         that.setState({ roomList })
     },
 
+    setMusic: (that, roomIndex, musicIndex) => {
+        let musicList = that.state.musicList
+        let music = musicList[musicIndex]
+        let roomList = that.state.roomList.slice()
+        let room = roomList[roomIndex]
+        room.musicName = music.name
+        let currentMusicIndex = musicIndex
+        that.setState({ roomList, currentMusicIndex })
+    },
+
     setPalette: (that, roomIndex, paletteIndex) => {
         let paletteList = that.state.paletteList
         let palette = paletteList[paletteIndex]

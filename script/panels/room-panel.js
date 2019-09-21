@@ -18,6 +18,11 @@ class RoomPanel extends Component {
         addTile,
         clearTile,
 
+        setMusic,
+        editMusic,
+        addMusic,
+        importMusic,
+
         setPalette,
         editPalette,
         addPalette,
@@ -34,20 +39,24 @@ class RoomPanel extends Component {
         spriteWidth,
         spriteHeight,
         spriteList,
+        currentMusicIndex,
         currentPaletteIndex,
         currentSpriteIndex,
+        musicList,
         paletteList
     }, {
         showClearOverlay,
         showImportOverlay,
         showExportOverlay,
         showGifOverlay,
+        showMusicOverlay,
         showPaletteOverlay,
         showSpriteOverlay,
         showRandomOverlay,
         showExtrasOverlay
     }) {
         let sprite = spriteList[currentSpriteIndex]
+        let currentMusic = musicList[currentMusicIndex]
         let currentPalette = paletteList[currentPaletteIndex]
         let colorList = currentPalette.colorList
 
@@ -147,6 +156,35 @@ class RoomPanel extends Component {
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
 
+        let currentMusicButton =
+            musicButton({
+                onclick: () => this.setState({ showMusicOverlay: true }),
+                music: currentMusic
+            })
+            
+        let musicOverlay = !showMusicOverlay ? null :
+            h(MusicListOverlay, {
+                closeOverlay: () => this.setState({ showMusicOverlay: false }),
+                selectMusic: musicIndex => {
+                    setMusic(musicIndex)
+                    this.setState({ showMusicOverlay: false })
+                },
+                editMusic: () => {
+                    editMusic()
+                    this.setState({ showMusicOverlay: false })
+                },
+                addMusic: music => {
+                    addMusic(music)
+                    this.setState({ showMusicOverlay: false })
+                },
+                importMusic: musicData => {
+                    importMusic(musicData)
+                    this.setState({ showMusicOverlay: false })
+                },
+                currentMusicIndex,
+                musicList
+            })
+
         let currentPaletteButton =
             paletteButton({
                 onclick: () => this.setState({ showPaletteOverlay: true }),
@@ -232,6 +270,7 @@ class RoomPanel extends Component {
             row([
                 extrasButton,
                 fill(),
+                currentMusicButton,
                 currentPaletteButton,
                 currentSpriteButton
             ]),
@@ -239,6 +278,7 @@ class RoomPanel extends Component {
             importOverlay,
             exportOverlay,
             gifOverlay,
+            musicOverlay,
             paletteOverlay,
             spriteOverlay,
             randomOverlay,

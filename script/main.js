@@ -222,6 +222,11 @@ class Main extends Component {
                 addTile: Room.addTile.bind(this, this, currentRoomIndex),
                 clearTile: Room.clearTile.bind(this, this, currentRoomIndex),
 
+                setMusic: Room.setMusic.bind(this, this, currentRoomIndex),
+                editMusic: Music.select.bind(this, this, roomMusicIndex, 'music'),
+                addMusic: Music.add.bind(this, this),
+                importMusic: Music.import.bind(this, this),
+
                 setPalette: Room.setPalette.bind(this, this, currentRoomIndex),
                 editPalette: Palette.select.bind(this, this, roomPaletteIndex, 'palette'),
                 addPalette: Palette.add.bind(this, this),
@@ -238,8 +243,10 @@ class Main extends Component {
                 spriteWidth,
                 spriteHeight,
                 spriteList,
+                currentMusicIndex: roomMusicIndex,
                 currentPaletteIndex: roomPaletteIndex,
                 currentSpriteIndex,
+                musicList,
                 paletteList
             })
 

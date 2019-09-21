@@ -226,6 +226,41 @@ let paletteButton = ({ className, onclick, palette, isSelected }) => {
     )
 }
 
+let musicButton = ({ className, onclick, music, isSelected }) => {
+    let selectedClass = isSelected ? ' selected' : ''
+    let musicName = music.name
+
+    let scales = Music.getScales()
+
+    let voiceItemList = []
+    for (let voiceIndex = 0; voiceIndex < 4; voiceIndex++) {
+        let noteItemList = []
+        for (let noteIndex = 0; noteIndex < 16; noteIndex++) {
+            let voice = music.voiceList[voiceIndex]
+            let freq = voice.noteList[noteIndex]
+            let scale = scales[voiceIndex]
+            let colorIndex = scale.findIndex(f => f === freq)
+            let color = colorIndex >= 0 ? Music.noteColors[colorIndex] : null
+            noteItemList.push(
+                div({
+                    className: 'music-button-grid-item',
+                    style: { background: color }
+                })
+            )
+        }
+        voiceItemList.push(
+            div({ className: 'music-button-grid-row' }, noteItemList)
+        )
+    }
+    let musicGrid = div({ className: 'music-button-grid' }, voiceItemList)
+    
+    return button({
+        title: musicName,
+        className: 'music-button ' + className + selectedClass,
+        onclick
+    }, musicGrid)
+}
+
 let colorButton = ({ className, onclick, color, isSelected }) => {
     let selectedClass = isSelected ? ' selected' : ''
     let colorBlock = div({ className: 'color-block', style: { backgroundColor: color }})

@@ -153,6 +153,14 @@ class GifOverlay extends Component {
     }
 }
 
+class MusicListOverlay extends Component {
+    render({ closeOverlay }) {
+        return overlay({ closeOverlay, header: 'choose music' }, [
+            h(MusicList, this.props)
+        ])
+    }
+}
+
 class PaletteListOverlay extends Component {
     render({ closeOverlay }) {
         return overlay({ closeOverlay, header: 'choose palette' }, [

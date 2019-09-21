@@ -7,11 +7,6 @@ class MusicListPanel extends Component {
 }
 
 class MusicList extends Component {
-    constructor() {
-        super()
-        this.scales = Music.getScales()
-    }
-
     render ({
         backButton,
         selectMusic,
@@ -24,35 +19,12 @@ class MusicList extends Component {
         showImportOverlay
     }) {
         let musicButtonList = musicList.map((music, i) => {
-
-            let voiceItemList = []
-            for (let voiceIndex = 0; voiceIndex < 4; voiceIndex++) {
-                let noteItemList = []
-                for (let noteIndex = 0; noteIndex < 16; noteIndex++) {
-                    let voice = music.voiceList[voiceIndex]
-                    let freq = voice.noteList[noteIndex]
-                    let scale = this.scales[voiceIndex]
-                    let colorIndex = scale.findIndex(f => f === freq)
-                    let color = colorIndex >= 0 ? Music.noteColors[colorIndex] : null
-                    noteItemList.push(
-                        div({
-                            className: 'music-button-grid-item',
-                            style: { background: color }
-                        })
-                    )
-                }
-                voiceItemList.push(
-                    div({ className: 'music-button-grid-row' }, noteItemList)
-                )
-            }
-            let musicGrid = div({ className: 'music-button-grid' }, voiceItemList)
-            
-            return button({
-                className: 'music-button ' + (i === currentMusicIndex ? 'selected initial-focus' : ''),
+            return musicButton({
+                className: (i === currentMusicIndex ? 'initial-focus' : ''),
                 onclick: () => selectMusic(i, 'music'),
-                // isSelected: (i === currentMusicIndex),
-                // music
-            }, musicGrid)
+                isSelected: (i === currentMusicIndex),
+                music
+            })
         })
 
         let editMusicButton = !editMusic ? null :
