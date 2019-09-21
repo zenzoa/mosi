@@ -7,19 +7,7 @@ class MusicPanel extends Component {
             currentNoteIndex: 0
         }
 
-        let scale = ['C', 'Eb', 'F', 'G', 'Bb'] // minor pentatonic scale
-        let octaveLow = ['4', '4', '3', '2']
-        let octaveHigh = ['5', '5', '4', '3']
-        this.scales = Array(4).fill(0).map((_, i) => {
-            return scale.map(note => note + octaveLow[i])
-                .concat(scale.map(note => note + octaveHigh[i]))
-                .map(note => Music.frequencies[note])
-        })
-        
-        this.noteColors = [
-            '#453C5C', '#51647A', '#31ADA1', '#59D999', '#BEED80',
-            '#9A6A80', '#D37982', '#FC8775', '#FEB379', '#FFD96E',
-        ]
+        this.scales = Music.getScales()
     }
 
     componentWillReceiveProps(nextProps) {
@@ -165,7 +153,7 @@ class MusicPanel extends Component {
             let freq = voice.noteList[noteIndex]
             let scale = this.scales[voiceIndex]
             let colorIndex = scale.findIndex(f => f === freq)
-            let color = colorIndex >= 0 ? this.noteColors[colorIndex] : null
+            let color = colorIndex >= 0 ? Music.noteColors[colorIndex] : null
             gridItems.push(
                 div({ className: 'music-grid-item', style: { background: color } },
                     button({
@@ -205,7 +193,7 @@ class MusicPanel extends Component {
                             MusicPlayer.playNote(freq, currentInstrument, music.beat)
                         }
                     },
-                    color: this.noteColors[i]
+                    color: Music.noteColors[i]
                 })
             )
         })

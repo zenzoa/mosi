@@ -17,6 +17,22 @@ let Music = {
         'Gb6': 1479.98, 'G6': 1567.98,  'Ab6': 1661.22, 'A6': 1760.00,  'Bb6': 1864.66, 'B6': 1975.53
     },
 
+    getScales: () => {
+        let scale = ['C', 'Eb', 'F', 'G', 'Bb'] // minor pentatonic scale
+        let octaveLow = ['4', '4', '3', '2']
+        let octaveHigh = ['5', '5', '4', '3']
+        return Array(4).fill(0).map((_, i) => {
+            return scale.map(note => note + octaveLow[i])
+                .concat(scale.map(note => note + octaveHigh[i]))
+                .map(note => Music.frequencies[note])
+        })
+    },
+
+    noteColors: [
+        '#453C5C', '#51647A', '#31ADA1', '#59D999', '#BEED80',
+        '#9A6A80', '#D37982', '#FC8775', '#FEB379', '#FFD96E',
+    ],
+
     create: ({ name, beat, voiceList}) => {
         let newMusic = {
             name: name || 'song 1',

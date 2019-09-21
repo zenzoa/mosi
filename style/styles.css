@@ -557,6 +557,30 @@ span.label {
     box-shadow: 0 0 0 2px var(--focus-color);
 }
 
+.music-button {
+    width: calc(var(--button-size) * 2);
+}
+
+.music-button-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--tiny-radius);
+    background: var(--input-bg);
+    overflow: hidden;
+}
+
+.music-button-grid-row {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.music-button-grid-item {
+    flex-grow: 1;
+}
+
 .overlay-wrapper {
     background: var(--overlay-bg);
 }
