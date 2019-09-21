@@ -1,6 +1,38 @@
 class MusicPanel extends Component {
     constructor() {
         super()
+
+        this.state = {
+            currentVoiceIndex: 0,
+            currentNoteIndex: 0
+        }
+
+        let scale = ['C', 'Eb', 'F', 'G', 'Bb'] // minor pentatonic scale
+        let octaveLow = ['4', '4', '3', '2']
+        let octaveHigh = ['5', '5', '4', '3']
+        this.scales = Array(4).fill(0).map((_, i) => {
+            return scale.map(note => note + octaveLow[i])
+                .concat(scale.map(note => note + octaveHigh[i]))
+                .map(note => Music.frequencies[note])
+        })
+        
+        this.noteColors = [
+            '#453C5C', '#51647A', '#31ADA1', '#59D999', '#BEED80',
+            '#9A6A80', '#D37982', '#FC8775', '#FEB379', '#FFD96E',
+        ]
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (this.props.music !== nextProps.music) {
+            this.setState({
+                currentVoiceIndex: 0,
+                currentNoteIndex: 0
+            })
+        }
+    }
+
+    componentWillUnmount() {
+        MusicPlayer.stopSong()
     }
 
     render({
@@ -9,17 +41,27 @@ class MusicPanel extends Component {
         renameMusic,
         removeMusic,
         randomMusic,
+        clearMusic,
         exportMusic,
         duplicateMusic,
+        setNote,
+        setBeat,
         currentMusicIndex,
         musicList,
         music,
     }, {
+        currentVoiceIndex,
+        currentNoteIndex,
         showExportOverlay,
         showRemoveOverlay,
         showRandomOverlay,
+        showClearOverlay,
         showExtrasOverlay
     }) {
+        let currentVoice = music.voiceList[currentVoiceIndex]
+        let currentInstrument = currentVoice.instrument
+        let currentFreq = currentVoice.noteList[currentNoteIndex]
+
         let nameTextbox = textbox({
             placeholder: 'music name',
             value: music.name,
@@ -34,7 +76,7 @@ class MusicPanel extends Component {
         let exportOverlay = !showExportOverlay ? null :
             h(ExportOverlay, {
                 header: 'export music',
-                fileName: `${music.name || 'untitled'}.mosicolors`,
+                fileName: `${music.name || 'untitled'}.mosimusic`,
                 data: exportMusic(),
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })
@@ -57,6 +99,7 @@ class MusicPanel extends Component {
 
         let duplicateButton = iconButton({
             title: 'duplicate music',
+            className: 'initial-focus',
             onclick: () => {
                 this.setState({ showExtrasOverlay: false })
                 duplicateMusic()
@@ -78,6 +121,21 @@ class MusicPanel extends Component {
                     this.setState({ showRandomOverlay: false })
                 }
             })
+    
+        let clearButton = iconButton({
+            title: 'clear music',
+            onclick: () => this.setState({ showExtrasOverlay: false, showClearOverlay: true })
+        }, 'clear')
+
+        let clearOverlay = !showClearOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'clear music?',
+                closeOverlay: () => this.setState({ showClearOverlay: false }),
+                remove: () => {
+                    clearMusic()
+                    this.setState({ showClearOverlay: false })
+                }
+            })
 
         let extrasButton = iconButton({
             title: 'music actions',
@@ -91,10 +149,78 @@ class MusicPanel extends Component {
                     duplicateButton,
                     removeButton,
                     exportButton,
-                    randomButton
+                    randomButton,
+                    clearButton
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
+
+        let gridCount = 4 * 16
+        let gridItems = []
+        for (let i = 0; i < gridCount; i++) {
+            let voiceIndex = Math.floor(i / 16)
+            let noteIndex = Math.floor(i % 16)
+            let isSelected = voiceIndex === currentVoiceIndex && noteIndex === currentNoteIndex
+            let voice = music.voiceList[voiceIndex]
+            let freq = voice.noteList[noteIndex]
+            let scale = this.scales[voiceIndex]
+            let colorIndex = scale.findIndex(f => f === freq)
+            let color = colorIndex >= 0 ? this.noteColors[colorIndex] : null
+            gridItems.push(
+                div({ className: 'music-grid-item', style: { background: color } },
+                    button({
+                        className: 'simple ' + (isSelected ? 'selected initial-focus' : ''),
+                        onclick: () => this.setState({
+                            currentVoiceIndex: voiceIndex,
+                            currentNoteIndex: noteIndex
+                        })
+                    }, )
+                )
+            )
+        }
+        let musicGrid = div({ className: 'music-grid' }, gridItems)
+        
+        let beats = [ 1, 0.75, 0.5, 0.428, 0.375 ]
+        let beatButtons = []
+        beats.forEach(beat => {
+            beatButtons.push(
+                button({
+                    className: music.beat === beat ? 'selected' : '',
+                    onclick: () => setBeat(beat)
+                }, Math.floor(60 / beat))
+            )
+        })
+
+        let noteButtons = []
+        this.scales[currentVoiceIndex].forEach((freq, i) => {
+            let isSelected = (freq === currentFreq)
+            noteButtons.push(
+                colorButton({
+                    isSelected,
+                    onclick: () => {
+                        if (isSelected) {
+                            setNote(currentVoiceIndex, currentNoteIndex, null)
+                        } else {
+                            setNote(currentVoiceIndex, currentNoteIndex, freq)
+                            MusicPlayer.playNote(freq, currentInstrument, music.beat)
+                        }
+                    },
+                    color: this.noteColors[i]
+                })
+            )
+        })
+
+        let playButton = button({
+            onclick: () => {
+                if (this.isPlaying) {
+                    this.isPlaying = false
+                    MusicPlayer.stopSong()
+                } else {
+                    this.isPlaying = true
+                    MusicPlayer.playSong(music)
+                }
+            }
+        }, 'play')
 
         return panel({ header: 'music', className: 'music-panel', closeTab }, [
             row([
@@ -102,11 +228,27 @@ class MusicPanel extends Component {
                 nameTextbox
             ]),
             row([
-                extrasButton
+                'beat', // icon('play'),
+                beatButtons
+            ]),
+            musicGrid,
+            row([
+                'notes (lo)', // icon('play'),
+                noteButtons.slice(0, 5)
+            ]),
+            row([
+                'notes (hi)', // icon('play'),
+                noteButtons.slice(5)
+            ]),
+            row([
+                extrasButton,
+                fill(),
+                playButton
             ]),
             exportOverlay,
             removeOverlay,
             randomOverlay,
+            clearOverlay,
             extrasOverlay
         ])
     }

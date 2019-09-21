@@ -1,8 +1,44 @@
 let Music = {
 
-    create: ({}) => {
+    frequencies: {
+        'C2': 65.41,    'Db2': 69.30,   'D2': 73.42,    'Eb2': 77.78,   'E2': 82.41,    'F2': 87.31,
+        'Gb2': 92.50,   'G2': 98.00,    'Ab2': 103.83,  'A2': 110.00,   'Bb2': 116.54,  'B2': 123.47,
+
+        'C3': 130.81,   'Db3': 138.59,  'D3': 146.83,   'Eb3': 155.56,  'E3': 164.81,   'F3': 174.61,
+        'Gb3': 185.00,  'G3': 196.00,   'Ab3': 207.65,  'A3': 220.00,   'Bb3': 233.08,  'B3': 246.94,
+
+        'C4': 261.63,   'Db4': 277.18,  'D4': 293.66,   'Eb4': 311.13,  'E4': 329.63,   'F4': 349.23,
+        'Gb4': 369.99,  'G4': 392.00,   'Ab4': 415.30,  'A4': 440.00,   'Bb4': 466.16,  'B4': 493.88,
+
+        'C5': 523.25,   'Db5': 554.37,  'D5': 587.33,   'Eb5': 622.25,  'E5': 659.25,   'F5': 698.46,
+        'Gb5': 739.99,  'G5': 783.99,   'Ab5': 830.61,  'A5': 880.00,   'Bb5': 932.33,  'B5': 987.77,
+
+        'C6': 1046.50,  'Db6': 1108.73, 'D6': 1174.66,  'Eb6': 1244.51, 'E6': 1318.51,  'F6': 1396.91,
+        'Gb6': 1479.98, 'G6': 1567.98,  'Ab6': 1661.22, 'A6': 1760.00,  'Bb6': 1864.66, 'B6': 1975.53
+    },
+
+    create: ({ name, beat, voiceList}) => {
         let newMusic = {
             name: name || 'song 1',
+            beat: beat || 0.5,
+            voiceList: voiceList || [
+                {
+                    instrument: { wave: 'sine', attack: 0, decay: 0.5, sustain: 0, release: 0 },
+                    noteList: Array(16)
+                },
+                {
+                    instrument: { wave: 'triangle', attack: 0, decay: 0.5, sustain: 0.1, release: 0.1 },
+                    noteList: Array(16)
+                },
+                {
+                    instrument: { wave: 'triangle', attack: 0, decay: 0.5, sustain: 0.5, release: 0.3 },
+                    noteList: Array(16)
+                },
+                {
+                    instrument: { wave: 'square', attack: 0, decay: 0.2, sustain: 0, release: 0, volume: 0.5 },
+                    noteList: Array(16)
+                }
+            ]
         }
 
         return newMusic
@@ -119,91 +155,53 @@ let Music = {
         //
         that.setState({ musicList })
     },
+
+    clear: (that, musicIndex) => {
+        let musicList = that.state.musicList.slice()
+        let { name, beat } = musicList[musicIndex]
+        musicList[musicIndex] = Music.create({ name, beat })
+        that.setState({ musicList })
+    },
+
+    setNote: (that, musicIndex, voiceIndex, noteIndex, freq) => {
+        let musicList = that.state.musicList.slice()
+        let music = musicList[musicIndex]
+        if (!music.voiceList) music.voiceList = []
+        let voiceList = music.voiceList
+        if (!voiceList[voiceIndex]) voiceList[voiceIndex] = []
+        let voice = voiceList[voiceIndex]
+        if (!voice.noteList) voice.noteList = []
+        let noteList = voice.noteList
+        noteList[noteIndex] = freq
+        that.setState({ musicList })
+    },
+
+    setBeat: (that, musicIndex, beat) => {
+        let musicList = that.state.musicList.slice()
+        let music = musicList[musicIndex]
+        music.beat = beat
+        that.setState({ musicList })
+    }
 }
 
 let MusicPlayer = {
     audioContext: null,
 
-    frequencies: {
-        'C3': 130.81,
-        'Db3': 138.59,
-        'D3': 146.83,
-        'Eb3': 155.56,
-        'E3': 164.81,
-        'F3': 174.61,
-        'Gb3': 185.00,
-        'G3': 196.00,
-        'Ab3': 207.65,
-        'A3': 220.00,
-        'Bb3': 233.08,
-        'B3': 246.94,
-
-        'C4': 261.63,
-        'Db4': 277.18,
-        'D4': 293.66,
-        'Eb4': 311.13,
-        'E4': 329.63,
-        'F4': 349.23,
-        'Gb4': 369.99,
-        'G4': 392.00,
-        'Ab4': 415.30,
-        'A4': 440.00,
-        'Bb4': 466.16,
-        'B4': 493.88,
-
-        'C5': 523.25,
-        'Db5': 554.37,
-        'D5': 587.33,
-        'Eb5': 622.25,
-        'E5': 659.25,
-        'F5': 698.46,
-        'Gb5': 739.99,
-        'G5': 783.99,
-        'Ab5': 830.61,
-        'A5': 880.00,
-        'Bb5': 932.33,
-        'B5': 987.77,
-
-        'C6': 1046.50,
-        'Db6': 1108.73,
-        'D6': 1174.66,
-        'Eb6': 1244.51,
-        'E6': 1318.51,
-        'F6': 1396.91,
-        'Gb6': 1479.98,
-        'G6': 1567.98,
-        'Ab6': 1661.22,
-        'A6': 1760.00,
-        'Bb6': 1864.66,
-        'B6': 1975.53
-    },
-    
-    scales: {
-        'minor-pentatonic': ['C', 'Eb', 'F', 'G', 'Bb'],
-        'major-pentatonic': ['C', 'D', 'E', 'G', 'A'],
-        'suspended': ['C', 'D', 'F', 'G', 'Bb'],
-        'blues-minor': ['C', 'Eb', 'F', 'Ab', 'Bb'],
-        'blues-major': ['C', 'D', 'F', 'G', 'A']
-    },
+    audioLoop: null,
 
     init: () => {
         let AudioContext = window.AudioContext || window.webkitAudioContext
         MusicPlayer.audioContext = new AudioContext()
-
-        // MusicPlayer.playNote(MusicPlayer.frequencies['C5'], {
-        //     wave: 'triangle',
-        //     attack: 0.2,
-        //     decay: 0,
-        //     sustain: 1,
-        //     release: 0
-        // }, 0.5, 0.5)
     },
 
-    playNote: (freq, instrument, noteLength, volume) => {
+    playNote: (freq, { wave = 'triangle', attack = 0, decay = 0.5, sustain = 0, release = 0, volume = 1 }, beat = 1) => {
+        if (!freq) return
+        if (!MusicPlayer.audioContext) MusicPlayer.init()
+
         let t = MusicPlayer.audioContext.currentTime
     
         let osc = MusicPlayer.audioContext.createOscillator()
-        osc.type = instrument.wave
+        osc.type = wave
         osc.frequency.value = freq
     
         let env = MusicPlayer.audioContext.createGain()
@@ -211,17 +209,32 @@ let MusicPlayer = {
         env.gain.cancelScheduledValues(t)
         env.gain.setValueAtTime(0, t)
     
-        let attack = noteLength * instrument.attack
-        env.gain.linearRampToValueAtTime(volume, t + attack)
-    
-        let decay = noteLength * instrument.decay
-        env.gain.linearRampToValueAtTime(instrument.sustain * volume, t + attack + decay)
-    
-        let release = instrument.release
-        env.gain.linearRampToValueAtTime(0, t + noteLength)
+        env.gain.linearRampToValueAtTime(volume, t + (attack * beat))
+        env.gain.linearRampToValueAtTime(sustain * volume, t + (attack * beat) + (decay * beat))
+        env.gain.linearRampToValueAtTime(sustain * volume, t + beat)
+        env.gain.linearRampToValueAtTime(0, t + beat + (release * beat))
     
         osc.connect(env)
         osc.start()
-        osc.stop(t + noteLength + release)
+        osc.stop(t + beat + (release * beat))
     },
+
+    playSong: ({ beat, voiceList }) => {
+        let noteIndex = 0
+        let noteCount = voiceList[0] && voiceList[0].noteList ? voiceList[0].noteList.length : 0
+        MusicPlayer.audioLoop = window.setInterval(() => {
+            voiceList.forEach(({ instrument, noteList }) => {
+                let freq = noteList[noteIndex]
+                if (freq) {
+                    MusicPlayer.playNote(freq, instrument, beat)
+                }
+            })
+            noteIndex++
+            if (noteIndex >= noteCount) noteIndex = 0
+        }, beat * 1000)
+    },
+
+    stopSong: () => {
+        window.clearInterval(MusicPlayer.audioLoop)
+    }
 }
