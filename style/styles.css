@@ -571,10 +571,18 @@ span.label {
     box-shadow: none;
 }
 
+.music-grid-item button,
+.music-grid-item button.selected,
+.music-grid-item button:active {
+    box-shadow: none;
+    background: none;
+}
+
 .music-grid-item button.selected {
     border: 2px solid var(--focus-color);
 }
 
+.music-grid-item button:hover,
 .music-grid-item button:focus {
     box-shadow: 0 0 0 2px var(--focus-color);
 }

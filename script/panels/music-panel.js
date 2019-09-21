@@ -157,12 +157,12 @@ class MusicPanel extends Component {
             gridItems.push(
                 div({ className: 'music-grid-item', style: { background: color } },
                     button({
-                        className: 'simple ' + (isSelected ? 'selected initial-focus' : ''),
+                        className: (isSelected ? 'selected initial-focus' : ''),
                         onclick: () => this.setState({
                             currentVoiceIndex: voiceIndex,
                             currentNoteIndex: noteIndex
                         })
-                    }, )
+                    })
                 )
             )
         }
