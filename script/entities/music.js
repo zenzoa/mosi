@@ -33,28 +33,25 @@ let Music = {
         '#9A6A80', '#D37982', '#FC8775', '#FEB379', '#FFD96E',
     ],
 
-    create: ({ name, beat, voiceList}) => {
+    instruments: [
+        { wave: 'sine', attack: 0, decay: 0.5, sustain: 0, release: 0 },
+        { wave: 'triangle', attack: 0, decay: 0.5, sustain: 0.1, release: 0.1 },
+        { wave: 'triangle', attack: 0, decay: 0.5, sustain: 0.5, release: 0.3 },
+        { wave: 'square', attack: 0, decay: 0.2, sustain: 0, release: 0, volume: 0.5 }
+    ],
+
+    create: ({ name, beat, voiceList, randomStart }) => {
+        let scales = Music.getScales()
         let newMusic = {
             name: name || 'song 1',
             beat: beat || 0.5,
-            voiceList: voiceList || [
-                {
-                    instrument: { wave: 'sine', attack: 0, decay: 0.5, sustain: 0, release: 0 },
-                    noteList: Array(16)
-                },
-                {
-                    instrument: { wave: 'triangle', attack: 0, decay: 0.5, sustain: 0.1, release: 0.1 },
-                    noteList: Array(16)
-                },
-                {
-                    instrument: { wave: 'triangle', attack: 0, decay: 0.5, sustain: 0.5, release: 0.3 },
-                    noteList: Array(16)
-                },
-                {
-                    instrument: { wave: 'square', attack: 0, decay: 0.2, sustain: 0, release: 0, volume: 0.5 },
-                    noteList: Array(16)
-                }
-            ]
+            voiceList: voiceList ||
+                Array(4).fill(0).map((_, i) => {
+                    return {
+                        instrument: Music.instruments[i],
+                        noteList: randomStart ? Music.randomNotes(16, scales[i]) : Array(16)
+                    }
+                })
         }
 
         return newMusic
@@ -165,10 +162,29 @@ let Music = {
         that.setState({ musicList, roomList, currentMusicIndex })
     },
 
+    randomNotes: (noteCount, frequencies) => {
+        return Array(noteCount).fill(0).map(_ => {
+            if (Math.random() < 0.5) return null
+            let freqCount = frequencies.length
+            let freqIndex = Math.floor(Math.random() * freqCount)
+            let freq = frequencies[freqIndex]
+            return freq
+        })
+    },
+
     random: (that, musicIndex) => {
+        let scales = Music.getScales()
         let musicList = that.state.musicList.slice()
         let music = musicList[musicIndex]
-        //
+
+        let voiceList = Array(4).fill(0).map((_, i) => {
+            return {
+                instrument: Music.instruments[i],
+                noteList: Music.randomNotes(16, scales[i])
+            }
+        })
+        music.voiceList = voiceList
+
         that.setState({ musicList })
     },
 

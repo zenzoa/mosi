@@ -50,7 +50,7 @@ let World = {
         world.paletteList.push(Palette.create({}))
 
         // create initial music
-        world.musicList.push(Music.create({}))
+        world.musicList.push(Music.create({ randomStart: true }))
 
         // place random tiles throughout world
         if (randomStart) {
