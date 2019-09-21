@@ -6,6 +6,8 @@ class WorldPanel extends Component {
 
     render({
         closeTab,
+        openScriptTab,
+
         renameWorld,
         importWorld,
         exportWorld,
@@ -14,21 +16,26 @@ class WorldPanel extends Component {
         clearWorld,
         setWrapHorizontal,
         setWrapVertical,
+
         selectRoom,
         startRoomIndex,
         currentRoomIndex,
         roomList,
         roomWidth,
         roomHeight,
+
         worldWidth,
         worldHeight,
         worldName,
         worldWrapHorizontal,
         worldWrapVertical,
+        worldScriptList,
+
         spriteList,
         spriteWidth,
         spriteHeight,
         paletteList,
+
         setFontResolution,
         setFontDirection,
         setFontData,
@@ -49,6 +56,14 @@ class WorldPanel extends Component {
             value: worldName,
             onchange: e => renameWorld(e.target.value)
         })
+    
+        let scriptList = Object.keys(worldScriptList).map(key => worldScriptList[key])
+        let hasScripts = scriptList.find(script => !!script)
+        let scriptButton = iconButton({
+            title: 'script',
+            className: (hasScripts ? 'selected' : ''),
+            onclick: openScriptTab
+        }, 'script')
 
         let importButton = iconButton({
             title: 'import world',
@@ -167,7 +182,8 @@ class WorldPanel extends Component {
 
         return panel({ header: 'world', className: 'world-panel', closeTab }, [
             row([
-                nameTextbox
+                nameTextbox,
+                scriptButton
             ]),
             worldGrid,
             row([

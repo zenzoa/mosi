@@ -15,6 +15,8 @@ class SpritePanel extends Component {
     render({
         backButton,
         closeTab,
+        openScriptTab,
+
         renameSprite,
         exportSprite,
         createSpriteGif,
@@ -24,10 +26,11 @@ class SpritePanel extends Component {
         setColorIndex,
         removeSprite,
         duplicateSprite,
+
         addFrame,
         removeFrame,
         updateFrame,
-        openBehaviorTab,
+        
         sprite,
         colorList
     }, {
@@ -75,33 +78,31 @@ class SpritePanel extends Component {
         let wallButton = isAvatar ? null :
             iconButton({
                 title: 'wall',
-                className: (isWall ? ' selected' : ''),
+                className: (isWall ? 'selected' : ''),
                 onclick: () => setSpriteIsWall(!isWall)
             }, 'wall')
     
         let itemButton = isAvatar ? null :
             iconButton({
                 title: 'item',
-                className: (isItem ? ' selected' : ''),
+                className: (isItem ? 'selected' : ''),
                 onclick: () => setSpriteIsItem(!isItem)
             }, 'item')
     
         let transparentButton = iconButton({
             title: 'transparent',
-            className: (isTransparent ? ' selected' : ''),
+            className: (isTransparent ? 'selected' : ''),
             onclick: () => setSpriteIsTransparent(!isTransparent)
         }, 'transparent')
     
-        let behaviorCount = 0
-        sprite.behaviorList.forEach(event => {
-            if (event.actionList) behaviorCount += event.actionList.length
-        })
-        let behaviorButton = isAvatar ? null :
+        let scriptList = Object.keys(sprite.scriptList).map(key => sprite.scriptList[key])
+        let hasScripts = scriptList.find(script => !!script)
+        let scriptButton = isAvatar ? null :
             iconButton({
-                title: 'behavior',
-                className: (behaviorCount ? ' selected' : ''),
-                onclick: openBehaviorTab
-            }, 'behavior')
+                title: 'script',
+                className: (hasScripts ? 'selected' : ''),
+                onclick: openScriptTab
+            }, 'script')
     
         let exportButton = iconButton({
             title: 'export sprite',
@@ -303,7 +304,7 @@ class SpritePanel extends Component {
                 wallButton,
                 itemButton,
                 transparentButton,
-                behaviorButton
+                scriptButton
             ]),
             spriteGrid,
             row([

@@ -90,8 +90,10 @@ canvas {
     overflow-y: auto;
 }
 
+.one-tab-mode .editor-header,
 .one-tab-mode .panel {
     margin: 0 auto;
+    width: 100%;
     max-width: calc(100vh - var(--button-size) * 4 - var(--big-padding) * 6);
 }
 
@@ -318,9 +320,12 @@ textarea,
     padding: var(--small-padding) var(--big-padding);
 }
 
-input:focus,
-textarea:focus {
+input:focus {
     font-weight: bold;
+}
+
+textarea {
+    height: auto;
 }
 
 input:hover,
@@ -413,6 +418,7 @@ button.selected:active {
 }
 
 button.simple {
+    transform: translateY(2px);
     box-shadow: none;
     background: none;
 }
@@ -420,6 +426,15 @@ button.simple {
 button.simple:hover,
 button.simple:focus {
     background: var(--button-bg);
+}
+
+button.simple.selected {
+    background: var(--selected-bg);
+    color: var(--selected-fg);
+}
+
+button.simple.selected:active {
+    box-shadow: none;
 }
 
 button canvas {
@@ -453,6 +468,13 @@ a:focus {
 .panel-content {
     padding: var(--big-padding);
     padding-top: var(--small-padding);
+}
+
+.one-tab-mode .editor-header {
+    padding-bottom: var(--small-padding);
+    border-bottom-left-radius: var(--big-radius);
+    border-bottom-right-radius: var(--big-radius);
+    background: var(--overlay-header-bg);
 }
 
 .multi-tab-mode {
@@ -642,7 +664,7 @@ svg.logo {
 }
 
 .one-tab-mode .color-picker {
-    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 7);
+    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 8);
 }
 
 .multi-tab-mode .color-picker {
@@ -651,7 +673,7 @@ svg.logo {
 
 .one-tab-mode .play-panel {
     margin: var(--big-padding);
-    max-width: calc(100vh - var(--button-size) * 1 - var(--big-padding) * 3);
+    max-width: calc(100vh - var(--button-size) * 1 - var(--big-padding) * 4);
 }
 
 .multi-tab-mode .play-panel {

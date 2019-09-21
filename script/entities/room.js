@@ -1,9 +1,24 @@
 let Room = {
 
+    create: (x, y) => {
+        let newRoom = {
+            name: 'room-' + x + '-' + y,
+            paletteName: 'palette 1',
+            musicName: 'song 1',
+            tileList: [],
+            scriptList: {
+                'on-enter': '',
+                'on-exit': ''
+            }
+        }
+        return newRoom
+    },
+
     select: (that, roomIndex) => {
         let currentRoomIndex = roomIndex
+        let scriptTabType = 'room'
         that.setCurrentTab('room')
-        that.setState({ currentRoomIndex })
+        that.setState({ currentRoomIndex, scriptTabType })
     },
 
     rename: (that, roomIndex, newName) => {
@@ -95,17 +110,17 @@ let Room = {
 
     randomTileList: (width, height, spriteList) => {
         let tileList = []
-
+        
         let terrainSprites = spriteList.filter(s => {
-            let pushEvent = s.behaviorList.find(b => b.event === 'push')
-            let hasActions = pushEvent && pushEvent.actionList.length > 0
-            return !s.isAvatar && !s.isItem && !hasActions
+            let scriptList = Object.keys(s.scriptList).map(key => s.scriptList[key])
+            let hasScripts = scriptList.findIndex(script => !!script) >= 0
+            return !s.isAvatar && !s.isItem && !hasScripts
         })
 
         let interactionSprites = spriteList.filter(s => {
-            let pushEvent = s.behaviorList.find(b => b.event === 'push')
-            let hasActions = pushEvent && pushEvent.actionList.length > 0
-            return !s.isAvatar && (s.isItem || hasActions)
+            let scriptList = Object.keys(s.scriptList).map(key => s.scriptList[key])
+            let hasScripts = scriptList.find(script => !!script)
+            return !s.isAvatar && (s.isItem || hasScripts)
         })
 
         let floorTiles = terrainSprites.filter(s => !s.isWall)
@@ -287,6 +302,13 @@ let Room = {
             })
         }
         return roomIndex
+    },
+
+    updateScript: (that, roomIndex, event, script) => {
+        let roomList = that.state.roomList.slice()
+        let scriptList = roomList[roomIndex].scriptList
+        scriptList[event] = script
+        that.setState({ roomList })
     }
 
 }

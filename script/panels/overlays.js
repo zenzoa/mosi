@@ -34,7 +34,8 @@ class ImportOverlay extends Component {
             textarea({
                 value: '',
                 className: 'initial-focus',
-                ref: node => { this.textarea = node }
+                ref: node => { this.textarea = node },
+                rows: 5
             }),
             row([
                 button({
@@ -63,7 +64,8 @@ class ExportOverlay extends Component {
         let textExport = div({ className: 'content' }, [
             textarea({
                 value: data,
-                ref: node => { this.textarea = node }
+                ref: node => { this.textarea = node },
+                rows: 5
             }),
             row([
                 button({

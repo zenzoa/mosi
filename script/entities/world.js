@@ -2,7 +2,7 @@ let World = {
 
     create: ({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight, randomStart }) => {
         let world = {
-            version: 0.5,
+            version: 1.0,
             
             currentSpriteIndex: 0,
             spriteList: [],
@@ -19,6 +19,9 @@ let World = {
             worldName: '',
             worldWrapHorizontal: false,
             worldWrapVertical: false,
+            worldScriptList: {
+                'on-start': ''
+            },
 
             currentPaletteIndex: 0,
             paletteList: [],
@@ -35,12 +38,7 @@ let World = {
         world.roomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
             let x = Math.floor(i % worldWidth) + 1
             let y = Math.floor(i / worldWidth) + 1
-            return {
-                name: 'room-' + x + '-' + y,
-                paletteName: 'palette 1',
-                musicName: 'song 1',
-                tileList: []
-            }
+            return Room.create(x, y)
         })
 
         // create avatar
@@ -196,6 +194,7 @@ let World = {
         delete world.currentTab
         delete world.tabVisibility
         delete world.tabHistory
+        delete world.scriptTabType
         delete world.oneTabMode
         delete world.showErrorOverlay
         delete world.errorMessage
@@ -210,6 +209,12 @@ let World = {
 
     setWrapVertical: (that, newValue) => {
         that.setState({ worldWrapVertical: newValue })
+    },
+
+    updateScript: (that, _, event, script) => {
+        let worldScriptList = that.state.worldScriptList
+        worldScriptList[event] = script
+        that.setState({ worldScriptList })
     }
 
 }

@@ -11,12 +11,10 @@ let Sprite = {
             width: spriteWidth,
             height: spriteHeight,
             frameList: [Array(spriteWidth * spriteHeight).fill(0)],
-            behaviorList: [
-                {
-                    event: 'push',
-                    actionList: []
-                }
-            ]
+            scriptList: {
+                'on-push': '',
+                'on-message': ''
+            }
         }
         if (randomStart) {
             newSprite.frameList = [
@@ -28,8 +26,9 @@ let Sprite = {
 
     select: (that, spriteIndex, nextTab) => {
         let currentSpriteIndex = spriteIndex
+        let scriptTabType = 'sprite'
         if (nextTab) that.setCurrentTab(nextTab)
-        that.setState({ currentSpriteIndex })
+        that.setState({ currentSpriteIndex, scriptTabType })
     },
 
     add: (that, sprite) => {
@@ -137,17 +136,6 @@ let Sprite = {
                 })
             })
 
-            // rename behavior references
-            spriteList.forEach(s => {
-                s.behaviorList.forEach(b => {
-                    b.actionList.forEach(a => {
-                        if (a.spriteName && a.spriteName === oldName) {
-                            a.spriteName = newName
-                        }
-                    })
-                })
-            })
-
             sprite.name = newName
             that.setState({ spriteList, roomList })
         }
@@ -165,17 +153,6 @@ let Sprite = {
                 tile.spriteName !== sprite.name
             )
         )
-
-        // remove sprite from behaviors
-        spriteList.forEach(s => {
-            s.behaviorList.forEach(b => {
-                b.actionList.forEach(a => {
-                    if (a.spriteName && a.spriteName === sprite.name) {
-                        a.spriteName = null
-                    }
-                })
-            })
-        })
 
         // update current sprite index
         if (currentSpriteIndex >= spriteIndex && currentSpriteIndex > 0) {
@@ -304,5 +281,12 @@ let Sprite = {
 
         GIF.encode(width, height, frames, FRAME_RATE, colorList, onComplete)
     },
+
+    updateScript: (that, spriteIndex, event, script) => {
+        let spriteList = that.state.spriteList.slice()
+        let scriptList = spriteList[spriteIndex].scriptList
+        scriptList[event] = script
+        that.setState({ spriteList })
+    }
 
 }

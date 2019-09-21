@@ -7,6 +7,7 @@ class RoomPanel extends Component {
     render({
         backButton,
         closeTab,
+        openScriptTab,
         
         renameRoom,
         importRoom,
@@ -65,6 +66,14 @@ class RoomPanel extends Component {
             value: room.name,
             onchange: e => renameRoom(e.target.value)
         })
+    
+        let scriptList = Object.keys(room.scriptList).map(key => room.scriptList[key])
+        let hasScripts = scriptList.find(script => !!script)
+        let scriptButton = iconButton({
+            title: 'script',
+            className: (hasScripts ? 'selected' : ''),
+            onclick: openScriptTab
+        }, 'script')
     
         let clearButton = iconButton({
             title: 'clear room',
@@ -264,7 +273,8 @@ class RoomPanel extends Component {
         return panel({ header: 'room', className: 'world-panel', closeTab }, [
             row([
                 backButton,
-                nameTextbox
+                nameTextbox,
+                scriptButton
             ]),
             roomGrid,
             row([

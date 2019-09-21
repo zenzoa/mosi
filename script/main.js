@@ -8,6 +8,7 @@ class Main extends Component {
             currentTab: 'welcome',
             tabVisibility: { welcome: true },
             tabHistory: [],
+            scriptTabType: { type: 'sprite', index: 0 },
             oneTabMode: true,
             showErrorOverlay: false,
             errorState: ''
@@ -45,6 +46,11 @@ class Main extends Component {
 
         this.update = (newState) => {
             this.setState(newState)
+        }
+
+        this.openScriptTab = (type) => {
+            this.setCurrentTab('script')
+            this.setState({ scriptTabType: type })
         }
 
         this.resize = () => {
@@ -119,6 +125,7 @@ class Main extends Component {
     render({}, {
         currentTab,
         tabVisibility,
+        scriptTabType,
         oneTabMode,
 
         showErrorOverlay,
@@ -139,6 +146,7 @@ class Main extends Component {
         worldName,
         worldWrapHorizontal,
         worldWrapVertical,
+        worldScriptList,
 
         currentPaletteIndex,
         paletteList = [],
@@ -178,6 +186,8 @@ class Main extends Component {
         let worldTab = !tabVisibility.world ? null :
             h(WorldPanel, {
                 closeTab: this.closeTab.bind(this, 'world'),
+                openScriptTab: this.openScriptTab.bind(this, 'world'),
+
                 renameWorld: World.rename.bind(this, this),
                 importWorld: World.import.bind(this, this),
                 exportWorld: World.export.bind(this, this.state),
@@ -191,6 +201,7 @@ class Main extends Component {
                 setFontResolution: fontResolution => this.setState({ fontResolution }),
                 setFontDirection: fontDirection => this.setState({ fontDirection }),
                 setFontData: fontData => this.setState({ fontData }),
+
                 fontResolution,
                 fontDirection,
                 fontData,
@@ -203,6 +214,7 @@ class Main extends Component {
                 worldName,
                 worldWrapHorizontal,
                 worldWrapVertical,
+                worldScriptList,
                 spriteList,
                 spriteWidth,
                 spriteHeight,
@@ -213,6 +225,8 @@ class Main extends Component {
             h(RoomPanel, {
                 backButton,
                 closeTab: this.closeTab.bind(this, 'room'),
+                openScriptTab: this.openScriptTab.bind(this, 'room'),
+
                 renameRoom: Room.rename.bind(this, this, currentRoomIndex),
                 importRoom: Room.import.bind(this, this, currentRoomIndex),
                 exportRoom: Room.export.bind(this, this, currentRoomIndex),
@@ -265,6 +279,8 @@ class Main extends Component {
             h(SpritePanel, {
                 backButton,
                 closeTab: this.closeTab.bind(this, 'sprite'),
+                openScriptTab: this.openScriptTab.bind(this, 'sprite'),
+
                 renameSprite: Sprite.rename.bind(this, this, currentSpriteIndex),
                 setSpriteIsWall: Sprite.setIsWall.bind(this, this, currentSpriteIndex),
                 setSpriteIsItem: Sprite.setIsItem.bind(this, this, currentSpriteIndex),
@@ -277,32 +293,30 @@ class Main extends Component {
                 addFrame: Sprite.addFrame.bind(this, this, currentSpriteIndex),
                 removeFrame: Sprite.removeFrame.bind(this, this, currentSpriteIndex),
                 updateFrame: Sprite.updateFrame.bind(this, this, currentSpriteIndex),
-                openBehaviorTab: this.setCurrentTab.bind(this, 'behavior'),
                 sprite: spriteList[currentSpriteIndex],
                 colorList: roomPalette.colorList
             })
 
-        let behaviorTab = !tabVisibility.behavior ? null :
-            h(BehaviorPanel, {
+        let scriptClass
+        if (scriptTabType === 'world') scriptClass = World
+        if (scriptTabType === 'room') scriptClass = Room
+        if (scriptTabType === 'sprite') scriptClass = Sprite
+
+        let scriptList
+        if (scriptTabType === 'world') scriptList = worldScriptList
+        if (scriptTabType === 'room') scriptList = roomList[currentRoomIndex].scriptList
+        if (scriptTabType === 'sprite') scriptList = spriteList[currentSpriteIndex].scriptList
+
+        let scriptIndex = 0
+        if (scriptTabType === 'room') scriptIndex = currentRoomIndex
+        if (scriptTabType === 'sprite') scriptIndex = currentSpriteIndex
+
+        let scriptTab = !tabVisibility.script ? null :
+            h(ScriptPanel, {
                 backButton,
-                closeTab: this.closeTab.bind(this, 'behavior'),
-                addEvent: Behavior.addEvent.bind(this, this, currentSpriteIndex),
-                renameEvent: Behavior.renameEvent.bind(this, this, currentSpriteIndex),
-                removeEvent: Behavior.removeEvent.bind(this, this, currentSpriteIndex),
-                addAction: Behavior.addAction.bind(this, this, currentSpriteIndex),
-                updateAction: Behavior.updateAction.bind(this, this, currentSpriteIndex),
-                removeAction: Behavior.removeAction.bind(this, this, currentSpriteIndex),
-                roomList,
-                roomWidth,
-                roomHeight,
-                worldWidth,
-                worldHeight,
-                spriteList,
-                spriteWidth,
-                spriteHeight,
-                currentSpriteIndex,
-                paletteList,
-                colorList: roomPalette.colorList
+                closeTab: this.closeTab.bind(this, 'script'),
+                updateScript: scriptClass ? scriptClass.updateScript.bind(this, this, scriptIndex) : null,
+                scriptList
             })
 
         let paletteListTab = !tabVisibility.paletteList ? null :
@@ -369,12 +383,12 @@ class Main extends Component {
             div({ className: 'editor-header row' }, [
                 iconButton({
                     title: 'world',
-                    className: (tabVisibility.world || tabVisibility.room ? ' selected' : ''),
+                    className: (tabVisibility.world || tabVisibility.room || (tabVisibility.script && scriptTabType !== 'sprite') ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('world')
                 }, 'world'),
                 iconButton({
                     title: 'sprites',
-                    className: (tabVisibility.sprite || tabVisibility.spriteList || tabVisibility.behavior ? ' selected' : ''),
+                    className: (tabVisibility.sprite || tabVisibility.spriteList || (tabVisibility.script && scriptTabType === 'sprite') ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('spriteList')
                 }, 'sprites'),
                 iconButton({
@@ -391,14 +405,12 @@ class Main extends Component {
                     title: 'play',
                     onclick: () => this.setCurrentTab('play')
                 }, 'play'),
-                oneTabMode ? fill() : null,
+                fill(),
                 iconButton({
-                    title: 'help',
-                    className: 'simple',
+                    title: 'intro',
+                    className: 'logo simple' + (tabVisibility.welcome ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('welcome')
-                }, 'help'),
-                !oneTabMode ? fill() : null,
-                !oneTabMode ? icon('logo') : null
+                }, 'sprites')
             ])
 
         if (tabVisibility.play) {
@@ -414,7 +426,7 @@ class Main extends Component {
                 roomTab,
                 spriteListTab,
                 spriteTab,
-                behaviorTab,
+                scriptTab,
                 paletteListTab,
                 paletteTab,
                 musicListTab,
