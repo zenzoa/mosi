@@ -5,7 +5,7 @@ let Palette = {
         }
 
         let newPalette = {
-            name: name || 'palette 1',
+            name: name || 'palette-1',
             colorList
         }
 
@@ -22,12 +22,12 @@ let Palette = {
         let paletteList = that.state.paletteList ? that.state.paletteList.slice() : []
         palette = !(palette instanceof MouseEvent) ? deepClone(palette) :
             Palette.create({
-                name: 'palette 1'
+                name: 'palette-1'
             })
 
         // get a unique name
         let baseName = palette.name
-        let number = parseInt(baseName.split(' ').slice(-1)[0])
+        let number = parseInt(baseName.split('-').slice(-1)[0])
         if (isInt(number)) {
             let numberLength = (number).toString().length + 1
             baseName = baseName.slice(0, -numberLength)
@@ -35,7 +35,7 @@ let Palette = {
             number = 2
         }
         while (paletteList.find(p => p.name === palette.name)) {
-            palette.name = baseName + ' ' + number
+            palette.name = baseName + '-' + number
             number++
         }
 
@@ -77,6 +77,8 @@ let Palette = {
         let paletteList = that.state.paletteList.slice()
         let palette = paletteList[paletteIndex]
         let oldName = palette.name
+        newName = newName.replace(/\s+/g, '-')
+        
         if (newName === '') {
             that.setState({
                 showErrorOverlay: true,

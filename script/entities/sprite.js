@@ -36,7 +36,7 @@ let Sprite = {
         let spriteList = that.state.spriteList.slice()
         sprite = !(sprite instanceof MouseEvent) ? deepClone(sprite) :
             Sprite.create({
-                name: 'sprite 1',
+                name: 'sprite-1',
                 spriteWidth,
                 spriteHeight
             })
@@ -44,7 +44,7 @@ let Sprite = {
 
         // get a unique name
         let baseName = sprite.name
-        let number = parseInt(baseName.split(' ').slice(-1)[0])
+        let number = parseInt(baseName.split('-').slice(-1)[0])
         if (isInt(number)) {
             let numberLength = (number).toString().length + 1
             baseName = baseName.slice(0, -numberLength)
@@ -52,7 +52,7 @@ let Sprite = {
             number = 2
         }
         while (spriteList.find(s => s.name === sprite.name)) {
-            sprite.name = baseName + ' ' + number
+            sprite.name = baseName + '-' + number
             number++
         }
 
@@ -115,6 +115,8 @@ let Sprite = {
         let roomList = that.state.roomList.slice()
         let sprite = spriteList[spriteIndex]
         let oldName = sprite.name
+        newName = newName.replace(/\s+/g, '-')
+        
         if (newName === '') {
             that.setState({
                 showErrorOverlay: true,

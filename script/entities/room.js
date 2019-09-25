@@ -3,8 +3,8 @@ let Room = {
     create: (x, y) => {
         let newRoom = {
             name: 'room-' + x + '-' + y,
-            paletteName: 'palette 1',
-            musicName: 'song 1',
+            paletteName: 'palette-1',
+            musicName: 'song-1',
             tileList: [],
             scriptList: {
                 'on-enter': '',
@@ -25,6 +25,8 @@ let Room = {
         let roomList = that.state.roomList.slice()
         let room = roomList[roomIndex]
         let oldName = room.name
+        newName = newName.replace(/\s+/g, '-')
+        
         if (newName === '') {
             that.setState({ showErrorOverlay: true, errorMessage: `a room's name can't be empty!` })
         } else if (roomList.find(r => r.name === newName)) {

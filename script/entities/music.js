@@ -67,12 +67,12 @@ let Music = {
         let musicList = that.state.musicList ? that.state.musicList.slice() : []
         music = !(music instanceof MouseEvent) ? deepClone(music) :
             Music.create({
-                name: 'song 1'
+                name: 'song-1'
             })
 
         // get a unique name
         let baseName = music.name
-        let number = parseInt(baseName.split(' ').slice(-1)[0])
+        let number = parseInt(baseName.split('-').slice(-1)[0])
         if (isInt(number)) {
             let numberLength = (number).toString().length + 1
             baseName = baseName.slice(0, -numberLength)
@@ -80,7 +80,7 @@ let Music = {
             number = 2
         }
         while (musicList.find(p => p.name === music.name)) {
-            music.name = baseName + ' ' + number
+            music.name = baseName + '-' + number
             number++
         }
 
@@ -112,6 +112,8 @@ let Music = {
         let musicList = that.state.musicList.slice()
         let music = musicList[musicIndex]
         let oldName = music.name
+        newName = newName.replace(/\s+/g, '-')
+        
         if (newName === '') {
             that.setState({
                 showErrorOverlay: true,
@@ -216,7 +218,8 @@ let Music = {
     }
 }
 
-let MusicPlayer = {
+let musicScript = `
+return {
     audioContext: null,
 
     audioLoop: null,
@@ -255,6 +258,7 @@ let MusicPlayer = {
         let noteIndex = 0
         let noteCount = voiceList[0] && voiceList[0].noteList ? voiceList[0].noteList.length : 0
         MusicPlayer.audioLoop = window.setInterval(() => {
+            if (window.muteMusic) return
             voiceList.forEach(({ instrument, noteList }) => {
                 let freq = noteList[noteIndex]
                 if (freq) {
@@ -270,3 +274,7 @@ let MusicPlayer = {
         window.clearInterval(MusicPlayer.audioLoop)
     }
 }
+`
+
+let generateMusicScript = new Function(musicScript)
+let MusicPlayer = generateMusicScript()

@@ -137,6 +137,7 @@ let World = {
     },
     
     rename: (that, newName) => {
+        newName = newName.replace(/\s+/g, '-')
         that.setState({ worldName: newName })
     },
 
