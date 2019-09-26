@@ -1,4 +1,5 @@
-let gameScript = `
+// let gameScript = `
+let generateGameScript = () => {
 return class {
 
     constructor(world, el) {
@@ -21,25 +22,33 @@ return class {
         this.wrapper.appendChild(this.canvas)
         this.context = this.canvas.getContext('2d')
 
-        this.dialog = new Text({
-            fontData: world.fontData,
-            fontDirection: world.fontDirection,
-            wrapper: this.wrapper,
-            padding: Math.floor(world.spriteWidth * world.fontResolution),
-            width: world.roomWidth * world.spriteWidth * world.fontResolution,
-            height: world.roomHeight * world.spriteHeight * world.fontResolution
-        })
+        this.textCanvas = document.createElement('canvas')
+        this.textCanvas.width = world.roomWidth * world.spriteWidth * world.fontResolution
+        this.textCanvas.height = world.roomHeight * world.spriteHeight * world.fontResolution
+        this.textCanvas.style.position = 'absolute'
+        this.textCanvas.style.display = 'block'
+        this.textCanvas.style.top = '0'
+        this.textCanvas.style.left = '0'
+        this.textCanvas.style.width = '100%'
+        this.wrapper.appendChild(this.textCanvas)
+        this.textContext = this.textCanvas.getContext('2d')
 
         this.frameRate = 400
+        this.dialogRate = 50
 
         this.begin = () => {
-            let { spriteList } = this.world
+            window.muteMusic = true
 
-            // get avatar
-            this.avatar = spriteList.find(sprite => sprite.isAvatar) || spriteList[0]
+            // set up avatar
+            this.avatar =
+                this.world.spriteList.find(sprite => sprite.isAvatar)
+                || this.world.spriteList[0]
             this.avatarX = 0
             this.avatarY = 0
+            this.nextX = 0
+            this.nextY = 0
             this.inventory = {}
+            this.variables = {}
 
             // initialize animations variables
             this.lastTimestamp = 0
@@ -50,11 +59,15 @@ return class {
             this.avatarDirection = 'right'
 
             // initialize dialog variables
-            this.showDialog = false
-            this.delayedActions = []
+            this.dialogPages = []
+            this.maxChars = 0
 
             // get starting room
-            this.moveRooms(this.startingRoom())
+            this.moveRooms(this.startingRoom(), true)
+            this.nextRoomIndex = this.currentRoomIndex
+
+            // run game start script
+            this.runScript(this.world.worldScriptList, 'on-start')
 
             // initialize event handling
             this.keyActive = false
@@ -66,22 +79,19 @@ return class {
         }
 
         this.end = () => {
+            // stop any music that's playing
+            MusicPlayer.stopSong()
+
+            // clean up event listeners
             this.removeEventListeners()
+
+            // stop animation loop
             window.cancelAnimationFrame(this.animationRequest)
         }
 
         this.update = (timestamp) => {
             let dt = timestamp - this.lastTimestamp
             this.lastTimestamp = timestamp
-
-            let {
-                roomWidth,
-                roomHeight,
-                spriteList,
-                spriteWidth,
-                spriteHeight,
-                paletteList
-            } = this.world
 
             // progress frames
             this.timeToNextFrame -= dt
@@ -94,23 +104,25 @@ return class {
             // update avatar
             this.timeToNextInput -= dt
             if (this.timeToNextInput <= 0) {
-                if (!this.showDialog) this.updateAvatar()
+                if (this.dialogPages.length === 0) this.updateAvatar()
                 this.timeToNextInput = 200
             }
 
             // get current tiles and colors
             let tileList = this.currentRoom.tileList
-            let palette = paletteList[this.currentPaletteIndex]
+            let palette = this.world.paletteList[this.currentPaletteIndex]
             let colorList = palette.colorList
             
             // draw background
+            let canvasWidth = this.world.spriteWidth * this.world.roomWidth
+            let canvasHeight = this.world.spriteHeight * this.world.roomHeight
             this.context.fillStyle = colorList[0]
-            this.context.fillRect(0, 0, spriteWidth * roomWidth, spriteHeight * roomHeight)
+            this.context.fillRect(0, 0, canvasWidth, canvasHeight)
 
             // draw sprites
             tileList.forEach(tile => {
                 let { spriteName, x, y } = tile
-                let sprite = spriteList.find(sprite => sprite.name === spriteName)
+                let sprite = this.world.spriteList.find(sprite => sprite.name === spriteName)
                 if (sprite && !sprite.isAvatar) {
                     let xOffset = x * sprite.width
                     let yOffset = y * sprite.height
@@ -121,12 +133,11 @@ return class {
                 }
             })
 
+            // draw player avatar
             this.drawAvatar()
 
             // draw dialog
-            if (this.showDialog) {
-                this.dialog.draw(timestamp)
-            }
+            this.updateDialog(timestamp)
 
             // see you next frame!
             this.animationRequest = window.requestAnimationFrame(this.update)
@@ -139,8 +150,7 @@ return class {
                 worldWrapHorizontal,
                 worldWrapVertical,
                 roomWidth,
-                roomHeight,
-                roomList
+                roomHeight
             } = this.world
 
             let x = this.avatarX
@@ -221,167 +231,118 @@ return class {
                 else stopMoving = true
             }
             if (stopMoving) return
-            
-            // check for tile interactions
+
+            // move avatar
             let roomIndex = (roomY * worldWidth) + roomX
-            let tempPosition = { roomIndex, x, y }
-            let tileIsClear = this.checkTiles(roomIndex, tempPosition)
+            this.moveAvatar(roomIndex, x, y)
+        }
+
+        this.moveAvatar = (roomIndex, x, y) => {
+            let stopMoving = false
+
+            // reset next positions
+            this.nextRoomIndex = roomIndex
+            this.nextX = x
+            this.nextY = y
+
+            // check for tile interactions
+            let tileIsClear = this.checkTiles(this.nextRoomIndex, this.nextX, this.nextY)
             if (!tileIsClear) stopMoving = true
 
-            // remove tiles
-            roomList.forEach(r => {
+            // remove any tiles marked for death
+            this.world.roomList.forEach(r => {
                 r.tileList = r.tileList.filter(tile => !tile.removeMe)
             })
 
             // finalize avatar movement
             if (!stopMoving) {
-                this.avatarX = tempPosition.x
-                this.avatarY = tempPosition.y
-                if (tempPosition.roomIndex !== this.currentRoomIndex) this.moveRooms(tempPosition.roomIndex)
+                this.avatarX = this.nextX
+                this.avatarY = this.nextY
+                this.moveRooms(this.nextRoomIndex)
             }
         }
 
-        this.checkTiles = (roomIndex, tempPosition) => {
-            let { spriteList, roomList } = this.world
-            let room = roomList[roomIndex]
+        this.checkTiles = (roomIndex, x, y) => {
+            let room = this.world.roomList[roomIndex]
             let tileIsClear = true
+
+            // look at each tile in the room
             room.tileList.forEach(tile => {
-                if (tile.x !== tempPosition.x || tile.y !== tempPosition.y) return
-                let sprite = spriteList.find(s => s.name === tile.spriteName)
-                if (sprite.isAvatar) return
-                // wall
+                // ignore tiles that player is not going to be standing on
+                if (tile.x !== x || tile.y !== y) return
+
+                // get sprite data for the current tile
+                let sprite = this.world.spriteList.find(s => s.name === tile.spriteName)
+
+                // ignore sprite if it's the avatar or if it doesn't exist
+                if (!sprite || sprite.isAvatar) return
+
+                // it's a wall - block the way!
                 if (sprite.isWall) {
                     tileIsClear = false
                 }
-                // item
+
+                // it's an item - pick it up!
                 if (sprite.isItem) {
                     this.addToInventory(sprite.name, 1)
                     tile.removeMe = true
                 }
-                // behaviors - only do if not already on this tile
-                if (tempPosition.x !== this.avatarX || tempPosition.y !== this.avatarY) {
-                    let pushBehavior = sprite.behaviorList.find(b => b.event === 'push')
-                    if (pushBehavior) {
-                        pushBehavior.actionList.forEach((action, i) => {
-                            this.runAction({ action, tile, tempPosition, id: 'push-' + i, roomIndex })
-                        })
-                    }
+
+                // run the sprite's script (if player's not already on this tile)
+                if (this.avatarX !== x || this.avatarY !== y) {
+                    this.runScript(sprite.scriptList, 'on-push', { sprite, tile, roomIndex })
                 }
             })
+
+            // return whether tile is blocking player movement
             return tileIsClear
         }
 
-        this.runAction = ({ action, tile, tempPosition, id, roomIndex }) => {
-            let { roomHeight, roomList, spriteList, paletteList } = this.world
+        this.startDialog = (dialogNodes) => {
+            this.dialogPages = Text.nodesToPages(
+                dialogNodes,
+                this.world.fontData,
+                this.textCanvas.width - (this.world.fontData.width * 6),
+                2
+            )
+            this.pageStartTimestamp = null
+        }
 
-            if (this.showDialog) {
-                this.delayedActions.push(
-                    this.runAction.bind(this, { action, tile, tempPosition, id, roomIndex })
-                )
-                return
-            }
+        this.progressDialog = () => {
+            this.pageStartTimestamp = null
+            this.dialogPages.shift()
+        }
+
+        this.updateDialog = (timestamp) => {
+            this.textContext.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height)
+            if (this.dialogPages.length === 0) return
+
+            if (!this.pageStartTimestamp) this.pageStartTimestamp = timestamp
+            let dt = timestamp - this.pageStartTimestamp
+
+            this.maxChars = Math.floor(dt / this.dialogRate)
             
-            if (action.type === 'dialog') {
-                let displayAtBottom = tempPosition.y < roomHeight / 2
-                this.beginDialog(action.text, displayAtBottom)
-            }
-            else if (action.type === 'give_item') {
-                let { isGiving, spriteName, quantity } = action
-                if (!isGiving) quantity *= -1
-                this.addToInventory(spriteName, quantity)
-            }
-            else if (action.type === 'transform_self') {
-                tile.spriteName = action.spriteName
-                let newSprite = spriteList.find(s => s.name === action.spriteName)
-                let palette = paletteList[this.currentPaletteIndex]
-                let colorList = palette.colorList
-                this.cacheSprite(newSprite, colorList)
-            }
-            else if (action.type === 'move_avatar') {
-                tempPosition.roomIndex = action.roomIndex
-                tempPosition.x = action.tileX
-                tempPosition.y = action.tileY
-            }
-            else if (action.type === 'remove_self') {
-                tile.removeMe = true
-            }
-            else if (action.type === 'trigger_event') {
-                roomList.forEach((r, ri) => {
-                    r.tileList.forEach(t => {
-                        let s = spriteList.find(s => s.name === t.spriteName)
-                        let eventBehavior = s.behaviorList.find(b => b.event === action.eventName)
-                        if (eventBehavior) {
-                            eventBehavior.actionList.forEach((a, i) => {
-                                if (a.type === 'trigger_event' && a.eventName === action.eventName) return // don't re-trigger the same event
-                                this.runAction({ action: a, tile: t, tempPosition, id: action.eventName + '-' + i, roomIndex: ri })
-                            })
-                        }
-                    })
-                })
-            }
-            else if (action.type === 'conditional') {
-                let { comparison, spriteName, quantity, actionList } = action
-                let numItems = this.inventory[spriteName] || 0
-                if ((comparison === '=' && numItems === quantity) ||
-                    (comparison === '!=' && numItems !== quantity) ||
-                    (comparison === '<' && numItems < quantity) ||
-                    (comparison === '<=' && numItems <= quantity) ||
-                    (comparison === '>' && numItems > quantity) ||
-                    (comparison === '>=' && numItems >= quantity)
-                ) {
-                    actionList.forEach((a, i) => this.runAction({ action: a, tile, tempPosition, id: id + '-' + i, roomIndex }))
-                }
-            }
-            else if (action.type === 'sequence') {
-                let { isLooping, isShuffled, actionList } = action
-
-                let listOfIndices = (num) => {
-                    if (isShuffled) {
-                        let shuffledList = []
-                        while (shuffledList.length < num) {
-                            let index = Math.floor(Math.random() * num)
-                            if (!shuffledList.includes(index)) shuffledList.push(index)
-                        }
-                        return shuffledList
-                    } else {
-                        return Array(num).fill(0).map((_, i) => i)
-                    }
-                }
-
-                if (!tile.seqIndexList) tile.seqIndexList = {}
-                if (!tile.seqIndexList[id]) tile.seqIndexList[id] = 0
-
-                if (!tile.seqOrderList) tile.seqOrderList = {}
-                if (!tile.seqOrderList[id]) tile.seqOrderList[id] = listOfIndices(actionList.length)
-
-                // run current action
-                let i = tile.seqOrderList[id][tile.seqIndexList[id]]
-                let a = actionList[i]
-                if (a) this.runAction({ action: a, tile, tempPosition, id: id + '-' + i, roomIndex })
-
-                // get next action
-                tile.seqIndexList[id]++
-                if (tile.seqIndexList[id] >= actionList.length) {
-                    if (isLooping) {
-                        tile.seqIndexList[id] = 0
-                        if (isShuffled) tile.seqOrderList[id] = listOfIndices(actionList.length)
-                    } else {
-                        tile.seqIndexList[id] = actionList.length - 1
-                    }
-                }
-            }
+            Text.drawPage(
+                this.textContext,
+                this.world.fontData,
+                this.world.fontDirection,
+                this.dialogPages[0],
+                timestamp,
+                this.maxChars
+            )
         }
 
         this.addToInventory = (item, quantity) => {
+            // add item to the player's inventory
             if (!this.inventory[item]) this.inventory[item] = 0
             this.inventory[item] += quantity
             if (this.inventory[item] < 0) this.inventory[item] = 0
         }
 
         this.startingRoom = () => {
-            let { roomList } = this.world
+            // find the room that the player starts in
             let roomIndex = 0
-            roomList.forEach((room, i) => {
+            this.world.roomList.forEach((room, i) => {
                 room.tileList.forEach(tile => {
                     if (tile.spriteName === this.avatar.name) {
                         roomIndex = i
@@ -393,12 +354,56 @@ return class {
             return roomIndex
         }
 
-        this.moveRooms = (roomIndex) => {
-            let { roomList, paletteList } = this.world
+        this.moveRooms = (roomIndex, startOfGame) => {
+            // ignore if player is already in this room
+            if (this.currentRoomIndex === roomIndex) return
+
+            // run exit script for old room
+            if (!startOfGame && this.currentRoom) {
+                this.runScript(this.currentRoom.scriptList, 'on-exit')
+            }
+
+            // update room references
             this.currentRoomIndex = roomIndex
-            this.currentRoom = roomList[this.currentRoomIndex]
-            this.currentPaletteIndex = paletteList.findIndex(p => p.name === this.currentRoom.paletteName)
-            this.cacheSprites()
+            this.currentRoom = this.world.roomList[this.currentRoomIndex]
+
+            // update color palette
+            this.currentPaletteIndex = this.world.paletteList.findIndex(p => p.name === this.currentRoom.paletteName)
+            
+            // play new music
+            this.updateMusic()
+
+            // cache new sprites
+            this.updateCache()
+
+            // run enter script for new room
+            if (!startOfGame) {
+                this.runScript(this.currentRoom.scriptList, 'on-enter')
+            }
+        }
+
+        this.updateMusic = () => {
+            // find music for current room
+            let musicIndex = this.world.musicList.findIndex(m => m.name === this.currentRoom.musicName)
+            
+            // stop previous music and play new music, if changed
+            if (musicIndex !== this.currentMusicIndex) {
+                this.currentMusicIndex = musicIndex
+                MusicPlayer.stopSong()
+                let music = this.world.musicList[musicIndex]
+                if (music) MusicPlayer.playSong(music)
+            }
+        }
+
+        this.runScript = (scriptList, scriptName, context) => {
+            // ignore non-existent scripts
+            if (!scriptList || !scriptList[scriptName]) return
+
+            // get script
+            let script = scriptList[scriptName]
+
+            // run script
+            Script.run(script, this, context)
         }
 
         this.nextFrames = () => {
@@ -459,17 +464,17 @@ return class {
             }
         }
 
-        this.cacheSprites = () => {
-            let { spriteList, paletteList } = this.world
+        this.updateCache = () => {
             let tileList = this.currentRoom.tileList
-            let palette = paletteList[this.currentPaletteIndex]
+            this.currentPaletteIndex = this.world.paletteList.findIndex(p => p.name === this.currentRoom.paletteName)
+            let palette = this.world.paletteList[this.currentPaletteIndex]
             let colorList = palette.colorList
 
             this.spriteFrameList = {}
 
             tileList.forEach(tile => {
                 let { spriteName } = tile
-                let sprite = spriteList.find(sprite => sprite.name === spriteName)
+                let sprite = this.world.spriteList.find(s => s.name === spriteName)
                 this.cacheSprite(sprite, colorList)
             })
 
@@ -486,22 +491,6 @@ return class {
             let frameIndex = this.frameIndex % frameList.length
             let frameData = frameList[frameIndex]
             this.context.drawImage(frameData, this.avatarX * spriteWidth, this.avatarY * spriteHeight)
-        }
-
-        this.beginDialog = (string, displayAtBottom) => {
-            this.showDialog = true
-            this.dialog.begin(string, displayAtBottom)
-            this.pointerIsDown = false
-        }
-
-        this.endDialog = () => {
-            this.showDialog = false
-            this.dialog.end()
-
-            while (this.delayedActions.length > 0 && !this.showDialog) {
-                let runDelayedAction = this.delayedActions.shift()
-                runDelayedAction()
-            }
         }
 
         this.addEventListeners = () => {
@@ -540,13 +529,12 @@ return class {
         this.keyDown = (e) => {
             if (e.key.startsWith('Arrow')) e.preventDefault() // prevent arrow keys from scrolling page
             if (e.repeat) return // ignore key repeats
-            if (this.showDialog) {
+            if (e.key === 'm') {
+                window.muteMusic = !window.muteMusic
+            }
+            else if (this.dialogPages.length > 0) {
                 if (e.key.startsWith('Arrow')) {
-                    if (this.dialog.isComplete()) {
-                        this.endDialog()
-                    } else {
-                        this.dialog.finishPage()
-                    }
+                    this.progressDialog()
                 }
             } else {
                 this.keyActive = true
@@ -591,12 +579,8 @@ return class {
             if (this.pointerIsDown) {
                 e.preventDefault()
                 this.pointerIsDown = false
-                if (this.showDialog) {
-                    if (this.dialog.isComplete()) {
-                        this.endDialog()
-                    } else {
-                        this.dialog.finishPage()
-                    }
+                if (this.dialogPages.length > 0) {
+                    this.progressDialog()
                 } else {
                     if (this.movesSinceLastTouch === 0) {
                         this.oneMoreMove = true
@@ -617,7 +601,8 @@ return class {
     }
 
 }
-`
+}
+// `
 
-let generateGameScript = new Function(gameScript)
+// let generateGameScript = new Function(gameScript)
 let Game = generateGameScript()

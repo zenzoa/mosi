@@ -46,6 +46,18 @@ let Text = (() => {
 </script>
 
 <script>
+let MusicPlayer = (() => {
+//MUSIC_SCRIPT//
+})()
+</script>
+
+<script>
+let Script = (() => {
+//SCRIPT_SCRIPT//
+})()
+</script>
+
+<script>
 let Game = (() => {
 //GAME_SCRIPT//
 })()

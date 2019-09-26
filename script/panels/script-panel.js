@@ -1,14 +1,6 @@
 class ScriptPanel extends Component {
     constructor() {
         super()
-        this.state = {
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.scriptList !== this.props.scriptList) {
-            console.log('new script list!')
-        }
     }
 
     render ({

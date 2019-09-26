@@ -1,217 +1,239 @@
-let textScript = `
-return class {
+// let textScript = `
+let generateTextScript = () => {
+return {
 
-    constructor(props) {
-        let { fontData, fontDirection, wrapper, padding, width, height } = props
+    nodesToPages: (dialogNodes, fontData, pageWidth, linesPerPage) => {
+        let lastPosition
 
-        this.string = ''
-        this.fontData = fontData
-        this.fontDirection = fontDirection
-        this.wrapper = wrapper
-        this.width = width
-        this.height = Math.floor(fontData.height * 2.5) + Math.floor(padding * 1.5)
-        this.linesPerPage = 2
-
-        this.canvas = document.createElement('canvas')
-        this.canvas.width = width
-        this.canvas.height = height
-        this.canvas.style.position = 'absolute'
-        this.canvas.style.display = 'block'
-        this.canvas.style.top = '0'
-        this.canvas.style.left = '0'
-        this.canvas.style.width = '100%'
-        this.context = this.canvas.getContext('2d')
-
-        this.setPosition = (displayAtBottom) => {
-            this.x = 0
-            this.y = displayAtBottom ? height - this.height - Math.floor(padding / 2) : Math.floor(padding / 2)
-            this.innerX = this.x + padding
-            this.innerY = this.y + Math.floor(padding * 0.75)
-            this.innerWidth = this.width - (padding * 2)
-        }
-
-        this.begin = (string, displayAtBottom) => {
-            this.string = string
-            this.setPosition(displayAtBottom)
-            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
-
-            this.numCharsToShow = 0
-            this.currentPageIndex = 0
-            this.pageComplete = false
-
-            this.wrapper.appendChild(this.canvas)
-            this.pageList = this.preparePages(this.string)
-        }
-
-        this.end = () => {
-            this.wrapper.removeChild(this.canvas)
-        }
-
-        this.preparePages = () => {
-            let { width, characterList } = this.fontData
-
-            let textData = this.string
-            let linebreaks = textData.split(/\\n/g)
-            textData = linebreaks.join(' {br} ')
-            textData = textData.replace(/{.+?}/g, ' $& ')
-            let words = textData.split(/\\s/g)
-
-            let pages = []
-    
-            let lines = []
-            let lineSoFar = ''
-            let lineWidthSoFar = 0
-    
-            let newPage = () => {
-                pages.push(lines)
-                lines = []
-            }
-    
-            let newLine = () => {
-                lines.push(lineSoFar)
-                lineSoFar = ''
-                lineWidthSoFar = 0
-                if (lines.length === this.linesPerPage) newPage()
-            }
-    
-            let addText = (word, wordLength) => {
-                if (lineSoFar) lineSoFar += ' '
-                lineSoFar += word
-                lineWidthSoFar += wordLength + width
-            }
-    
-            words.forEach(word => {
-                let wordLength = 0
-                for (let i = 0; i < word.length; i++) {
-                    let charCode = word.charCodeAt(i)
-                    let charData = characterList[charCode]
-                    if (!charData) return
-                    let spacing = charData.spacing ? charData.spacing : width
-                    wordLength += spacing
+        // break individual nodes up based on line breaks
+        let newNodes = []
+        dialogNodes.forEach(node => {
+            if (node.type === 'text') {
+                // if new position is defined, create a new page
+                if (!lastPosition) lastPosition = node.position
+                if (node.position !== lastPosition) {
+                    newNodes.push({ type: 'page-break' })
                 }
 
-                if (word.toLowerCase() === '{br}') {
-                    newLine()
-                }
-                else if (word.toLowerCase() === '{p}') {
-                    newLine()
-                    newPage()
-                }
-                else if (lineWidthSoFar + wordLength > this.innerWidth) {
-                    newLine()
-                    addText(word, wordLength)
-                }
-                else {
-                    addText(word, wordLength)
-                }
-            })
-    
-            if (lineSoFar) newLine()
-            if (lines.length > 0) newPage()
-    
-            return pages
-        }
+                // break by newlines
+                let lines = node.text.split('\n')
 
-        this.draw = (timestamp) => {
-            let dt = !this.lastCharTimestamp ? 1000 : timestamp - this.lastCharTimestamp
+                // break long lines up into smaller lines
+                let allLines = []
+                lines.forEach(line => {
+                    let subLines = Text.breakIntoLines(fontData, line, pageWidth)
+                    subLines.forEach(subLine => allLines.push(subLine))
+                })
 
-            let page = this.pageList[this.currentPageIndex]
-
-            if (dt >= 50 && !this.pageComplete) {
-                this.numCharsToShow++
-                this.lastCharTimestamp = timestamp
-            }
-
-            // draw background
-            this.context.fillStyle = 'black'
-            this.context.fillRect(
-                this.x,
-                this.y,
-                this.width,
-                this.height
-            )
-
-            // draw characters
-            this.context.fillStyle = 'white'
-            let numCharsLeft = this.pageComplete ? 10000 : this.numCharsToShow
-            let y = this.innerY
-            page.forEach(line => {
-                let x = this.fontDirection === 'rtl' ? this.innerWidth : this.innerX
-                let numCharsOnLine = Math.min(numCharsLeft, line.length)
-                for (let i = 0; i < numCharsOnLine; i++) {
-                    let charCode = line.charCodeAt(i)
-                    let charSpacing = this.drawChar(charCode, x, y)
-                    if (this.fontDirection === 'rtl') x -= charSpacing
-                    else x += charSpacing
-                }
-                numCharsLeft -= numCharsOnLine
-                y += Math.floor(this.fontData.height * 1.5)
-            })
-
-            // draw pagination mark
-            if (this.currentPageIndex < this.pageList.length - 1) {
-                let pageMarkX = this.x + this.width - padding
-                let pageMarkY = this.y + this.height - padding
-                let pageMarkSize = this.fontData.width
-                for (let i = 0; i < pageMarkSize; i++) {
-                    this.context.fillRect(pageMarkX + pageMarkSize - i, pageMarkY + i, i + 1, 1)
-                }
-            }
-
-            // mark page as complete
-            if (numCharsLeft > 0) {
-                this.pageComplete = true
-            }
-        }
-
-        this.drawChar = (charCode, x, y) => {
-            let { width, height, characterList } = this.fontData
-
-            let charData = characterList[charCode]
-            if (!charData) return 0
-
-            if (!isNaN(charData.width)) width = charData.width
-            if (!isNaN(charData.height)) height = charData.height
-
-            let offsetX = 0
-            let offsetY = 0
-            if (!isNaN(charData.offsetX)) offsetX = charData.offsetX
-            if (!isNaN(charData.offsetY)) offsetY = charData.offsetY
-
-            let spacing = width
-            if (!isNaN(charData.spacing)) spacing = charData.spacing
-
-            for (let cx = 0; cx < width; cx++) {
-                for (let cy = 0; cy < height; cy++) {
-                    let pixel = charData.data[cy * width + cx]
-                    if (pixel) this.context.fillRect(x + cx + offsetX, y + cy + offsetY, 1, 1)
-                }
-            }
-
-            return spacing
-        }
-        
-        this.finishPage = () => {
-            if (this.pageComplete) {
-                if (this.currentPageIndex < this.pageList.length - 1) {
-                    this.currentPageIndex++
-                    this.numCharsToShow = 0
-                    this.pageComplete = false
-                }
+                // add nodes for lines and line breaks
+                allLines.forEach((line, i) => {
+                    if (i > 0 && i <= allLines.length - 1) {
+                        newNodes.push({ type: 'line-break' })
+                    }
+                    newNodes.push({ ...node, text: line })
+                })
             } else {
-                this.pageComplete = true
+                newNodes.push(node)
+            }
+        })
+
+        let pageList = []
+        let lineList = []
+        let nodesOnLine = []
+        let spacingSoFar = 0
+
+        newNodes.forEach(node => {
+            if (node.type === 'page-break') {
+                if (nodesOnLine.length) lineList.push(nodesOnLine)
+                if (lineList.length) pageList.push(lineList)
+                lineList = []
+                nodesOnLine = []
+                spacingSoFar = 0
+            }
+            else if (node.type === 'line-break') {
+                if (nodesOnLine.length) lineList.push(nodesOnLine)
+                if (lineList.length >= linesPerPage) {
+                    if (lineList.length) pageList.push(lineList)
+                    lineList = []
+                }
+                nodesOnLine = []
+                spacingSoFar = 0
+            }
+            else {
+                let nodeWidth = Text.textWidth(fontData, node.text)
+                if (spacingSoFar + nodeWidth > pageWidth) {
+                    if (nodesOnLine.length) lineList.push(nodesOnLine)
+                    if (lineList.length >= linesPerPage) {
+                        if (lineList.length) pageList.push(lineList)
+                        lineList = []
+                    }
+                    nodesOnLine = [node]
+                    spacingSoFar = nodeWidth
+                } else {
+                    nodesOnLine.push(node)
+                    spacingSoFar += nodeWidth
+                }
+            }
+        })
+
+        if (nodesOnLine.length) lineList.push(nodesOnLine)
+        if (lineList.length) pageList.push(lineList)
+
+        return pageList
+    },
+
+    breakIntoLines: (fontData, text, pageWidth) => {
+        let lines = []
+
+        let words = text.split(' ')
+        let wordsOnLine = []
+        let spacingSoFar = 0
+        let spaceWidth = fontData.width
+
+        words.forEach(word => {
+            let wordWidth = Text.textWidth(fontData, word)
+            if (spacingSoFar + spaceWidth + wordWidth > pageWidth) {
+                lines.push(wordsOnLine.join(' '))
+                wordsOnLine = [word]
+                spacingSoFar = wordWidth
+            } else {
+                wordsOnLine.push(word)
+                spacingSoFar += spaceWidth + wordWidth
+            }
+        })
+
+        if (wordsOnLine.length) lines.push(wordsOnLine.join(' '))
+
+        return lines
+    },
+
+    textWidth: (fontData, text) => {
+        let { width, characterList } = fontData
+        let textWidth = 0
+        for (let i = 0; i < text.length; i++) {
+            let charCode = text.charCodeAt(i)
+            let charData = characterList[charCode]
+            if (!charData) continue
+            let charWidth = !isNaN(charData.width) ? charData.width : width
+            textWidth += charWidth
+        }
+        return textWidth
+    },
+
+    drawPage: (context, fontData, fontDirection, lineList, timestamp, maxChars) => {
+        let lineHeight = Math.floor(fontData.height * 2)
+        let position = lineList[0][0].position
+
+        let bgWidth = context.canvas.width - (fontData.width * 2)
+        let bgHeight = Math.floor(fontData.height * 7)
+        let bgX = fontData.width
+        let bgY
+        if (position === 'top') {
+            bgY = fontData.width
+        } else if (position === 'center' || position === 'fullscreen') {
+            bgY = Math.floor(context.canvas.height / 2 - bgHeight / 2)
+        } else {
+            bgY = context.canvas.height - bgHeight - fontData.width
+        }
+
+        if (position === 'fullscreen') {
+            context.fillStyle = 'black'
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height)
+        } else {
+            context.fillStyle = 'black'
+            context.fillRect(bgX, bgY, bgWidth, bgHeight)
+        }
+
+        
+        let x = bgX + fontData.width * 2
+        let y = bgY + fontData.height * 2
+
+        lineList.forEach((nodeList, lineIndex) => {
+
+            let charIndex = 0
+            let spacingSoFar = 0
+
+            nodeList.forEach(node => {
+                let nodeText = node.text.slice(0, maxChars)
+
+                let seqWidth = Text.drawSeq(
+                    context,
+                    fontData,
+                    fontDirection,
+                    nodeText,
+                    node.color,
+                    node.style,
+                    x + spacingSoFar,
+                    y + (lineIndex * lineHeight),
+                    timestamp,
+                    charIndex
+                )
+
+                maxChars -= nodeText.length
+                charIndex += nodeText.length
+                spacingSoFar += seqWidth
+            })
+        })
+    },
+
+    drawSeq: (context, fontData, fontDirection, text, color, style, x, y, timestamp, i = 0) => {
+        context.fillStyle = color
+
+        let numChars = text.length
+        let spacingSoFar = 0
+
+        for (let j = 0; j < numChars; j++) {
+            let charCode = text.charCodeAt(j)
+            let xOffset = (fontDirection === 'rtl') ? x - spacingSoFar : x + spacingSoFar
+            let newSpacing = Text.drawChar(context, fontData, charCode, xOffset, y, style, timestamp, i + j)
+            spacingSoFar += newSpacing
+        }
+
+        return spacingSoFar
+    },
+
+    drawChar: (context, fontData, charCode, x, y, style, timestamp, i) => {
+        let { width, height, characterList } = fontData
+
+        let charData = characterList[charCode]
+        if (!charData) return 0
+
+        if (!isNaN(charData.width)) width = charData.width
+        if (!isNaN(charData.height)) height = charData.height
+
+        let offsetX = 0
+        let offsetY = 0
+        if (!isNaN(charData.offsetX)) offsetX = charData.offsetX
+        if (!isNaN(charData.offsetY)) offsetY = charData.offsetY
+
+        let spacing = width
+        if (!isNaN(charData.spacing)) spacing = charData.spacing
+
+        let styleX = 0
+        let styleY = 0
+        if (style === 'wavy') {
+            styleY = Math.floor(Math.sin(timestamp / (300) + (i / 2)) * (height / 3))
+        }
+        else if (style === 'shaky') {
+            styleX = Math.floor(Math.cos(timestamp / (20) + i) * (width / 10))
+            styleY = Math.floor(Math.sin(timestamp / (10) + i) * (height / 10))
+        }
+
+        for (let cx = 0; cx < width; cx++) {
+            for (let cy = 0; cy < height; cy++) {
+                let pixel = charData.data[cy * width + cx]
+                if (pixel) {
+                    context.fillRect(x + cx + offsetX + styleX, y + cy + offsetY + styleY, 1, 1)
+                }
             }
         }
 
-        this.isComplete = () => {
-            let isOnLastPage = this.currentPageIndex === this.pageList.length - 1
-            return isOnLastPage && this.pageComplete
-        }
-
+        return spacing
     }
 
 }
-`
+}
+// `
 
-let generateTextScript = new Function(textScript)
+// let generateTextScript = new Function(textScript)
 let Text = generateTextScript()

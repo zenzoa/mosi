@@ -100,6 +100,8 @@ class ShareOverlay extends Component {
                         'TITLE': world.name || 'untitled',
                         'GAME_SCRIPT': gameScript,
                         'TEXT_SCRIPT': textScript,
+                        'MUSIC_SCRIPT': musicScript,
+                        'SCRIPT_SCRIPT': scriptScript,
                         'GAME_DATA': World.export(world)
                     })
                     let filename = (world.name || 'untitled') + '.html'
