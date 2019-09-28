@@ -680,12 +680,14 @@ svg.logo {
 }
 
 .one-tab-mode .play-panel {
-    margin: var(--big-padding);
+    margin: var(--big-padding) auto;
+    width: 100%;
     max-width: calc(100vh - var(--button-size) * 1 - var(--big-padding) * 4);
 }
 
 .multi-tab-mode .play-panel {
-    margin: 0 var(--big-padding);
+    margin: 0 auto;
+    width: 100%;
     max-width: calc(100vh - var(--button-size) * 1 - var(--big-padding) * 5);
 }
 
