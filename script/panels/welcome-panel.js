@@ -7,10 +7,6 @@ class WelcomePanel extends Component {
             div({ className: 'welcome-links' }, [
                 a({ href: 'https://github.com/zenzoa/mosi/wiki', target: '_blank' }, 'tutorial'),
                 ' | ',
-                a({ href: 'https://zenzoa.github.io/mosi', target: '_blank' }, 'github.io'),
-                ' | ',
-                a({ href: 'https://zenzoa.itch.io/mosi', target: '_blank' }, 'itch.io'),
-                ' | ',
                 a({ href: 'https://github.com/zenzoa/mosi/issues/new', target: '_blank' }, 'found a bug?')
             ]),
             row([
