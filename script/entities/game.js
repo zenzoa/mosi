@@ -1,5 +1,4 @@
-// let gameScript = `
-let generateGameScript = () => {
+let gameScript = `
 return class {
 
     constructor(world, el) {
@@ -37,8 +36,6 @@ return class {
         this.dialogRate = 50
 
         this.begin = () => {
-            window.muteMusic = true
-
             // set up avatar
             this.avatar =
                 this.world.spriteList.find(sprite => sprite.isAvatar)
@@ -601,8 +598,7 @@ return class {
     }
 
 }
-}
-// `
+`
 
-// let generateGameScript = new Function(gameScript)
+let generateGameScript = new Function(gameScript)
 let Game = generateGameScript()

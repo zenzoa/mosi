@@ -1,4 +1,4 @@
-let generateScriptScript = () => {
+let scriptScript = `
 return {
     run: (script, game, context) => {
         let parsedScript = Script.parse(script)
@@ -20,7 +20,7 @@ return {
 
         // add a chunk of formatted dialog
         let addDialogNode = (text, { color, style, position }) => {
-            if (!text || text.replace(/\n/g, '') === '') return
+            if (!text || text.replace(/\\n/g, '') === '') return
             let lastNode = dialogNodes[dialogNodes.length - 1]
             if (lastNode && lastNode.color === color && lastNode.style === style && lastNode.position === position) {
                 lastNode.text += text
@@ -493,7 +493,7 @@ return {
             let funcName = ''
             while (i < text.length) {
                 let char = text.charAt(i)
-                if (char === ' ' || char === '\n' || char === '\t') {
+                if (char === ' ' || char === '\\n' || char === '\\t') {
                     i++
                     break
                 } else if (char === '{' || char === '}') {
@@ -530,7 +530,7 @@ return {
             while (i < text.length) {
                 let char = text.charAt(i)
                 i++
-                if (char === ' ' || char === '\n' || char === '\t') {
+                if (char === ' ' || char === '\\n' || char === '\\t') {
                     addArg()
                 } else if (char === '{') {
                     addArg()
@@ -560,7 +560,7 @@ return {
         return parseTextNode()
     }
 }
-}
+`
 
-// let generateScriptScript = new Function(scriptScript)
+let generateScriptScript = new Function(scriptScript)
 let Script = generateScriptScript()

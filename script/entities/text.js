@@ -1,5 +1,4 @@
-// let textScript = `
-let generateTextScript = () => {
+let textScript = `
 return {
 
     nodesToPages: (dialogNodes, fontData, pageWidth, linesPerPage) => {
@@ -16,7 +15,7 @@ return {
                 }
 
                 // break by newlines
-                let lines = node.text.split('\n')
+                let lines = node.text.split('\\n')
 
                 // break long lines up into smaller lines
                 let allLines = []
@@ -232,8 +231,7 @@ return {
     }
 
 }
-}
-// `
+`
 
-// let generateTextScript = new Function(textScript)
+let generateTextScript = new Function(textScript)
 let Text = generateTextScript()
