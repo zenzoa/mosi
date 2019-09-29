@@ -540,6 +540,7 @@ span.label {
 }
 
 .music-grid {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(16, 1fr);
     grid-template-rows: repeat(4, var(--button-size));
@@ -584,6 +585,16 @@ span.label {
 .music-grid-item button:hover,
 .music-grid-item button:focus {
     box-shadow: 0 0 0 2px var(--focus-color);
+}
+
+.beat-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 100%;
+    background: var(--focus-color);
+    transition: left 100ms;
 }
 
 .music-button {

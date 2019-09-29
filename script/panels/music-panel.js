@@ -8,6 +8,10 @@ class MusicPanel extends Component {
         }
 
         this.scales = Music.getScales()
+
+        this.updateBeatIndicator = (noteIndex) => {
+            this.beatIndicator.style.left = ((noteIndex + 0.5) / 16 * 100) + '%'
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -34,7 +38,6 @@ class MusicPanel extends Component {
         duplicateMusic,
         setNote,
         setBeat,
-        currentMusicIndex,
         musicList,
         music,
     }, {
@@ -167,7 +170,17 @@ class MusicPanel extends Component {
                 )
             )
         }
-        let musicGrid = div({ className: 'music-grid' }, gridItems)
+
+        let beatIndicator = !isPlaying ? null :
+            div({
+                className: 'beat-indicator',
+                ref: node => this.beatIndicator = node
+            })
+
+        let musicGrid = div({ className: 'music-grid' }, [
+            gridItems,
+            beatIndicator
+        ])
         
         let beats = [ 1, 0.75, 0.5, 0.428, 0.375 ]
         let beatIcons = ['very-slow-beat', 'slow-beat', 'medium-beat', 'fast-beat', 'very-fast-beat']
@@ -210,7 +223,7 @@ class MusicPanel extends Component {
                     MusicPlayer.stopSong()
                 } else {
                     this.setState({ isPlaying: true })
-                    MusicPlayer.playSong(music)
+                    MusicPlayer.playSong(music, this.updateBeatIndicator)
                 }
             }
         }, isPlaying ? 'pause-music' : 'play-music')

@@ -254,7 +254,7 @@ return {
         osc.stop(t + beat + (release * beat))
     },
 
-    playSong: ({ beat, voiceList }) => {
+    playSong: ({ beat, voiceList }, beatFunction) => {
         let noteIndex = 0
         let noteCount = voiceList[0] && voiceList[0].noteList ? voiceList[0].noteList.length : 0
         MusicPlayer.audioLoop = window.setInterval(() => {
@@ -265,6 +265,7 @@ return {
                     MusicPlayer.playNote(freq, instrument, beat)
                 }
             })
+            if (beatFunction) beatFunction(noteIndex)
             noteIndex++
             if (noteIndex >= noteCount) noteIndex = 0
         }, beat * 1000)
