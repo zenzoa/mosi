@@ -123,6 +123,7 @@ return {
         let lineHeight = Math.floor(fontData.height * 2)
         let position = lineList[0][0].position
 
+        // draw background
         let bgWidth = context.canvas.width - (fontData.width * 2)
         let bgHeight = Math.floor(fontData.height * 7)
         let bgX = fontData.width
@@ -143,17 +144,21 @@ return {
             context.fillRect(bgX, bgY, bgWidth, bgHeight)
         }
 
-        
         let x = bgX + fontData.width * 2
         let y = bgY + fontData.height * 2
 
+        let numChars = 0
+        let currentMaxChars = maxChars
+
+        // draw each line
         lineList.forEach((nodeList, lineIndex) => {
 
             let charIndex = 0
             let spacingSoFar = 0
 
             nodeList.forEach(node => {
-                let nodeText = node.text.slice(0, maxChars)
+                let nodeText = maxChars >= 0 ? node.text.slice(0, currentMaxChars) : node.text
+                numChars += node.text.length
 
                 let seqWidth = Text.drawSeq(
                     context,
@@ -168,11 +173,23 @@ return {
                     charIndex
                 )
 
-                maxChars -= nodeText.length
+                if (maxChars) currentMaxChars -= nodeText.length
                 charIndex += nodeText.length
                 spacingSoFar += seqWidth
             })
         })
+
+        // draw 'next page' indicator
+        let indicatorWidth = fontData.width
+        let indicatorHeight = fontData.width
+        let indicatorX = bgX + bgWidth - fontData.width - indicatorWidth
+        let indicatorY = bgY + bgHeight - fontData.height - indicatorHeight
+        context.fillStyle = 'white'
+        context.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight)
+
+        // return true if all characters were drawn
+        let allCharsDrawn = numChars <= maxChars
+        return allCharsDrawn
     },
 
     drawSeq: (context, fontData, fontDirection, text, color, style, x, y, timestamp, i = 0) => {

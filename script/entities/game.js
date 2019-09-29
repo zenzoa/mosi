@@ -57,7 +57,7 @@ return class {
 
             // initialize dialog variables
             this.dialogPages = []
-            this.maxChars = 0
+            this.pageIsComplete = false
 
             // get starting room
             this.moveRooms(this.startingRoom(), true)
@@ -306,8 +306,12 @@ return class {
         }
 
         this.progressDialog = () => {
-            this.pageStartTimestamp = null
-            this.dialogPages.shift()
+            if (this.pageIsComplete) {
+                this.pageStartTimestamp = null
+                this.dialogPages.shift()
+            } else {
+                this.pageIsComplete = true
+            }
         }
 
         this.updateDialog = (timestamp) => {
@@ -317,16 +321,19 @@ return class {
             if (!this.pageStartTimestamp) this.pageStartTimestamp = timestamp
             let dt = timestamp - this.pageStartTimestamp
 
-            this.maxChars = Math.floor(dt / this.dialogRate)
+            let maxChars = this.pageIsComplete ? -1 : Math.floor(dt / this.dialogRate)
             
-            Text.drawPage(
+            let allCharsDrawn = Text.drawPage(
                 this.textContext,
                 this.world.fontData,
                 this.world.fontDirection,
                 this.dialogPages[0],
                 timestamp,
-                this.maxChars
+                maxChars
             )
+            if (allCharsDrawn) {
+                this.pageIsComplete = true
+            }
         }
 
         this.addToInventory = (item, quantity) => {
