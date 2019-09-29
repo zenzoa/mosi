@@ -176,7 +176,78 @@ let World = {
 
     import: (that, worldData) => {
         try {
-            let world = JSON.parse(worldData)
+            let world = typeof worldData === 'string' ? JSON.parse(worldData) : worldData
+
+            // remove spaces from world name
+            world.worldName = world.worldName.replace(/\s+/g, '-')
+
+            // create at least one sprite
+            if (!world.spriteList || world.spriteList.length < 1) {
+                world.spriteList = []
+                world.spriteList.push(World.createAvatar(spriteWidth, spriteHeight))
+            }
+
+            // create at least one palette
+            if (!world.paletteList || world.paletteList.length < 1) {
+                world.paletteList = []
+                world.paletteList.push(Palette.create({}))
+            }
+
+            // create at least one music
+            if (!world.musicList || world.musicList.length < 1) {
+                world.musicList = []
+                world.musicList.push(Music.create({ randomStart: true }))
+            }
+
+            // init world scripts
+            if (!world.worldScriptList) {
+                world.worldScriptList = {
+                    'on-start': ''
+                }
+            }
+
+            // init room scripts and regularize room names
+            world.roomList.forEach(room => {
+                room.name = room.name.replace(/\s+/g, '-')
+                room.paletteName = room.paletteName ? room.paletteName.replace(/\s+/g, '-') : world.paletteList[0].name
+                room.musicName = room.musicName ? room.musicName.replace(/\s+/g, '-') : world.musicList[0].name
+                room.tileList.forEach(tile => {
+                    tile.spriteName = tile.spriteName.replace(/\s+/g, '-')
+                })
+                if (!room.scriptList) {
+                    room.scriptList = {
+                        'on-enter': '',
+                        'on-exit': ''
+                    }
+                }
+            })
+
+            // init sprite scripts and regularize sprite names
+            world.spriteList.forEach(sprite => {
+                sprite.name = sprite.name.replace(/\s+/g, '-')
+                if (!sprite.scriptList) {
+                    sprite.scriptList = {
+                        'on-push': '',
+                        'on-message': ''
+                    }
+                }
+            })
+
+            // regularize palette names
+            world.paletteList.forEach(palette => {
+                palette.name = palette.name.replace(/\s+/g, '-')
+            })
+
+            // regularize music names
+            world.musicList.forEach(music => {
+                music.name = music.name.replace(/\s+/g, '-')
+            })
+
+            // init fonts
+            if (!world.fontResolution) world.fontResolution = 1
+            if (!world.fontDirection) world.fontDirection = 'ltr'
+            if (!world.fontData) world.fontData = Font.parse(ASCII_TINY)
+
             that.setState(world)
         }
         catch (e) {
@@ -213,6 +284,7 @@ let World = {
     },
 
     updateScript: (that, _, event, script) => {
+        if (!event) return
         let worldScriptList = that.state.worldScriptList
         worldScriptList[event] = script
         that.setState({ worldScriptList })

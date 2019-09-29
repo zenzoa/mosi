@@ -43,7 +43,7 @@ let Music = {
     create: ({ name, beat, voiceList, randomStart }) => {
         let scales = Music.getScales()
         let newMusic = {
-            name: name || 'song 1',
+            name: name || 'song-1',
             beat: beat || 0.5,
             voiceList: voiceList ||
                 Array(4).fill(0).map((_, i) => {

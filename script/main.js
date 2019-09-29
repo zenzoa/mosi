@@ -82,6 +82,7 @@ class Main extends Component {
                 if (data) {
                     let newState = JSON.parse(data)
                     this.setState(newState)
+                    World.import(this, newState)
                     return true
                 }
             } catch(e) {
@@ -158,12 +159,16 @@ class Main extends Component {
         fontDirection,
         fontData
     }) {
-        let roomPaletteName = roomList[currentRoomIndex].paletteName
+        let currentRoom = roomList[currentRoomIndex]
+
+        let roomPaletteName = currentRoom.paletteName
         let roomPaletteIndex = paletteList.findIndex(p => p.name === roomPaletteName)
         let roomPalette = paletteList[roomPaletteIndex]
 
-        let roomMusicName = roomList[currentRoomIndex].musicName
+        let roomMusicName = currentRoom.musicName
         let roomMusicIndex = musicList.findIndex(p => p.name === roomMusicName)
+
+        let currentSprite = spriteList[currentSpriteIndex]
 
         let backButton = !oneTabMode ? null :
             iconButton({
@@ -251,7 +256,7 @@ class Main extends Component {
                 addSprite: Sprite.add.bind(this, this),
                 importSprite: Sprite.import.bind(this, this),
 
-                room: roomList[currentRoomIndex],
+                room: currentRoom,
                 roomWidth,
                 roomHeight,
                 spriteWidth,
@@ -289,11 +294,11 @@ class Main extends Component {
                 exportSprite: Sprite.export.bind(this, this, currentSpriteIndex),
                 removeSprite: Sprite.remove.bind(this, this, currentSpriteIndex),
                 createSpriteGif: Sprite.createGif.bind(this, this, currentSpriteIndex),
-                duplicateSprite: Sprite.add.bind(this, this, spriteList[currentSpriteIndex]),
+                duplicateSprite: Sprite.add.bind(this, this, currentSprite),
                 addFrame: Sprite.addFrame.bind(this, this, currentSpriteIndex),
                 removeFrame: Sprite.removeFrame.bind(this, this, currentSpriteIndex),
                 updateFrame: Sprite.updateFrame.bind(this, this, currentSpriteIndex),
-                sprite: spriteList[currentSpriteIndex],
+                sprite: currentSprite,
                 colorList: roomPalette.colorList
             })
 
@@ -304,8 +309,8 @@ class Main extends Component {
 
         let scriptList
         if (scriptTabType === 'world') scriptList = worldScriptList
-        if (scriptTabType === 'room') scriptList = roomList[currentRoomIndex].scriptList
-        if (scriptTabType === 'sprite') scriptList = spriteList[currentSpriteIndex].scriptList
+        if (scriptTabType === 'room') scriptList = currentRoom.scriptList
+        if (scriptTabType === 'sprite') scriptList = currentSprite.scriptList
 
         let scriptIndex = 0
         if (scriptTabType === 'room') scriptIndex = currentRoomIndex
