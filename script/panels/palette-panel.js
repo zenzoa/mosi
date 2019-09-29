@@ -35,7 +35,6 @@ class PalettePanel extends Component {
         addColor,
         updateColor,
         removeColor,
-        currentPaletteIndex,
         paletteList,
         palette
     }, {

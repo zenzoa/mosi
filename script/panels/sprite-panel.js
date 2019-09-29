@@ -204,7 +204,7 @@ class SpritePanel extends Component {
             iconButton({
                 title: 'remove frame',
                 onclick: () => this.setState({ showRemoveFrameOverlay: true })
-            }, 'remove')
+            }, 'delete')
 
         let removeFrameOverlay = !showRemoveFrameOverlay ? null :
             h(RemoveOverlay, {

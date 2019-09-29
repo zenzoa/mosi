@@ -1,6 +1,33 @@
 class ScriptPanel extends Component {
-    constructor() {
+    constructor(props) {
         super()
+
+        let eventList = Object.keys(props.scriptList)
+        this.state = {
+            currentEvent: eventList[0]
+        }
+
+        let timeout
+        this.updateScript = () => {
+            let update = () => {
+                if (!this.textarea) return
+                this.props.updateScript(this.state.currentEvent, this.textarea.value)
+            }
+            let callNow = !timeout
+            window.clearTimeout(timeout)
+            timeout = setTimeout(() => {
+                timeout = null
+                update()
+            }, 500)
+            if (callNow) update()
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.scriptList !== this.props.scriptList) {
+            let eventList = Object.keys(this.props.scriptList)
+            this.setState({ currentEvent: eventList[0] })
+        }
     }
 
     render ({
@@ -11,10 +38,7 @@ class ScriptPanel extends Component {
     }, {
         currentEvent
     }) {
-        if (!scriptList) return
-
         let eventList = Object.keys(scriptList)
-        currentEvent = eventList.includes(currentEvent) ? currentEvent : eventList[0]
         let currentScript = scriptList[currentEvent]
 
         let eventButtons = eventList.map(event => {
@@ -29,6 +53,7 @@ class ScriptPanel extends Component {
         let scriptText = textarea({
             value: currentScript,
             className: 'initial-focus',
+            onkeydown: this.updateScript,
             onchange: e => updateScript(currentEvent, e.target.value),
             ref: node => { this.textarea = node },
             rows: 10
