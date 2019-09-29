@@ -39,7 +39,10 @@ class ScriptPanel extends Component {
                 backButton,
                 eventButtons
             ]),
-            scriptText
+            scriptText,
+            div({ className: 'welcome-links' }, [
+                a({ href: 'https://github.com/zenzoa/mosi/wiki/scripts', target: '_blank' }, 'guide to scripts'),
+            ]),
         ])
     }
 }

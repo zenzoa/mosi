@@ -44,7 +44,8 @@ class MusicPanel extends Component {
         showRemoveOverlay,
         showRandomOverlay,
         showClearOverlay,
-        showExtrasOverlay
+        showExtrasOverlay,
+        isPlaying
     }) {
         let currentVoice = music.voiceList[currentVoiceIndex]
         let currentInstrument = currentVoice.instrument
@@ -169,17 +170,20 @@ class MusicPanel extends Component {
         let musicGrid = div({ className: 'music-grid' }, gridItems)
         
         let beats = [ 1, 0.75, 0.5, 0.428, 0.375 ]
+        let beatIcons = ['very-slow-beat', 'slow-beat', 'medium-beat', 'fast-beat', 'very-fast-beat']
         let beatButtons = []
-        beats.forEach(beat => {
+        beats.forEach((beat, i) => {
             beatButtons.push(
-                button({
+                iconButton({
                     className: music.beat === beat ? 'selected' : '',
-                    onclick: () => setBeat(beat)
-                }, Math.floor(60 / beat))
+                    onclick: () => setBeat(beat),
+                    title: Math.floor(60 / beat) + ' bpm'
+                }, beatIcons[i])
             )
         })
 
         let noteButtons = []
+        let noteNames = ['C', 'E-flat', 'F', 'G', 'B-flat']
         this.scales[currentVoiceIndex].forEach((freq, i) => {
             let isSelected = (freq === currentFreq)
             noteButtons.push(
@@ -193,40 +197,41 @@ class MusicPanel extends Component {
                             MusicPlayer.playNote(freq, currentInstrument, music.beat)
                         }
                     },
-                    color: Music.noteColors[i]
+                    color: Music.noteColors[i],
+                    title: noteNames[i % 5]
                 })
             )
         })
 
-        let playButton = button({
+        let playButton = iconButton({
             onclick: () => {
-                if (this.isPlaying) {
-                    this.isPlaying = false
+                if (isPlaying) {
+                    this.setState({ isPlaying: false })
                     MusicPlayer.stopSong()
                 } else {
-                    this.isPlaying = true
+                    this.setState({ isPlaying: true })
                     MusicPlayer.playSong(music)
                 }
             }
-        }, 'play')
+        }, isPlaying ? 'pause-music' : 'play-music')
 
-        return panel({ header: 'music', className: 'music-panel', closeTab }, [
+        return panel({ header: 'song', className: 'music-panel', closeTab }, [
             row([
                 backButton,
                 nameTextbox
             ]),
             row([
-                'beat', // icon('play'),
+                icon('beat'),
                 beatButtons
             ]),
             musicGrid,
             row([
-                'notes (lo)', // icon('play'),
-                noteButtons.slice(0, 5)
+                icon('high-note'),
+                noteButtons.slice(5)
             ]),
             row([
-                'notes (hi)', // icon('play'),
-                noteButtons.slice(5)
+                icon('low-note'),
+                noteButtons.slice(0, 5)
             ]),
             row([
                 extrasButton,

@@ -8,7 +8,7 @@ return {
         // default text settings
         let defaultTextPosition = game.avatarY < game.world.roomHeight / 2 ? 'bottom' : 'top'
         let defaultTextSettings = {
-            color: 0,
+            color: 'white',
             style: 'normal',
             position: defaultTextPosition
         }
@@ -26,7 +26,7 @@ return {
                 lastNode.text += text
             } else {
                 let currentPalette = game.world.paletteList[game.currentPaletteIndex]
-                let colorCode = currentPalette.colorList[color - 1] || 'white'
+                let colorCode = currentPalette.colorList[color] || 'white'
                 dialogNodes.push({
                     type: 'text',
                     color: colorCode,
@@ -41,7 +41,7 @@ return {
 
                 args = args.map(arg => calcExpression(arg))
 
-                if (func === 'title') {
+                if (func === 'world-name') {
                     return game.world.worldName
                 }
 
@@ -319,13 +319,13 @@ return {
 
                 else if (func === 'set-sprite-color' && context) {
                     if (isInt(args[0]) && args[0] > 0) {
-                        context.sprite.colorIndex = args[0] - 1
+                        context.sprite.colorIndex = args[0]
                         game.updateCache()
                     }
                     else if (isInt(args[1]) && args[1] > 0) {
                         let sprite = game.world.spriteList.find(s => s.name === args[0])
                         if (sprite) {
-                            sprite.colorIndex = args[1] - 1
+                            sprite.colorIndex = args[1]
                             game.updateCache()
                         }
                     }

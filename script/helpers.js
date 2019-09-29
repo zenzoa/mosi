@@ -261,12 +261,12 @@ let musicButton = ({ className, onclick, music, isSelected }) => {
     }, musicGrid)
 }
 
-let colorButton = ({ className, onclick, color, isSelected }) => {
+let colorButton = ({ className, onclick, color, title, isSelected }) => {
     let selectedClass = isSelected ? ' selected' : ''
     let colorBlock = div({ className: 'color-block', style: { backgroundColor: color }})
 
     return button({
-        title: color,
+        title: title || color,
         className: 'color-button ' + className + selectedClass,
         onclick
     },

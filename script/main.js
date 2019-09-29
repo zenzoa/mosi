@@ -404,13 +404,13 @@ class Main extends Component {
                 iconButton({
                     title: 'play',
                     onclick: () => this.setCurrentTab('play')
-                }, 'play'),
+                }, 'play-game'),
                 fill(),
                 iconButton({
                     title: 'intro',
                     className: 'logo simple' + (tabVisibility.welcome ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('welcome')
-                }, 'sprites')
+                }, 'mosi')
             ])
 
         if (tabVisibility.play) {

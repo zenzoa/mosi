@@ -192,7 +192,6 @@ canvas {
 .row {
     display: flex;
     align-items: center;
-    overflow-x: auto;
 }
 
 .fill {
@@ -656,7 +655,7 @@ svg.icon {
     height: calc(var(--button-size) - var(--small-padding) * 2);
     fill: none;
     stroke: currentColor;
-    stroke-width: 2.5px;
+    stroke-width: 8px;
 }
 
 svg.logo {
