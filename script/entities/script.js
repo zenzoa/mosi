@@ -20,7 +20,7 @@ return {
 
         // add a chunk of formatted dialog
         let addDialogNode = (text = '', { color, style, position }) => {
-            text = text.replace(/^\\n+/g, '').replace(/\\n+$/g, '')
+            text = text.toString().replace(/^\\n+/g, '').replace(/\\n+$/g, '')
             if (!text) return
             let lastNode = dialogNodes[dialogNodes.length - 1]
             if (lastNode && lastNode.color === color && lastNode.style === style && lastNode.position === position) {
