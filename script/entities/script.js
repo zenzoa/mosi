@@ -353,7 +353,7 @@ return {
                 }
 
                 else if (func === 'set-var') {
-                    if (isStr(args[0]) && (isInt(args[1] || isStr[1]))) {
+                    if (isStr(args[0]) && (isInt(args[1]) || isStr(args[1]))) {
                         game.variables[args[0]] = args[1]
                     }
                 }
