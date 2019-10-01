@@ -97,16 +97,7 @@ class Main extends Component {
         // load previous world or create a new one
         let loadedSuccessfully = this.load()
         if (!loadedSuccessfully) {
-            let newWorldState = World.create({
-                worldWidth: 3,
-                worldHeight: 3,
-                roomWidth: 16,
-                roomHeight: 16,
-                spriteWidth: 8,
-                spriteHeight: 8,
-                randomStart: true
-            })
-            this.setState(newWorldState)
+            World.reset(this)
         }
     }
 
@@ -199,6 +190,7 @@ class Main extends Component {
                 randomWorld: World.random.bind(this, this, this.state),
                 resizeWorld: World.resize.bind(this, this, this.state),
                 clearWorld: World.clear.bind(this, this, this.state),
+                resetWorld: World.reset.bind(this, this, this.state),
                 setWrapHorizontal: World.setWrapHorizontal.bind(this, this),
                 setWrapVertical: World.setWrapVertical.bind(this, this),
                 selectRoom: Room.select.bind(this, this),

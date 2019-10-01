@@ -135,6 +135,19 @@ let World = {
 
         that.setState({ roomList: roomList})
     },
+
+    reset: (that) => {
+        let newWorld = World.create({
+            worldWidth: 3,
+            worldHeight: 3,
+            roomWidth: 16,
+            roomHeight: 16,
+            spriteWidth: 8,
+            spriteHeight: 8,
+            randomStart: true
+        })
+        that.setState(newWorld)
+    },
     
     rename: (that, newName) => {
         newName = newName.replace(/\s+/g, '-')

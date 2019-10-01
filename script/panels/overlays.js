@@ -230,7 +230,8 @@ class WorldSettingsOverlay extends Component {
         spriteWidth,
         spriteHeight,
         showConfirmResizeOverlay,
-        showImportFontOverlay
+        showImportFontOverlay,
+        showResetFontOverlay
     }) {
         let wrapHorizontalButton = button({
             className: 'fill toggle' + (worldWrapHorizontal ? ' selected' : ''),
@@ -286,6 +287,23 @@ class WorldSettingsOverlay extends Component {
                 closeOverlay: () => this.setState({ showImportFontOverlay: false })
             })
 
+        let resetFontButton =
+            button({
+                className: 'fill',
+                onclick: () => this.setState({ showResetFontOverlay: true })
+            }, 'reset font')
+
+        let resetFontOverlay = !showResetFontOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'reset to default font?',
+                closeOverlay: () => this.setState({ showResetFontOverlay: false }),
+                remove: () => {
+                    let fontData = Font.parse(ASCII_TINY)
+                    setFontData(fontData)
+                    this.setState({ showResetFontOverlay: false })
+                }
+            })
+
         let fontResolutionDropdown = dropdown({
             value: fontResolution,
             onchange: e => setFontResolution(parseFloat(e.target.value))
@@ -305,6 +323,11 @@ class WorldSettingsOverlay extends Component {
         }, (fontDirection === 'ltr' ? 'left to right' : 'right to left'))
 
         return overlay({ closeOverlay, header: 'world settings' }, [
+            row([
+                wrapHorizontalButton,
+                wrapVerticalButton
+            ]),
+            hr(),
             row([
                 span({ className: 'label' }, 'world size'),
                 numbox({
@@ -362,14 +385,10 @@ class WorldSettingsOverlay extends Component {
                 span({ className: 'label' }, 'text direction'),
                 fontDirectionButton
             ]),
-            row([ importFontButton ]),
-            hr(),
-            row([
-                wrapHorizontalButton,
-                wrapVerticalButton
-            ]),
+            row([ importFontButton, resetFontButton ]),
             confirmResizeOverlay,
-            importFontOverlay
+            importFontOverlay,
+            resetFontOverlay
         ])
     }
 }

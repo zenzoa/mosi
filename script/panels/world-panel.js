@@ -14,6 +14,7 @@ class WorldPanel extends Component {
         randomWorld,
         resizeWorld,
         clearWorld,
+        resetWorld,
         setWrapHorizontal,
         setWrapVertical,
 
@@ -47,6 +48,7 @@ class WorldPanel extends Component {
         showExportOverlay,
         showRandomOverlay,
         showClearOverlay,
+        showResetOverlay,
         showExtrasOverlay,
         showSettingsOverlay
     }) {
@@ -93,6 +95,22 @@ class WorldPanel extends Component {
                 data: exportWorld(),
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })
+    
+        let resetButton =
+            iconButton({
+                title: 'reset world',
+                onclick: () => this.setState({ showExtrasOverlay: false, showResetOverlay: true }),
+            }, 'delete')
+
+        let resetOverlay = !showResetOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'reset world?',
+                closeOverlay: () => this.setState({ showResetOverlay: false }),
+                remove: () => {
+                    resetWorld()
+                    this.setState({ showResetOverlay: false })
+                }
+            })
 
         let randomButton = iconButton({
             title: 'randomize world',
@@ -136,7 +154,8 @@ class WorldPanel extends Component {
                     exportButton,
                     importButton,
                     randomButton,
-                    clearButton
+                    clearButton,
+                    resetButton
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
@@ -195,6 +214,7 @@ class WorldPanel extends Component {
             exportOverlay,
             randomOverlay,
             clearOverlay,
+            resetOverlay,
             extrasOverlay,
             settingsOverlay
         ])
