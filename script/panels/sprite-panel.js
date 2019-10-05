@@ -35,6 +35,7 @@ class SpritePanel extends Component {
         colorList
     }, {
         currentFrameIndex,
+        showFrameEditOverlay,
         showRemoveSpriteOverlay,
         showExportOverlay,
         showGifOverlay,
@@ -153,23 +154,6 @@ class SpritePanel extends Component {
                 maxScale: 8,
                 closeOverlay: () => this.setState({ showGifOverlay: false })
             })
-
-        let extrasButton = iconButton({
-            title: 'sprite actions',
-            onclick: () => this.setState({ showExtrasOverlay: true })
-        }, 'extras')
-
-        let extrasOverlay = !showExtrasOverlay ? null :
-            h(ExtrasOverlay, {
-                header: 'sprite actions',
-                buttons: [
-                    duplicateButton,
-                    removeButton,
-                    exportButton,
-                    gifButton
-                ],
-                closeOverlay: () => this.setState({ showExtrasOverlay: false })
-            })
     
         let frameButtonList = frameList.length === 1 ? null :
             frameList.map((frame, i) => {
@@ -186,9 +170,6 @@ class SpritePanel extends Component {
                     backgroundColor
                 }))
             })
-
-        let frameListDivider = frameList.length === 1 ? null :
-            div({ className: 'vertical-divider' })
     
         let addFrameButton = frameList.length >= 4 ? null :
             iconButton({
@@ -255,21 +236,48 @@ class SpritePanel extends Component {
 
         let flipFrameHorizontalButton = iconButton({
             className: 'icon',
-            title: 'flip left-right',
+            title: 'flip frame left-right',
             onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, true))
         }, 'flip-h')
 
         let flipFrameVerticalButton = iconButton({
             className: 'icon',
-            title: 'flip up-down',
+            title: 'flip frame up-down',
             onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, false))
         }, 'flip-v')
 
         let rotateFrameButton = iconButton({
             className: 'icon',
-            title: 'rotate',
+            title: 'rotate frame',
             onclick: () => updateFrame(currentFrameIndex, Sprite.rotateFrame(width, height, currentFrame))
         }, 'rotate')
+
+        let extrasButton = iconButton({
+            title: 'sprite actions',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, 'extras')
+
+        let extrasOverlay = !showExtrasOverlay ? null :
+            h(ExtrasOverlay, {
+                header: 'sprite actions',
+                content: [
+                    row([
+                        duplicateButton,
+                        removeButton,
+                        exportButton,
+                        gifButton
+                    ]),
+                    hr(),
+                    row([
+                        randomFrameButton,
+                        clearFrameButton,
+                        flipFrameHorizontalButton,
+                        flipFrameVerticalButton,
+                        rotateFrameButton
+                    ])
+                ],
+                closeOverlay: () => this.setState({ showExtrasOverlay: false })
+            })
     
         let drawPixel = (pixelIndex, newValue) => {
             let frame = frameList[currentFrameIndex].slice()
@@ -301,27 +309,22 @@ class SpritePanel extends Component {
             row([
                 backButton,
                 nameTextbox,
-                wallButton,
-                itemButton,
-                transparentButton,
-                scriptButton
+                extrasButton
             ]),
-            spriteGrid,
             row([
-                spritePreview,
-                frameListDivider,
+                icon('animation'),
                 frameButtonList,
                 addFrameButton,
                 removeFrameButton
             ]),
+            spriteGrid,
             row([
-                extrasButton,
+                scriptButton,
                 fill(),
-                randomFrameButton,
-                clearFrameButton,
-                flipFrameHorizontalButton,
-                flipFrameVerticalButton,
-                rotateFrameButton
+                wallButton,
+                itemButton,
+                transparentButton,
+                spritePreview
             ]),
             exportOverlay,
             gifOverlay,

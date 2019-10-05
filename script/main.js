@@ -417,7 +417,7 @@ class Main extends Component {
         // main
         return div({ className: 'main' }, [
             header,
-            div({ className: 'tabs' }, [
+            div({ id: 'tabs', className: 'tabs' }, [
                 welcomeTab,
                 worldTab,
                 roomTab,

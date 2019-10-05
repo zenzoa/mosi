@@ -19,10 +19,10 @@ class RemoveOverlay extends Component {
 }
 
 class ExtrasOverlay extends Component {
-    render({ header, buttons, closeOverlay }) {
+    render({ header, content, buttons, closeOverlay }) {
         return overlay({ closeOverlay, header },
             div({ className: 'content' }, 
-                row(buttons)
+                content ? content : row(buttons)
             )
         )
     }
@@ -201,21 +201,9 @@ class TilePickerOverlay extends Component {
     }
 }
 
-class WorldSettingsOverlay extends Component {
-    constructor({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight }) {
-        super()
-        this.state = {
-            worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight
-        }
-    }
-
+class FontOverlay extends Component {
     render({
-        resize,
         closeOverlay,
-        worldWrapHorizontal,
-        worldWrapVertical,
-        setWrapHorizontal,
-        setWrapVertical,
         setFontResolution,
         setFontDirection,
         setFontData,
@@ -223,51 +211,9 @@ class WorldSettingsOverlay extends Component {
         fontDirection,
         fontData
     }, {
-        worldWidth,
-        worldHeight,
-        roomWidth,
-        roomHeight,
-        spriteWidth,
-        spriteHeight,
-        showConfirmResizeOverlay,
         showImportFontOverlay,
         showResetFontOverlay
     }) {
-        let wrapHorizontalButton = button({
-            className: 'fill toggle' + (worldWrapHorizontal ? ' selected' : ''),
-            onclick: () => setWrapHorizontal(!worldWrapHorizontal)
-        }, 'wrap horizontally')
-    
-        let wrapVerticalButton = button({
-            className: 'fill toggle' + (worldWrapVertical ? ' selected' : ''),
-            onclick: () => setWrapVertical(!worldWrapVertical)
-        }, 'wrap vertically')
-
-        let worldResized = worldWidth !== this.props.worldWidth || worldHeight !== this.props.worldHeight
-        let roomResized = roomWidth !== this.props.roomWidth || roomHeight !== this.props.roomHeight
-        let spriteResized = spriteWidth !== this.props.spriteWidth || spriteHeight !== this.props.spriteHeight
-        let resizedString = ''
-        if ((worldResized || roomResized) && !spriteResized) resizedString = 'rooms'
-        else if ((worldResized || roomResized)) resizedString = 'rooms and sprites'
-        else if (spriteResized)  resizedString = 'sprites'
-        
-        let resizeButton =
-            button({
-                className: 'fill',
-                disabled: !resizedString,
-                onclick: () => this.setState({ showConfirmResizeOverlay: true })
-            }, 'resize')
-
-        let confirmResizeOverlay = !showConfirmResizeOverlay ? null :
-            h(RemoveOverlay, {
-                header: `clear all ${resizedString}?`,
-                closeOverlay: () => this.setState({ showConfirmResizeOverlay: false }),
-                remove: () => {
-                    resize(this.state)
-                    this.setState({ showConfirmResizeOverlay: false })
-                }
-            })
-
         let importFontButton =
             button({
                 className: 'fill',
@@ -322,12 +268,69 @@ class WorldSettingsOverlay extends Component {
             onclick: () => setFontDirection((fontDirection === 'ltr' ? 'rtl' : 'ltr'))
         }, (fontDirection === 'ltr' ? 'left to right' : 'right to left'))
 
-        return overlay({ closeOverlay, header: 'world settings' }, [
+        return overlay({ closeOverlay, header: 'font settings' }, [
+            row([ span({}, ['current font: ', strong(fontData.name)]) ]),
             row([
-                wrapHorizontalButton,
-                wrapVerticalButton
+                span({ className: 'label' }, 'text resolution'),
+                fontResolutionDropdown
             ]),
-            hr(),
+            row([
+                span({ className: 'label' }, 'text direction'),
+                fontDirectionButton
+            ]),
+            row([ importFontButton, resetFontButton ]),
+            importFontOverlay,
+            resetFontOverlay
+        ])
+    }
+}
+
+class ResizeWorldOverlay extends Component {
+    constructor({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight }) {
+        super()
+        this.state = {
+            worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight
+        }
+    }
+
+    render({
+        closeOverlay,
+        resize
+    }, {
+        worldWidth,
+        worldHeight,
+        roomWidth,
+        roomHeight,
+        spriteWidth,
+        spriteHeight,
+        showConfirmResizeOverlay
+    }) {
+        let worldResized = worldWidth !== this.props.worldWidth || worldHeight !== this.props.worldHeight
+        let roomResized = roomWidth !== this.props.roomWidth || roomHeight !== this.props.roomHeight
+        let spriteResized = spriteWidth !== this.props.spriteWidth || spriteHeight !== this.props.spriteHeight
+        let resizedString = ''
+        if ((worldResized || roomResized) && !spriteResized) resizedString = 'rooms'
+        else if ((worldResized || roomResized)) resizedString = 'rooms and sprites'
+        else if (spriteResized)  resizedString = 'sprites'
+        
+        let resizeButton =
+            button({
+                className: 'fill',
+                disabled: !resizedString,
+                onclick: () => this.setState({ showConfirmResizeOverlay: true })
+            }, 'resize')
+
+        let confirmResizeOverlay = !showConfirmResizeOverlay ? null :
+            h(RemoveOverlay, {
+                header: `clear all ${resizedString}?`,
+                closeOverlay: () => this.setState({ showConfirmResizeOverlay: false }),
+                remove: () => {
+                    resize(this.state)
+                    this.setState({ showConfirmResizeOverlay: false })
+                }
+            })
+
+        return overlay({ closeOverlay, header: 'resize world' }, [
             row([
                 span({ className: 'label' }, 'world size'),
                 numbox({
@@ -375,20 +378,7 @@ class WorldSettingsOverlay extends Component {
                     onchange: e => this.setState({ spriteHeight: parseInt(e.target.value) }) })
             ]),
             row([ resizeButton ]),
-            hr(),
-            row([ span({}, ['current font: ', strong(fontData.name)]) ]),
-            row([
-                span({ className: 'label' }, 'text resolution'),
-                fontResolutionDropdown
-            ]),
-            row([
-                span({ className: 'label' }, 'text direction'),
-                fontDirectionButton
-            ]),
-            row([ importFontButton, resetFontButton ]),
-            confirmResizeOverlay,
-            importFontOverlay,
-            resetFontOverlay
+            confirmResizeOverlay
         ])
     }
 }

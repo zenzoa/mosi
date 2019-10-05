@@ -51,16 +51,17 @@ class MusicList extends Component {
             })
 
         return div({ className: 'content' }, [
-            row([ backButton ]),
-            div({ className: 'musicList' }, [
-                musicButtonList
+            row([
+                backButton,
+                fill(),
+                importMusicButton,
+                addMusicButton,
+                editMusicButton ? vr() : null,
+                editMusicButton
             ]),
             hr(),
-            row([
-                importMusicButton,
-                fill(),
-                editMusicButton,
-                addMusicButton
+            div({ className: 'musicList' }, [
+                musicButtonList
             ]),
             importOverlay
         ])

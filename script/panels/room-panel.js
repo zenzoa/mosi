@@ -274,11 +274,11 @@ class RoomPanel extends Component {
             row([
                 backButton,
                 nameTextbox,
-                scriptButton
+                extrasButton
             ]),
             roomGrid,
             row([
-                extrasButton,
+                scriptButton,
                 fill(),
                 currentMusicButton,
                 currentPaletteButton,

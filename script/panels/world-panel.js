@@ -50,7 +50,8 @@ class WorldPanel extends Component {
         showClearOverlay,
         showResetOverlay,
         showExtrasOverlay,
-        showSettingsOverlay
+        showFontOverlay,
+        showResizeOverlay
     }) {
 
         let nameTextbox = textbox({
@@ -160,29 +161,52 @@ class WorldPanel extends Component {
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
 
-        let settingsButton = iconButton({
-            title: 'world settings',
-            onclick: () => this.setState({ showSettingsOverlay: true })
-        }, 'settings')
+        let wrapHorizontalButton = iconButton({
+            title: 'wrap horizontal',
+            className: (worldWrapHorizontal ? 'selected' : ''),
+            onclick: () => setWrapHorizontal(!worldWrapHorizontal)
+        }, 'wrap-h')
 
-        let settingsOverlay = !showSettingsOverlay ? null :
-            h(WorldSettingsOverlay, {
-                worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight,
-                worldWrapHorizontal,
-                worldWrapVertical,
-                setWrapHorizontal,
-                setWrapVertical,
-                setFontResolution,
-                setFontDirection,
-                setFontData,
+        let wrapVerticalButton = iconButton({
+            title: 'wrap vertical',
+            className: (worldWrapVertical ? 'selected' : ''),
+            onclick: () => setWrapVertical(!worldWrapVertical)
+        }, 'wrap-v')
+
+        let resizeButton = iconButton({
+            title: 'resize world',
+            onclick: () => this.setState({ showResizeOverlay: true })
+        }, 'resize')
+
+        let resizeOverlay = !showResizeOverlay ? null :
+            h(ResizeWorldOverlay, {
+                worldWidth,
+                worldHeight,
+                roomWidth,
+                roomHeight,
+                spriteWidth,
+                spriteHeight,
+                resize: (props) => {
+                    resizeWorld(props)
+                    this.setState({ showResizeOverlay: false })
+                },
+                closeOverlay: () => this.setState({ showResizeOverlay: false })
+            })
+
+        let fontButton = iconButton({
+            title: 'font settings',
+            onclick: () => this.setState({ showFontOverlay: true })
+        }, 'font')
+
+        let fontOverlay = !showFontOverlay ? null :
+            h(FontOverlay, {
                 fontResolution,
                 fontDirection,
                 fontData,
-                resize: (props) => {
-                    resizeWorld(props)
-                    this.setState({ showSettingsOverlay: false })
-                },
-                closeOverlay: () => this.setState({ showSettingsOverlay: false })
+                setFontResolution,
+                setFontDirection,
+                setFontData,
+                closeOverlay: () => this.setState({ showFontOverlay: false })
             })
 
         let worldGrid = h(WorldGrid, {
@@ -202,13 +226,16 @@ class WorldPanel extends Component {
         return panel({ header: 'world', className: 'world-panel', closeTab }, [
             row([
                 nameTextbox,
-                scriptButton
+                extrasButton
             ]),
             worldGrid,
             row([
-                extrasButton,
+                scriptButton,
                 fill(),
-                settingsButton
+                wrapHorizontalButton,
+                wrapVerticalButton,
+                resizeButton,
+                fontButton
             ]),
             importOverlay,
             exportOverlay,
@@ -216,7 +243,8 @@ class WorldPanel extends Component {
             clearOverlay,
             resetOverlay,
             extrasOverlay,
-            settingsOverlay
+            resizeOverlay,
+            fontOverlay
         ])
     }
 }

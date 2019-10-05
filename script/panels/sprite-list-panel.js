@@ -34,8 +34,6 @@ class SpriteList extends Component {
             onchange: e => this.setState({ filter: e.target.value })
         })
 
-        // TODO: add clear filter button
-
         let spriteButtonList = spriteList
             // remember original indices
             .map((sprite, i) => ({ sprite, i }))
@@ -92,17 +90,15 @@ class SpriteList extends Component {
         return div({ className: 'content' }, [
             row([
                 backButton,
-                filterInput
-            ]),
-            div({ className: 'spritelist' }, [
-                spriteButtonList
+                filterInput,
+                importSpriteButton,
+                addSpriteButton,
+                editSpriteButton ? vr() : null,
+                editSpriteButton
             ]),
             hr(),
-            row([
-                importSpriteButton,
-                fill(),
-                editSpriteButton,
-                addSpriteButton
+            div({ className: 'spritelist' }, [
+                spriteButtonList
             ]),
             importOverlay
         ])

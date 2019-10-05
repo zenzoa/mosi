@@ -77,9 +77,11 @@ let strong = (children) => h('strong', {}, children)
 let row = (children) => div({ className: 'row' }, children)
 let fill = () => div({ className: 'fill' })
 let hr = () => h('hr')
+let vr = () => div({ className: 'vertical-divider' })
 
 class Panel extends Component {
     componentDidMount() {
+        this.node.scrollIntoView({ behavior: 'smooth' })
         let focusEl = this.node.querySelector('.initial-focus')
         if (focusEl) focusEl.focus()
     }
@@ -92,7 +94,7 @@ class Panel extends Component {
                 span({}, icon(props.header)),
                 span({}, button({
                     onclick: props.closeTab,
-                    className: 'simple icon' 
+                    className: 'simple icon'
                 }, '×'))
             ]),
             div({ className: 'panel-content' }, props.children)
@@ -139,35 +141,6 @@ class Overlay extends Component {
 
 let overlay = (props, children) => {
     return h(Overlay, props, children)
-}
-
-class Menu extends Component {
-    componentDidUpdate(_, prevState) {
-        if (this.state.showOverlay && prevState.showOverlay) {
-            this.setState({ showOverlay: false })
-        }
-    }
-
-    render(props, { showOverlay }) {
-        let menuOverlay = !showOverlay ? null :
-            overlay({
-                closeOverlay: () => this.setState({ showOverlay: false }),
-                ...props
-            }, props.children)
-        return div({ className: 'menu' }, [
-            button({
-                onclick: () => {
-                    if (showOverlay) this.setState({ showOverlay: false })
-                    else this.setState({ showOverlay: true })
-                }
-            }, props.title || 'more'),
-            menuOverlay
-        ])
-    }
-}
-
-let menu = (props, children) => {
-    return h(Menu, props, children)
 }
 
 class IconButton extends Component {

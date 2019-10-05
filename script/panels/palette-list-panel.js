@@ -51,16 +51,17 @@ class PaletteList extends Component {
             })
 
         return div({ className: 'content' }, [
-            row([ backButton ]),
-            div({ className: 'paletteList' }, [
-                paletteButtonList
+            row([
+                backButton,
+                fill(),
+                importPaletteButton,
+                addPaletteButton,
+                editPaletteButton ? vr() : null,
+                editPaletteButton
             ]),
             hr(),
-            row([
-                importPaletteButton,
-                fill(),
-                editPaletteButton,
-                addPaletteButton
+            div({ className: 'paletteList' }, [
+                paletteButtonList
             ]),
             importOverlay
         ])

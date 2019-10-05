@@ -231,7 +231,10 @@ class MusicPanel extends Component {
         return panel({ header: 'song', className: 'music-panel', closeTab }, [
             row([
                 backButton,
-                nameTextbox
+                nameTextbox,
+                extrasButton,
+                vr(),
+                playButton
             ]),
             row([
                 icon('beat'),
@@ -245,11 +248,6 @@ class MusicPanel extends Component {
             row([
                 icon('low-note'),
                 noteButtons.slice(0, 5)
-            ]),
-            row([
-                extrasButton,
-                fill(),
-                playButton
             ]),
             exportOverlay,
             removeOverlay,

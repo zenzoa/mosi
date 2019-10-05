@@ -184,7 +184,8 @@ class PalettePanel extends Component {
         return panel({ header: 'palette', className: 'palette-panel', closeTab }, [
             row([
                 backButton,
-                nameTextbox
+                nameTextbox,
+                extrasButton
             ]),
             row(
                 colorButtonList.concat([
@@ -193,10 +194,7 @@ class PalettePanel extends Component {
                 ])
             ),
             colorPicker,
-            row([
-                extrasButton,
-                colorTextbox
-            ]),
+            row([ colorTextbox ]),
             exportOverlay,
             removePaletteOverlay,
             randomOverlay,
