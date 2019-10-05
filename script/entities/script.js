@@ -272,29 +272,35 @@ return {
                     if (roomIndex >= 0) {
                         x = Math.max(Math.min(x, game.world.roomWidth - 1), 0)
                         y = Math.max(Math.min(y, game.world.roomHeight - 1), 0)
-                        let room = game.world.roomList[roomIndex]
-                        room.tileList.push({ spriteName: context.sprite.name, x, y })
-                        context.tile.removeMe = true
+                        if (game.checkTileForSprite(roomIndex, x, y)) {
+                            let room = game.world.roomList[roomIndex]
+                            room.tileList.push({ spriteName: context.sprite.name, x, y })
+                            context.tile.removeMe = true
+                        }
                     }
                 }
 
                 else if (func === 'place-sprite' && context) {
-                    let room, x = 0, y = 0
+                    let roomIndex = -1, x = 0, y = 0
                     let sprite = game.world.spriteList.find(s => s.name === args[0])
                     if (isStr(args[0]) && isInt(args[1]) && isInt(args[2])) {
-                        room = game.currentRoom
+                        roomIndex = game.currentRoomIndex
                         x = args[1] || 0
                         y = args[2] || 0
                     }
                     else if (isStr(args[0]) && isStr(args[1]) && isInt(args[2]) && isInt(args[3])) {
-                        room = game.world.roomList.find(r => r.name === args[1])
+                        roomIndex = game.world.roomList.findIndex(r => r.name === args[1])
                         x = args[2] || 0
                         y = args[3] || 0
                     }
-                    if (sprite && room) {
+                    if (sprite && roomIndex >= 0) {
                         x = Math.max(Math.min(x, game.world.roomWidth - 1), 0)
                         y = Math.max(Math.min(y, game.world.roomHeight - 1), 0)
-                        room.tileList.push({ spriteName: sprite.name, x, y })
+                        if (game.checkTileForSprite(roomIndex, x, y)) {
+                            let room = game.world.roomList[roomIndex]
+                            room.tileList.push({ spriteName: sprite.name, x, y })
+                            game.updateCache()
+                        }
                     }
                 }
 
@@ -514,8 +520,6 @@ return {
                 if (!nextArg) return
                 if (parseInt(nextArg) === parseFloat(nextArg) && !isNaN(parseInt(nextArg))) {
                     nextArg = parseInt(nextArg)
-                } else {
-                    nextArg = nextArg.replace(/"/g, '')
                 }
                 funcArgs.push(nextArg)
                 nextArg = ''
@@ -528,30 +532,45 @@ return {
                 }
             }
 
+            let insideQuote = false
             while (i < text.length) {
                 let char = text.charAt(i)
                 i++
-                if (char === ' ' || char === '\\n' || char === '\\t') {
-                    addArg()
-                } else if (char === '{') {
-                    addArg()
-                    funcArgs.push(parseFuncNode(text))
-                } else if (char === '}') {
-                    addArg()
-                    if (funcName === 'if') {
-                        funcArgs.push(parseTextNode('/if'))
-                    } else if (funcName === 'color') {
-                        funcArgs.push(parseTextNode('/color'))
-                    } else if (funcName === 'wavy') {
-                        funcArgs.push(parseTextNode('/wavy'))
-                    } else if (funcName === 'shaky') {
-                        funcArgs.push(parseTextNode('/shaky'))
-                    } else if (funcName === 'position') {
-                        funcArgs.push(parseTextNode('/position'))
+                if (insideQuote) {
+                    if (char === '"') {
+                        insideQuote = false
+                        addArg()
+                    } else if (char === '\\\\' && text.charAt(i) === '"') {
+                        i++
+                        nextArg += '"'
+                    } else {
+                        nextArg += char
                     }
-                    return finalizeNode()
                 } else {
-                    nextArg += char
+                    if (char === '"') {
+                        insideQuote = true
+                    } else if (char === ' ' || char === '\\n' || char === '\\t') {
+                        addArg()
+                    } else if (char === '{') {
+                        addArg()
+                        funcArgs.push(parseFuncNode(text))
+                    } else if (char === '}') {
+                        addArg()
+                        if (funcName === 'if') {
+                            funcArgs.push(parseTextNode('/if'))
+                        } else if (funcName === 'color') {
+                            funcArgs.push(parseTextNode('/color'))
+                        } else if (funcName === 'wavy') {
+                            funcArgs.push(parseTextNode('/wavy'))
+                        } else if (funcName === 'shaky') {
+                            funcArgs.push(parseTextNode('/shaky'))
+                        } else if (funcName === 'position') {
+                            funcArgs.push(parseTextNode('/position'))
+                        }
+                        return finalizeNode()
+                    } else {
+                        nextArg += char
+                    }
                 }
             }
 

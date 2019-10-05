@@ -243,7 +243,7 @@ return class {
             this.nextY = y
 
             // check for tile interactions
-            let tileIsClear = this.checkTiles(this.nextRoomIndex, this.nextX, this.nextY)
+            let tileIsClear = this.checkTileForAvatar(this.nextRoomIndex, this.nextX, this.nextY)
             if (!tileIsClear) stopMoving = true
 
             // remove any tiles marked for death
@@ -259,7 +259,7 @@ return class {
             }
         }
 
-        this.checkTiles = (roomIndex, x, y) => {
+        this.checkTileForAvatar = (roomIndex, x, y) => {
             let room = this.world.roomList[roomIndex]
             let tileIsClear = true
 
@@ -289,6 +289,26 @@ return class {
                 if (this.avatarX !== x || this.avatarY !== y) {
                     this.runScript(sprite.scriptList, 'on-push', { sprite, tile, roomIndex })
                 }
+            })
+
+            // return whether tile is blocking player movement
+            return tileIsClear
+        }
+
+        this.checkTileForSprite = (roomIndex, x, y) => {
+            let room = this.world.roomList[roomIndex]
+            let tileIsClear = true
+
+            // look at each tile in the room
+            room.tileList.forEach(tile => {
+                // ignore tiles that player is not going to be standing on
+                if (tile.x !== x || tile.y !== y) return
+
+                // get sprite data for the current tile
+                let sprite = this.world.spriteList.find(s => s.name === tile.spriteName)
+
+                // it's a wall - block the way!
+                if (sprite.isWall) tileIsClear = false
             })
 
             // return whether tile is blocking player movement
