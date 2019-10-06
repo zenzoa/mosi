@@ -382,3 +382,55 @@ class ResizeWorldOverlay extends Component {
         ])
     }
 }
+
+class ScriptoriumOverlay extends Component {
+    render({ closeOverlay, insertText, spriteOnly }, { currentSection }) {
+        let scriptSections = Object.keys(scriptorium).map(sectionName => {
+            let isOpen = currentSection === sectionName
+
+            let scriptItems = scriptorium[sectionName].map(scriptItem => {
+                if (scriptItem.spriteOnly && !spriteOnly) return null
+                let argText = scriptItem.args.map(a => '[' + a + ']').join(' ')
+                let scriptText = scriptItem.text.replace('?', argText)
+                return div({},
+                    a({
+                        href: '',
+                        onclick: e => {
+                            e.preventDefault()
+                            insertText(scriptText)
+                        }
+                    }, scriptItem.name)
+                )
+            })
+
+            return div({ className: 'script-section ' + (isOpen || !currentSection ? 'open' : 'closed') }, [
+                row([
+                    button({
+                        className: 'fill',
+                        onclick: () => {
+                            this.setState({ currentSection: (isOpen ? null : sectionName) })
+                        }
+                    }, row([
+                        span({}, sectionName),
+                        fill(),
+                        span({}, (isOpen ? '▲' : '▼'))
+                    ]))
+                ]),
+                div({ className: 'script-item-list ' + (isOpen ? 'open' : 'closed') },
+                    scriptItems
+                )
+            ])
+
+        })
+
+        let moreInfoLink = currentSection ? null :
+            div({ className: 'welcome-links' }, [
+                a({ href: 'https://github.com/zenzoa/mosi/wiki/scripts', target: '_blank' }, 'more info on scripts'),
+            ])
+
+        return overlay({ closeOverlay, header: 'insert script' }, [
+            scriptSections,
+            moreInfoLink
+        ])
+    }
+}

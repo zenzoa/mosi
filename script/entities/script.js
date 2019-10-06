@@ -1,3 +1,295 @@
+let scriptorium = {
+    'dialog': [
+        {
+            name: 'line break',
+            text: '{b}',
+            args: []
+        },
+        {
+            name: 'page break',
+            text: '{p}',
+            args: []
+        },
+        {
+            name: 'wavy text',
+            text: '{wavy}{/wavy}',
+            args: []
+        },
+        {
+            name: 'shaky text',
+            text: '{shaky}{/shaky}',
+            args: []
+        },
+        {
+            name: 'color text',
+            text: '{color ?}{/color}',
+            args: ['color']
+        },
+        {
+            name: 'dialog box position',
+            text: '{position ?}{/position}',
+            args: ['dialog-position']
+        }
+    ],
+    'world': [
+        {
+            name: 'world\'s name',
+            text: '{world-name}',
+            args: []
+        }
+    ],
+    'avatar': [
+        {
+            name: 'avatar\'s name',
+            text: '{avatar-name}',
+            args: []
+        },
+        {
+            name: 'avatar\'s x-position (column)',
+            text: '{avatar-x}',
+            args: []
+        },
+        {
+            name: 'avatar\'s y-position (row)',
+            text: '{avatar-y}',
+            args: []
+        },
+        {
+            name: 'move avatar',
+            text: '{move-avatar ?}',
+            args: ['room', 'x', 'y']
+        },
+        {
+            name: 'transform avatar\'s sprite',
+            text: '{transform-avatar ?}',
+            args: ['sprite']
+        }
+    ],
+    'sprite': [
+        {
+            name: 'sprite\'s name',
+            text: '{sprite-name}',
+            args: [],
+            spriteOnly: true
+        },
+        // {
+        //     name: 'sprite\'s room name',
+        //     text: '{sprite-room}',
+        //     spriteOnly: true
+        // },
+        {
+            name: 'sprite\'s x-position (column)',
+            text: '{sprite-x}',
+            args: [],
+            spriteOnly: true
+        },
+        {
+            name: 'sprite\'s y-position (row)',
+            text: '{sprite-y}',
+            args: [],
+            spriteOnly: true
+        },
+        {
+            name: 'is sprite a wall?',
+            text: '{sprite-wall}',
+            args: [],
+            spriteOnly: true
+        },
+        {
+            name: 'is sprite an item?',
+            text: '{sprite-item}',
+            args: [],
+            spriteOnly: true
+        },
+        {
+            name: 'move sprite',
+            text: '{move-sprite ?}',
+            args: ['room', 'x', 'y'],
+            spriteOnly: true
+        },
+        {
+            name: 'place new sprite',
+            text: '{place-sprite ?}',
+            args: ['sprite', 'room', 'x', 'y']
+        },
+        {
+            name: 'transform sprite into another sprite',
+            text: '{transform-sprite ?}',
+            args: ['sprite'],
+            spriteOnly: true
+        },
+        {
+            name: 'remove sprite',
+            text: '{remove-sprite}',
+            args: [],
+            spriteOnly: true
+        },
+        {
+            name: 'set sprite color',
+            text: '{set-sprite-color ?}',
+            args: ['color'],
+            spriteOnly: true
+        },
+        {
+            name: 'set whether sprite is a wall',
+            text: '{set-sprite-wall ?}',
+            args: ['bool'],
+            spriteOnly: true
+        },
+        {
+            name: 'set whether sprite is an item',
+            text: '{set-sprite-item ?}',
+            args: ['bool'],
+            spriteOnly: true
+        }
+    ],
+    'room': [
+        {
+            name: 'current room\'s name',
+            text: '{room-name}',
+            args: []
+        },
+        {
+            name: 'set room\'s palette',
+            text: '{set-palette ?}',
+            args: ['room', 'palette']
+        },
+        {
+            name: 'set room\'s music',
+            text: '{set-music ?}',
+            args: ['room', 'music']
+        }
+    ],
+    'math': [
+        {
+            name: 'add',
+            text: '{add ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'subtract',
+            text: '{sub ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'multiply',
+            text: '{mul ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'divide',
+            text: '{div ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'modulo',
+            text: '{mod ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'random number',
+            text: '{random ?}',
+            args: ['num', 'num']
+        }
+    ],
+    'logic': [
+        {
+            name: 'if true, do a thing',
+            text: '{if ?}{/if}',
+            args: ['bool']
+        },
+        {
+            name: 'equals',
+            text: '{eq ?}',
+            args: ['str', 'str']
+        },
+        {
+            name: 'greater than',
+            text: '{gt ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'greater than or equal to (at least)',
+            text: '{gte ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'less than',
+            text: '{lt ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'less than or equal to (no more than)',
+            text: '{lte ?}',
+            args: ['num', 'num']
+        },
+        {
+            name: 'not (true if false, false if true)',
+            text: '{not ?}',
+            args: ['bool']
+        },
+        {
+            name: 'all arguments are "true"',
+            text: '{all-true ?}',
+            args: ['bool', 'bool']
+        },
+        {
+            name: 'any arguments are "true"',
+            text: '{any-true ?}',
+            args: ['bool', 'bool']
+        },
+        {
+            name: 'no arguments are "true"',
+            text: '{none-true ?}',
+            args: ['bool', 'bool']
+        }
+    ],
+    'variables': [
+        {
+            name: 'get value of variable',
+            text: '{var ?}',
+            args: ['str']
+        },
+        {
+            name: 'set value of variable',
+            text: '{set-var ?}',
+            args: ['str', 'str']
+        },
+        {
+            name: 'increment variable',
+            text: '{inc-var ?}',
+            args: ['str', 'num']
+        },
+        {
+            name: 'decrement variable',
+            text: '{dec-var ?}',
+            args: ['str', 'num']
+        }
+    ],
+    'inventory': [
+        {
+            name: 'get count of an inventory item',
+            text: '{item-count ?}',
+            args: ['sprite']
+        },
+        {
+            name: 'set count of an inventory item',
+            text: '{set-item-count ?}',
+            args: ['sprite', 'num']
+        },
+        {
+            name: 'add item to inventory',
+            text: '{inc-item-count ?}',
+            args: ['sprite', 'num']
+        },
+        {
+            name: 'remove item from inventory',
+            text: '{dec-item-count ?}',
+            args: ['sprite', 'num']
+        }
+    ]
+}
+
 let scriptScript = `
 return {
     run: (script, game, context) => {
@@ -46,7 +338,7 @@ return {
                     return game.world.worldName
                 }
 
-                else if (func === 'avatar-room') {
+                else if (func === 'room-name' || func === 'avatar-room') {
                     return game.currentRoom.name
                 }
 

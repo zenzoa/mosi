@@ -214,7 +214,7 @@ canvas {
 }
 
 .overlay {
-    max-height: 100%;
+    max-height: calc(100% - var(--big-padding));
     overflow-y: auto;
 }
 
@@ -728,4 +728,38 @@ svg.logo {
 .welcome-links {
     margin: var(--big-padding) 0;
     text-align: center;
+}
+
+.script-section > .row {
+    overflow: hidden;
+    transition: all 150ms;
+}
+
+.script-section.open > .row {
+    max-height: calc(var(--button-size) * 2);
+}
+
+.script-section.closed > .row {
+    max-height: 0vh;
+}
+
+.script-item-list {
+    margin: var(--big-padding);
+    overflow: hidden;
+}
+
+.script-item-list.open {
+    max-height: 100vh;
+    transition: all 200ms;
+}
+
+.script-item-list.closed {
+    margin-top: 0;
+    margin-bottom: 0;
+    max-height: 0vh;
+}
+
+.script-item-list a {
+    display: block;
+    margin: var(--small-padding) 0;
 }

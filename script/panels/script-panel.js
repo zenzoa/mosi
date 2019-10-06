@@ -3,8 +3,10 @@ class ScriptPanel extends Component {
         super()
 
         let eventList = Object.keys(props.scriptList)
+        let currentEvent = eventList[0]
+
         this.state = {
-            currentEvent: eventList[0]
+            currentEvent
         }
 
         let timeout
@@ -21,6 +23,14 @@ class ScriptPanel extends Component {
             }, 500)
             if (callNow) update()
         }
+
+        this.insertText = (text = '') => {
+            if (!this.textarea) return
+            let beforeSelection = this.textarea.value.slice(0, this.textarea.selectionStart)
+            let afterSelection = this.textarea.value.slice(this.textarea.selectionStart) // intentionally not using selectionEnd so as not to accidentally overwrite anything
+            let newValue = beforeSelection + text.toString() + afterSelection
+            this.props.updateScript(this.state.currentEvent, newValue)
+        }
     }
 
     componentWillReceiveProps(nextProps) {
@@ -36,9 +46,11 @@ class ScriptPanel extends Component {
         updateScript,
         scriptList
     }, {
-        currentEvent
+        currentEvent,
+        showScriptoriumOverlay
     }) {
         let eventList = Object.keys(scriptList)
+            .filter(x => x !== 'on-message') // TEMP until message scripts implemented
         let currentScript = scriptList[currentEvent]
 
         let eventButtons = eventList.map(event => {
@@ -59,15 +71,28 @@ class ScriptPanel extends Component {
             rows: 10
         })
 
+        let scriptoriumButton = iconButton({
+            onclick: () => this.setState({ showScriptoriumOverlay: true })
+        }, 'add')
+
+        let scriptoriumOverlay = !showScriptoriumOverlay ? null :
+            h(ScriptoriumOverlay, {
+                closeOverlay: () => this.setState({ showScriptoriumOverlay: false }),
+                insertText: (text) => {
+                    this.insertText(text)
+                    this.setState({ showScriptoriumOverlay: false })
+                },
+                spriteOnly: true
+            })
+
         return panel({ header: 'script', className: 'script-panel', closeTab }, [
             row([
                 backButton,
                 eventButtons
             ]),
             scriptText,
-            div({ className: 'welcome-links' }, [
-                a({ href: 'https://github.com/zenzoa/mosi/wiki/scripts', target: '_blank' }, 'guide to scripts'),
-            ]),
+            row([ fill(), scriptoriumButton ]),
+            scriptoriumOverlay
         ])
     }
 }
