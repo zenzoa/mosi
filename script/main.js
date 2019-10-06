@@ -1,3 +1,4 @@
+let VERSION = 1.0
 let FRAME_RATE = 400
 
 class Main extends Component {
@@ -81,6 +82,10 @@ class Main extends Component {
                 let data = window.localStorage.getItem('mosi-state')
                 if (data) {
                     let newState = JSON.parse(data)
+                    if (newState.version !== VERSION) {
+                        newState.currentTab = 'welcome'
+                        newState.tabVisibility = { welcome: true }
+                    }
                     this.setState(newState)
                     World.import(this, newState)
                     return true

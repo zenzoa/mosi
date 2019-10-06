@@ -2,7 +2,7 @@ let World = {
 
     create: ({ worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight, randomStart }) => {
         let world = {
-            version: 1.0,
+            version: VERSION,
             
             currentSpriteIndex: 0,
             spriteList: [],
