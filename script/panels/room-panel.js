@@ -284,6 +284,7 @@ class RoomPanel extends Component {
                 currentPaletteButton,
                 currentSpriteButton
             ]),
+            extrasOverlay,
             clearOverlay,
             importOverlay,
             exportOverlay,
@@ -291,8 +292,7 @@ class RoomPanel extends Component {
             musicOverlay,
             paletteOverlay,
             spriteOverlay,
-            randomOverlay,
-            extrasOverlay
+            randomOverlay
         ])
     }
 }

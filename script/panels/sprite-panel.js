@@ -35,7 +35,6 @@ class SpritePanel extends Component {
         colorList
     }, {
         currentFrameIndex,
-        showFrameEditOverlay,
         showRemoveSpriteOverlay,
         showExportOverlay,
         showGifOverlay,
@@ -213,7 +212,10 @@ class SpritePanel extends Component {
                 remove: () => {
                     let frame = Sprite.clearFrame(width, height)
                     updateFrame(currentFrameIndex, frame)
-                    this.setState({ showClearFrameOverlay: false })
+                    this.setState({
+                        showClearFrameOverlay: false,
+                        showExtrasOverlay: false
+                    })
                 }
             })
 
@@ -230,26 +232,38 @@ class SpritePanel extends Component {
                 remove: () => {
                     let frame = Sprite.randomFrame(width, height)
                     updateFrame(currentFrameIndex, frame)
-                    this.setState({ showRandomFrameOverlay: false })
+                    this.setState({
+                        showRandomFrameOverlay: false,
+                        showExtrasOverlay: false
+                    })
                 }
             })
 
         let flipFrameHorizontalButton = iconButton({
             className: 'icon',
             title: 'flip frame left-right',
-            onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, true))
+            onclick: () => {
+                this.setState({ showExtrasOverlay: false })
+                updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, true))
+            }
         }, 'flip-h')
 
         let flipFrameVerticalButton = iconButton({
             className: 'icon',
             title: 'flip frame up-down',
-            onclick: () => updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, false))
+            onclick: () => {
+                this.setState({ showExtrasOverlay: false })
+                updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, false))
+            }
         }, 'flip-v')
 
         let rotateFrameButton = iconButton({
             className: 'icon',
             title: 'rotate frame',
-            onclick: () => updateFrame(currentFrameIndex, Sprite.rotateFrame(width, height, currentFrame))
+            onclick: () => {
+                this.setState({ showExtrasOverlay: false })
+                updateFrame(currentFrameIndex, Sprite.rotateFrame(width, height, currentFrame))
+            }
         }, 'rotate')
 
         let extrasButton = iconButton({
@@ -326,13 +340,13 @@ class SpritePanel extends Component {
                 transparentButton,
                 spritePreview
             ]),
+            extrasOverlay,
             exportOverlay,
             gifOverlay,
             removeSpriteOverlay,
             removeFrameOverlay,
             clearFrameOverlay,
-            randomFrameOverlay,
-            extrasOverlay
+            randomFrameOverlay
         ])
     }
 }

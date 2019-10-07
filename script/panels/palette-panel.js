@@ -195,11 +195,11 @@ class PalettePanel extends Component {
             ),
             colorPicker,
             row([ colorTextbox ]),
+            extrasOverlay,
             exportOverlay,
             removePaletteOverlay,
             randomOverlay,
-            removeColorOverlay,
-            extrasOverlay
+            removeColorOverlay
         ])
     }
 }

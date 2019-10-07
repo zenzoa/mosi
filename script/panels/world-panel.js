@@ -237,12 +237,12 @@ class WorldPanel extends Component {
                 resizeButton,
                 fontButton
             ]),
+            extrasOverlay,
             importOverlay,
             exportOverlay,
             randomOverlay,
             clearOverlay,
             resetOverlay,
-            extrasOverlay,
             resizeOverlay,
             fontOverlay
         ])

@@ -162,10 +162,22 @@ class MusicPanel extends Component {
                 div({ className: 'music-grid-item', style: { background: color } },
                     button({
                         className: (isSelected ? 'selected initial-focus' : ''),
-                        onclick: () => this.setState({
-                            currentVoiceIndex: voiceIndex,
-                            currentNoteIndex: noteIndex
-                        })
+                        onclick: () => {
+                            if (isSelected) {
+                                if (colorIndex >= 0) {
+                                    this.lastFreq = freq
+                                    setNote(currentVoiceIndex, currentNoteIndex, null)
+                                } else if (this.lastFreq) {
+                                    setNote(currentVoiceIndex, currentNoteIndex, this.lastFreq)
+                                }
+                            } else {
+                                this.lastFreq = null
+                                this.setState({
+                                    currentVoiceIndex: voiceIndex,
+                                    currentNoteIndex: noteIndex
+                                })
+                            }
+                        }
                     })
                 )
             )
@@ -249,11 +261,11 @@ class MusicPanel extends Component {
                 icon('low-note'),
                 noteButtons.slice(0, 5)
             ]),
+            extrasOverlay,
             exportOverlay,
             removeOverlay,
             randomOverlay,
-            clearOverlay,
-            extrasOverlay
+            clearOverlay
         ])
     }
 }
