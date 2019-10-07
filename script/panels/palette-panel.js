@@ -128,7 +128,7 @@ class PalettePanel extends Component {
             iconButton({
                 title: 'remove color',
                 onclick: () => this.setState({ showRemoveColorOverlay: true })
-            }, 'remove')
+            }, 'delete')
 
         let removeColorOverlay = !showRemoveColorOverlay ? null :
             h(RemoveOverlay, {
