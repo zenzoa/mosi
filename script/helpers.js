@@ -81,7 +81,9 @@ let vr = () => div({ className: 'vertical-divider' })
 
 class Panel extends Component {
     componentDidMount() {
-        this.node.scrollIntoView({ behavior: 'smooth' })
+        if (document.body.className.includes('multi-tab-mode')) {
+            this.node.scrollIntoView()
+        }
         let focusEl = this.node.querySelector('.initial-focus')
         if (focusEl) focusEl.focus()
     }
@@ -252,6 +254,7 @@ class ColorPicker extends Component {
         super()
 
         this.resize = () => {
+            if (!this.el) return
             let rect = this.el.getBoundingClientRect()
             let width = rect.width
             this.colorPicker.resize(width)
