@@ -112,7 +112,6 @@ let Music = {
         let musicList = that.state.musicList.slice()
         let music = musicList[musicIndex]
         let oldName = music.name
-        newName = newName.replace(/\s+/g, '-')
         
         if (newName === '') {
             that.setState({

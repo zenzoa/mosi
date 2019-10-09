@@ -1,6 +1,6 @@
 class MusicListPanel extends Component {
     render ({ closeTab }) {
-        return panel({ header: 'music', className: 'music-list-panel', closeTab }, [
+        return panel({ header: 'music', id: 'musicListPanel', closeTab }, [
             h(MusicList, this.props)
         ])
     }

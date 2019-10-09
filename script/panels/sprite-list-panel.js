@@ -1,6 +1,6 @@
 class SpriteListPanel extends Component {
     render ({ closeTab }) {
-        return panel({ header: 'sprites', className: 'sprite-list-panel', closeTab }, [
+        return panel({ header: 'sprites', id: 'spriteListPanel', closeTab }, [
             h(SpriteList, this.props)
         ])
     }

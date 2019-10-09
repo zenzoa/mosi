@@ -223,7 +223,7 @@ class WorldPanel extends Component {
             paletteList
         })
 
-        return panel({ header: 'world', className: 'world-panel', closeTab }, [
+        return panel({ header: 'world', id: 'worldPanel', closeTab }, [
             row([
                 nameTextbox,
                 extrasButton

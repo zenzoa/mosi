@@ -35,7 +35,7 @@ class ScriptPanel extends Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.scriptList !== this.props.scriptList) {
-            let eventList = Object.keys(this.props.scriptList)
+            let eventList = Object.keys(nextProps.scriptList)
             this.setState({ currentEvent: eventList[0] })
         }
     }
@@ -85,7 +85,7 @@ class ScriptPanel extends Component {
                 spriteOnly: true
             })
 
-        return panel({ header: 'script', className: 'script-panel', closeTab }, [
+        return panel({ header: 'script', id: 'scriptPanel', closeTab }, [
             row([
                 backButton,
                 eventButtons

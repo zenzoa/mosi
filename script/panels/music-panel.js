@@ -240,7 +240,7 @@ class MusicPanel extends Component {
             }
         }, isPlaying ? 'pause-music' : 'play-music')
 
-        return panel({ header: 'song', className: 'music-panel', closeTab }, [
+        return panel({ header: 'song', id: 'musicPanel', closeTab }, [
             row([
                 backButton,
                 nameTextbox,

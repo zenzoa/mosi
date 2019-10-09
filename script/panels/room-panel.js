@@ -270,7 +270,7 @@ class RoomPanel extends Component {
             colorList
         })
 
-        return panel({ header: 'room', className: 'world-panel', closeTab }, [
+        return panel({ header: 'room', id: 'roomPanel', closeTab }, [
             row([
                 backButton,
                 nameTextbox,

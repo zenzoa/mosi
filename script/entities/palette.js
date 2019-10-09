@@ -77,7 +77,6 @@ let Palette = {
         let paletteList = that.state.paletteList.slice()
         let palette = paletteList[paletteIndex]
         let oldName = palette.name
-        newName = newName.replace(/\s+/g, '-')
         
         if (newName === '') {
             that.setState({

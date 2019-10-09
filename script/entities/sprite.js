@@ -1,6 +1,6 @@
 let Sprite = {
 
-    create: ({ name, isAvatar, isWall, isItem, isTransparent, spriteWidth, spriteHeight, randomStart }) => {
+    create: ({ name, isAvatar, isWall, isItem, isTransparent, spriteWidth, spriteHeight, onPush, onMessage, randomStart }) => {
         let newSprite = {
             name: name || '',
             isAvatar: isAvatar || false,
@@ -12,8 +12,8 @@ let Sprite = {
             height: spriteHeight,
             frameList: [Array(spriteWidth * spriteHeight).fill(0)],
             scriptList: {
-                'on-push': '',
-                'on-message': ''
+                'on-push': onPush || '',
+                'on-message': onMessage || ''
             }
         }
         if (randomStart) {
@@ -115,7 +115,6 @@ let Sprite = {
         let roomList = that.state.roomList.slice()
         let sprite = spriteList[spriteIndex]
         let oldName = sprite.name
-        newName = newName.replace(/\s+/g, '-')
         
         if (newName === '') {
             that.setState({

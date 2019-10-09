@@ -16,11 +16,11 @@ let World = {
 
             worldWidth,
             worldHeight,
-            worldName: '',
+            worldName: 'a new world',
             worldWrapHorizontal: false,
             worldWrapVertical: false,
             worldScriptList: {
-                'on-start': ''
+                'on-start': '{position fullscreen}{world-name}{/position}'
             },
 
             currentPaletteIndex: 0,
@@ -70,6 +70,7 @@ let World = {
                 isItem: true,
                 spriteWidth,
                 spriteHeight,
+                onPush: 'You have picked up {item-count {sprite-name}} {sprite-name}s!',
                 randomStart: true
             }))
             world.roomList.forEach(room => {
@@ -150,7 +151,6 @@ let World = {
     },
     
     rename: (that, newName) => {
-        newName = newName.replace(/\s+/g, '-')
         that.setState({ worldName: newName })
     },
 
@@ -191,9 +191,6 @@ let World = {
         try {
             let world = typeof worldData === 'string' ? JSON.parse(worldData) : worldData
 
-            // remove spaces from world name
-            world.worldName = world.worldName.replace(/\s+/g, '-')
-
             // create at least one sprite
             if (!world.spriteList || world.spriteList.length < 1) {
                 world.spriteList = []
@@ -221,12 +218,6 @@ let World = {
 
             // init room scripts and regularize room names
             world.roomList.forEach(room => {
-                room.name = room.name.replace(/\s+/g, '-')
-                room.paletteName = room.paletteName ? room.paletteName.replace(/\s+/g, '-') : world.paletteList[0].name
-                room.musicName = room.musicName ? room.musicName.replace(/\s+/g, '-') : world.musicList[0].name
-                room.tileList.forEach(tile => {
-                    tile.spriteName = tile.spriteName.replace(/\s+/g, '-')
-                })
                 if (!room.scriptList) {
                     room.scriptList = {
                         'on-enter': '',
@@ -237,23 +228,12 @@ let World = {
 
             // init sprite scripts and regularize sprite names
             world.spriteList.forEach(sprite => {
-                sprite.name = sprite.name.replace(/\s+/g, '-')
                 if (!sprite.scriptList) {
                     sprite.scriptList = {
                         'on-push': '',
                         'on-message': ''
                     }
                 }
-            })
-
-            // regularize palette names
-            world.paletteList.forEach(palette => {
-                palette.name = palette.name.replace(/\s+/g, '-')
-            })
-
-            // regularize music names
-            world.musicList.forEach(music => {
-                music.name = music.name.replace(/\s+/g, '-')
             })
 
             // init fonts

@@ -1,6 +1,6 @@
 class PaletteListPanel extends Component {
     render ({ closeTab }) {
-        return panel({ header: 'palettes', className: 'palette-list-panel', closeTab }, [
+        return panel({ header: 'palettes', id: 'paletteListPanel', closeTab }, [
             h(PaletteList, this.props)
         ])
     }

@@ -17,14 +17,22 @@ class Main extends Component {
 
         this.setCurrentTab = (tab, skipHistory) => {
             let { currentTab, tabVisibility, tabHistory, oneTabMode } = this.state
+
             if (oneTabMode) {
                 Object.keys(tabVisibility).forEach(tab => {
                     tabVisibility[tab] = false
                 })
             }
+
             if ((skipHistory instanceof MouseEvent || !skipHistory) && currentTab !== tab) {
                 tabHistory.push(currentTab)
             }
+            
+            window.setTimeout(() => {
+                let tabEl = document.getElementById(tab + 'Panel')
+                if (tabEl) tabEl.scrollIntoView({ behavior: 'smooth', inline: 'center'})
+            }, 1)
+
             tabVisibility[tab] = true
             currentTab = tab
             this.setState({ currentTab, tabVisibility, tabHistory })
@@ -381,26 +389,31 @@ class Main extends Component {
                 closeOverlay: () => this.setState({ showErrorOverlay: false })
             })
 
+        let worldButtonSelected = tabVisibility.world || tabVisibility.room || (tabVisibility.script && scriptTabType !== 'sprite')
+        let spriteButtonSelected = tabVisibility.sprite || tabVisibility.spriteList || (tabVisibility.script && scriptTabType === 'sprite')
+        let paletteButtonSelected = tabVisibility.palette || tabVisibility.paletteList
+        let musicButtonSelected = tabVisibility.music || tabVisibility.musicList
+
         let header = tabVisibility.play ? null :
             div({ className: 'editor-header row' }, [
                 iconButton({
                     title: 'world',
-                    className: (tabVisibility.world || tabVisibility.room || (tabVisibility.script && scriptTabType !== 'sprite') ? ' selected' : ''),
+                    className: worldButtonSelected ? ' selected' : '',
                     onclick: () => this.setCurrentTab('world')
                 }, 'world'),
                 iconButton({
                     title: 'sprites',
-                    className: (tabVisibility.sprite || tabVisibility.spriteList || (tabVisibility.script && scriptTabType === 'sprite') ? ' selected' : ''),
+                    className: spriteButtonSelected ? ' selected' : '',
                     onclick: () => this.setCurrentTab('spriteList')
                 }, 'sprites'),
                 iconButton({
                     title: 'colors',
-                    className: (tabVisibility.paletteList ? ' selected' : ''),
+                    className: paletteButtonSelected ? ' selected' : '',
                     onclick: () => this.setCurrentTab('paletteList')
                 }, 'palettes'),
                 iconButton({
                     title: 'music',
-                    className: (tabVisibility.music || tabVisibility.musicList ? ' selected' : ''),
+                    className: musicButtonSelected ? ' selected' : '',
                     onclick: () => this.setCurrentTab('musicList')
                 }, 'music'),
                 iconButton({

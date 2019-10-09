@@ -181,7 +181,7 @@ class PalettePanel extends Component {
                 }
             })
 
-        return panel({ header: 'palette', className: 'palette-panel', closeTab }, [
+        return panel({ header: 'palette', id: 'palettePanel', closeTab }, [
             row([
                 backButton,
                 nameTextbox,

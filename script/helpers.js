@@ -81,11 +81,15 @@ let vr = () => div({ className: 'vertical-divider' })
 
 class Panel extends Component {
     componentDidMount() {
-        if (document.body.className.includes('multi-tab-mode')) {
-            this.node.scrollIntoView()
-        }
+        this.scrollIntoView()
         let focusEl = this.node.querySelector('.initial-focus')
         if (focusEl) focusEl.focus()
+    }
+
+    scrollIntoView() {
+        if (document.body.className.includes('multi-tab-mode')) {
+            this.node.scrollIntoView({ behavior: 'smooth', inline: 'center'})
+        }
     }
 
     render(props) {

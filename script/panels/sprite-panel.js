@@ -319,7 +319,7 @@ class SpritePanel extends Component {
             backgroundColor
         })
     
-        return panel({ header: 'sprite', className: 'sprite-panel', closeTab }, [
+        return panel({ header: 'sprite', id: 'spritePanel', closeTab }, [
             row([
                 backButton,
                 nameTextbox,

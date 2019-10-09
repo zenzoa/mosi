@@ -1,6 +1,6 @@
 class WelcomePanel extends Component {
     render({ closeTab, getStarted }) {
-        return panel({ header: 'welcome', closeTab }, [
+        return panel({ header: 'welcome', id: 'welcomePanel', closeTab }, [
             div({ className: 'welcome-logo' }, [
                 img({ src: 'images/logo.png' })
             ]),
