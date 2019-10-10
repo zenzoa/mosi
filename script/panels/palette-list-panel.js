@@ -46,7 +46,7 @@ class PaletteList extends Component {
                     importPalette(data)
                     this.setState({ showImportOverlay: false })
                 },
-                fileType: '.mosicolors',
+                fileType: '.mosipalette',
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
 

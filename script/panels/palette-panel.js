@@ -61,7 +61,7 @@ class PalettePanel extends Component {
         let exportOverlay = !showExportOverlay ? null :
             h(ExportOverlay, {
                 header: 'export palette',
-                fileName: `${palette.name || 'untitled'}.mosicolors`,
+                fileName: `${palette.name || 'untitled'}.mosipalette`,
                 data: exportPalette(),
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })
