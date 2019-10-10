@@ -36,8 +36,8 @@ let World = {
  
         // initialize room list
         world.roomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
-            let x = Math.floor(i % worldWidth) + 1
-            let y = Math.floor(i / worldWidth) + 1
+            let x = Math.floor(i % worldWidth)
+            let y = Math.floor(i / worldWidth)
             return Room.create(x, y)
         })
 
