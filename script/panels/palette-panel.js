@@ -2,19 +2,29 @@ class PalettePanel extends Component {
     constructor() {
         super()
         this.state = {
-            currentColorIndex: 0
+            currentColorIndex: 0,
+            colorSliceIndex: 3
         }
 
         this.hexStringRegex = /^#[0-9a-f]{6}$/i
 
-        this.onColorChange = (newColor) => {
-            let { updateColor, palette } = this.props
-            let { currentColorIndex } = this.state
-            let newColorValue = newColor.hexString
-            let oldColorValue = palette.colorList[currentColorIndex]
-            if (newColorValue !== oldColorValue) {
-                updateColor(currentColorIndex, newColorValue)
-            }
+        this.colorScale = (colors) => {
+            return chroma.scale(colors)
+                .mode('lab')
+                .correctLightness()
+                .colors(8)
+        }
+
+        let colorsNW = this.colorScale(['#5cd3fa', '#a2e362'])
+        let colorsNE = this.colorScale(['#5D5DF6', '#121A30'])
+        let colorsSW = this.colorScale(['#ffffeb', '#f4de3a'])
+        let colorsSE = this.colorScale(['#cf65de', '#fb5060'])
+        this.colorSets = []
+        for (let i = 0; i < 8; i++) {
+            this.colorSets.push({
+                startColors: this.colorScale([colorsNW[i], colorsSW[i]]),
+                endColors: this.colorScale([colorsNE[i], colorsSE[i]])
+            })
         }
     }
 
@@ -39,6 +49,7 @@ class PalettePanel extends Component {
         palette
     }, {
         currentColorIndex,
+        colorSliceIndex,
         showExportOverlay,
         showRemovePaletteOverlay,
         showRandomOverlay,
@@ -160,11 +171,36 @@ class PalettePanel extends Component {
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
 
-        let colorPicker = !currentColor ? null :
-            h(ColorPicker, {
-                color: currentColor,
-                onColorChange: this.onColorChange
+        let gridItems = []
+        let startColors = this.colorSets[colorSliceIndex].startColors
+        let endColors = this.colorSets[colorSliceIndex].endColors
+        for (let i = 0; i < 8; i++) {
+            let startColor = startColors[i]
+            let endColor = endColors[i]
+            let colors = this.colorScale([startColor, endColor])
+            colors.forEach(color => {
+                gridItems.push(
+                    div({ className: 'color-grid-item', style: { background: color } },
+                        button({
+                            //className: color === currentColor ? 'selected' : '',
+                            onclick: () => updateColor(currentColorIndex, color)
+                        })
+                    )
+                )
             })
+        }
+        let colorGrid = div({ className: 'color-grid' }, gridItems)
+
+        let sliceColors = chroma.scale(['#ffffeb', '#121A30']).mode('lab').colors(8)
+        let colorSliceItems = sliceColors.map((color, i) => {
+            return div({ className: 'color-grid-item', style: { background: color } },
+                button({
+                    className: i === colorSliceIndex ? 'selected' : '',
+                    onclick: () => this.setState({ colorSliceIndex: i })
+                })
+            )
+        })
+        let colorSlices = div({ className: 'color-grid one-row' }, colorSliceItems)
         
         let colorTextbox = !currentColor ? null :
             textbox({
@@ -193,7 +229,8 @@ class PalettePanel extends Component {
                     removeColorButton
                 ])
             ),
-            colorPicker,
+            colorGrid,
+            colorSlices,
             row([ colorTextbox ]),
             extrasOverlay,
             exportOverlay,

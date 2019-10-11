@@ -540,6 +540,26 @@ span.label {
     box-shadow: 0 0 0 2px var(--focus-color);
 }
 
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, calc(var(--button-size) * 0.8));
+    column-gap: 1px;
+    row-gap: 1px;
+    margin: var(--big-padding) var(--small-padding) var(--small-padding);
+}
+
+.color-grid.one-row {
+    border-top: 1px solid var(--button-shadow);
+    border-bottom: 1px solid var(--button-shadow);
+    padding: var(--small-padding) 0;
+    grid-template-rows: repeat(1, calc(var(--button-size) * 0.8));
+}
+
+.color-grid-item {
+    border-radius: var(--tiny-radius);
+}
+
 .music-grid {
     position: relative;
     display: grid;
@@ -555,6 +575,7 @@ span.label {
     background: var(--input-bg);
 }
 
+.color-grid-item button,
 .music-grid-item button {
     margin: 0;
     padding: 0;
@@ -564,6 +585,9 @@ span.label {
     height: 100%;
 }
 
+.color-grid-item button:hover,
+.color-grid-item button:focus,
+.color-grid-item button:active,
 .music-grid-item button:hover,
 .music-grid-item button:focus,
 .music-grid-item button:active {
@@ -572,6 +596,9 @@ span.label {
     box-shadow: none;
 }
 
+.color-grid-item button,
+.color-grid-item button.selected,
+.color-grid-item button:active,
 .music-grid-item button,
 .music-grid-item button.selected,
 .music-grid-item button:active {
@@ -579,10 +606,13 @@ span.label {
     background: none;
 }
 
+.color-grid-item button.selected,
 .music-grid-item button.selected {
     border: 2px solid var(--focus-color);
 }
 
+.color-grid-item button:hover,
+.color-grid-item button:focus,
 .music-grid-item button:hover,
 .music-grid-item button:focus {
     box-shadow: 0 0 0 2px var(--focus-color);
@@ -677,18 +707,6 @@ svg.logo {
     margin-bottom: 0;
     fill: var(--main-bg-2);
     stroke: none;
-}
-
-.color-picker {
-    margin: var(--big-padding) auto var(--small-padding);
-}
-
-.one-tab-mode .color-picker {
-    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 8);
-}
-
-.multi-tab-mode .color-picker {
-    max-width: calc(100vh - var(--button-size) * 7 - var(--big-padding) * 9);
 }
 
 .one-tab-mode .play-panel {
