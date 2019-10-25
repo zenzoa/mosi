@@ -1,10 +1,10 @@
 let Room = {
 
-    create: (x, y) => {
+    create: (x, y, paletteName, musicName) => {
         let newRoom = {
             name: 'room-' + x + '-' + y,
-            paletteName: 'palette-1',
-            musicName: 'song-1',
+            paletteName,
+            musicName,
             tileList: [],
             scriptList: {
                 'on-enter': '',

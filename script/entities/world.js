@@ -33,13 +33,6 @@ let World = {
             fontDirection: 'ltr',
             fontData: Font.parse(ASCII_TINY)
         }
- 
-        // initialize room list
-        world.roomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
-            let x = Math.floor(i % worldWidth)
-            let y = Math.floor(i / worldWidth)
-            return Room.create(x, y)
-        })
 
         // create avatar
         world.spriteList.push(World.createAvatar(spriteWidth, spriteHeight))
@@ -49,6 +42,15 @@ let World = {
 
         // create initial music
         world.musicList.push(Music.create({ randomStart: true }))
+ 
+        // initialize room list
+        let defaultPaletteName = world.paletteList[0].name
+        let defaultMusicName = world.musicList[0].name
+        world.roomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
+            let x = Math.floor(i % worldWidth)
+            let y = Math.floor(i / worldWidth)
+            return Room.create(x, y, defaultPaletteName, defaultMusicName)
+        })
 
         // place random tiles throughout world
         if (randomStart) {
@@ -120,16 +122,13 @@ let World = {
     },
 
     clear: (that, world, passthrough) => {
-        let { worldWidth, worldHeight, paletteList } = world
+        let { worldWidth, worldHeight, paletteList, musicList } = world
         let defaultPaletteName = paletteList[0].name
+        let defaultMusicName = musicList[0].name
         let roomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
             let x = Math.floor(i % worldWidth) + 1
             let y = Math.floor(i / worldWidth) + 1
-            return {
-                name: 'room-' + x + '-' + y,
-                paletteName: defaultPaletteName,
-                tileList: []
-            }
+            return Room.create(x, y, defaultPaletteName, defaultMusicName)
         })
         
         if (passthrough) return roomList
@@ -155,7 +154,7 @@ let World = {
     },
 
     resize: (that, world, props) => {
-        let { roomList, spriteList, paletteList } = world
+        let { roomList, spriteList, paletteList, musicList } = world
         let { worldWidth, worldHeight, roomWidth, roomHeight, spriteWidth, spriteHeight } = props
 
         let worldResized = world.worldWidth !== worldWidth || world.worldHeight !== worldHeight
@@ -163,7 +162,7 @@ let World = {
         let spriteResized = world.spriteWidth !== spriteWidth || world.spriteHeight !== spriteHeight
 
         if (worldResized || roomResized) {
-            roomList = World.clear(that, { worldWidth, worldHeight, paletteList }, true)
+            roomList = World.clear(that, { worldWidth, worldHeight, roomWidth, roomHeight, paletteList, musicList }, true)
         }
 
         if (spriteResized) {
