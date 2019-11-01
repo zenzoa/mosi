@@ -572,7 +572,7 @@ return {
                     }
                 }
 
-                else if (func === 'place-sprite' && context) {
+                else if (func === 'place-sprite') {
                     let roomIndex = -1, x = 0, y = 0
                     let sprite = game.world.spriteList.find(s => s.name === args[0])
                     if (isStr(args[0]) && isInt(args[1]) && isInt(args[2])) {
@@ -596,7 +596,7 @@ return {
                     }
                 }
 
-                else if (func === 'transform-avatar' && context) {
+                else if (func === 'transform-avatar') {
                     let newSprite = game.world.spriteList.find(s => s.name === args[0])
                     if (newSprite) {
                         game.avatar = newSprite
