@@ -732,8 +732,14 @@ return {
                 }
 
                 else if (func === 'if') {
-                    if (args[0] && args[0].toString() === 'true' && isArr(args[1])) {
-                        runNodes(args[1], textSettings)
+                    if (args.length >= 2) {
+                        let result = (args[0].toString() === 'true')
+                        if (result && isArr(args[1])) {
+                            runNodes(args[1], textSettings)
+                        }
+                        else if (!result && isArr(args[2])) {
+                            runNodes(args[2], textSettings)
+                        }
                     }
                 }
 
@@ -849,7 +855,15 @@ return {
                     } else if (char === '}') {
                         addArg()
                         if (funcName === 'if') {
-                            funcArgs.push(parseTextNode('/if'))
+                            let ifNodes = parseTextNode('/if')
+                            let elseNodes = []
+                            let elseIndex = ifNodes.findIndex(n => n.func === 'else')
+                            if (elseIndex > -1) {
+                                elseNodes = ifNodes.slice(elseIndex + 1)
+                                ifNodes = ifNodes.slice(0, elseIndex)
+                            }
+                            funcArgs.push(ifNodes)
+                            if (elseNodes.length) funcArgs.push(elseNodes)
                         } else if (funcName === 'color') {
                             funcArgs.push(parseTextNode('/color'))
                         } else if (funcName === 'wavy') {
