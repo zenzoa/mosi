@@ -410,7 +410,7 @@ return {
                 else if (func === 'mod') {
                     let result = args[0] % args[1]
                     if (!isInt(result)) return 0
-                    return 0
+                    return result
                 }
 
                 else if (func === 'random') {
