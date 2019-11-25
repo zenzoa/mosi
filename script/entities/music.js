@@ -242,6 +242,8 @@ return {
         env.connect(MusicPlayer.audioContext.destination)
         env.gain.cancelScheduledValues(t)
         env.gain.setValueAtTime(0, t)
+
+        volume *= 0.5
     
         env.gain.linearRampToValueAtTime(volume, t + (attack * beat))
         env.gain.linearRampToValueAtTime(sustain * volume, t + (attack * beat) + (decay * beat))
