@@ -31,7 +31,9 @@ let World = {
 
             fontResolution: 1,
             fontDirection: 'ltr',
-            fontData: Font.parse(ASCII_TINY)
+            fontData: Font.parse(ASCII_TINY),
+
+            modList: []
         }
 
         // create avatar

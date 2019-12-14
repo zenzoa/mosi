@@ -1,4 +1,4 @@
-let VERSION = 1.0
+let VERSION = 1.1
 let FRAME_RATE = 400
 
 class Main extends Component {
@@ -161,7 +161,9 @@ class Main extends Component {
 
         fontResolution,
         fontDirection,
-        fontData
+        fontData,
+
+        modList
     }) {
         let currentRoom = roomList[currentRoomIndex]
 
@@ -211,6 +213,11 @@ class Main extends Component {
                 setFontResolution: fontResolution => this.setState({ fontResolution }),
                 setFontDirection: fontDirection => this.setState({ fontDirection }),
                 setFontData: fontData => this.setState({ fontData }),
+                addMod: Mod.add.bind(this, this),
+                renameMod: Mod.rename.bind(this, this),
+                changeModType: Mod.changeType.bind(this, this),
+                updateModCode: Mod.updateCode.bind(this, this),
+                removeMod: Mod.remove.bind(this, this),
 
                 fontResolution,
                 fontDirection,
@@ -228,7 +235,8 @@ class Main extends Component {
                 spriteList,
                 spriteWidth,
                 spriteHeight,
-                paletteList
+                paletteList,
+                modList
             })
 
         let roomTab = !tabVisibility.room ? null :

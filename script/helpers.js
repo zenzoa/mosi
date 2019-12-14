@@ -163,6 +163,7 @@ let iconButton = (props, iconName) => {
 }
 
 let spriteButton = ({ className, onclick, sprite, isSelected, colorList }) => {
+    className = className || ''
     let avatarClass = sprite.isAvatar ? ' avatar' : ''
     let selectedClass = isSelected ? ' selected' : ''
     let spriteName = sprite.name

@@ -328,161 +328,443 @@ return {
             }
         }
 
+        // define expressions
+        let expressions = {
+
+            'world-name': (game) => game.world.worldName,
+
+            'room-name': (game) => game.currentRoom.name,
+
+            'avatar-room': (game) => game.currentRoom.name,
+
+            'avatar-x': (game) => game.avatarX,
+
+            'avatar-y': (game) => game.avatarY,
+
+            'avatar-name': (game) => game.avatar.name,
+
+            'sprite-room': (game, context) => {
+                if (!context) return
+                let room = game.world.roomList[context.roomIndex]
+                return room.name
+            },
+
+            'sprite-x': (game, context) => {
+                if (!context) return
+                return context.tile.x
+            },
+
+            'sprite-y': (game, context) => {
+                if (!context) return
+                return context.tile.y
+            },
+
+            'sprite-name': (game, context) => {
+                if (!context) return
+                return context.sprite.name
+            },
+
+            'sprite-wall': (game, context) => {
+                if (!context) return
+                return context.sprite.isWall
+            },
+
+            'sprite-item': (game, context) => {
+                if (!context) return
+                return context.sprite.isItem
+            },
+
+            'add': (game, context, args) => {
+                if (args.length < 2) return 0
+                return args.reduce((prev, curr) => {
+                    if (isInt(curr)) return prev + curr
+                    else return prev
+                }, 0)
+            },
+
+            'sub': (game, context, args) => {
+                if (args.length < 2) return 0
+                if (!isInt(args[0])) return 0
+                return args.slice(1).reduce((prev, curr) => {
+                    if (isInt(curr)) return prev - curr
+                    else return prev
+                }, args[0])
+            },
+
+            'mul': (game, context, args) => {
+                if (args.length < 2) return 0
+                return args.reduce((prev, curr) => {
+                    if (isInt(curr)) return prev * curr
+                    else return prev
+                }, 1)
+            },
+
+            'div': (game, context, args) => {
+                if (args.length < 2) return 0
+                let result = Math.floor(args[0] / args[1])
+                if (!isInt(result)) return 0
+                return result
+            },
+
+            'mod': (game, context, args) => {
+                if (args.length < 2) return 0
+                let result = args[0] % args[1]
+                if (!isInt(result)) return 0
+                return result
+            },
+
+            'random': (game, context, args) => {
+                let min = isInt(args[0]) ? args[0] : 0
+                let max = isInt(args[1]) ? args[1] : 1
+                if (min > max) max = min
+                return Math.floor(Math.random() * (max - min + 1)) + min
+            },
+
+            'eq': (game, context, args) => {
+                if (args.length < 2) return false
+                return args[0] === args[1]
+            },
+
+            'gt': (game, context, args) => {
+                if (args.length < 2 || !isInt(args[0]) || !isInt(args[1])) return false
+                return args[0] > args[1]
+            },
+
+            'gte': (game, context, args) => {
+                if (args.length < 2 || !isInt(args[0]) || !isInt(args[1])) return false
+                return args[0] >= args[1]
+            },
+
+            'lt': (game, context, args) => {
+                if (args.length < 2 || !isInt(args[0]) || !isInt(args[1])) return false
+                return args[0] < args[1]
+            },
+
+            'lte': (game, context, args) => {
+                if (args.length < 2 || !isInt(args[0]) || !isInt(args[1])) return false
+                return args[0] <= args[1]
+            },
+
+            'not': (game, context, args) => {
+                if (args.length < 1) return false
+                return args[0].toString() !== 'true'
+            },
+
+            'all-true': (game, context, args) => {
+                return !args.find(arg => arg.toString() !== 'true')
+            },
+
+            'any-true': (game, context, args) => {
+                return !!args.find(arg => arg.toString() === 'true')
+            },
+
+            'none-true': (game, context, args) => {
+                return !args.find(arg => arg.toString() === 'true')
+            },
+
+            'var': (game, context, args) => {
+                if (args.length > 0 && isStr(args[0])) {
+                    let varValue = game.variables[args[0]]
+                    if (isStr(varValue) || isInt(varValue)) {
+                        return varValue
+                    } else {
+                        return ''
+                    }
+                } else {
+                    return ''
+                }
+            },
+
+            'item-count': (game, context, args) => {
+                if (args.length > 0 && isStr(args[0])) {
+                    let itemCount = game.inventory[args[0]] || 0
+                    return itemCount
+                } else {
+                    return 0
+                }
+            }
+
+        }
+
+        // define functions
+        let funcs = {
+            'b': (game, context, args, textSettings, pushDialog) => {
+                pushDialog({ type: 'line-break' })
+            },
+
+            'p': (game, context, args, textSettings, pushDialog) => {
+                pushDialog({ type: 'page-break' })
+            },
+
+            'wavy': (game, context, args, textSettings, pushDialog, runNodes) => {
+                runNodes(args[0], { ...textSettings, style: 'wavy' })
+            },
+
+            'shaky': (game, context, args, textSettings, pushDialog, runNodes) => {
+                runNodes(args[0], { ...textSettings, style: 'shaky' })
+            },
+
+            'color': (game, context, args, textSettings, pushDialog, runNodes) => {
+                let color = args[0]
+                if (!isInt(color)) color = textSettings.color
+                runNodes(args[1], { ...textSettings, color })
+            },
+
+            'position': (game, context, args, textSettings, pushDialog, runNodes) => {
+                let position = args[0]
+                let positionList = ['top', 'center', 'bottom', 'fullscreen']
+                if (!positionList.includes(position)) position = textSettings.position
+                runNodes(args[1], { ...textSettings, position })
+            },
+
+            'move-avatar': (game, context, args) => {
+                let roomIndex = -1, x = 0, y = 0
+                if (isInt(args[0]) && isInt(args[1])) {
+                    roomIndex = game.currentRoomIndex
+                    x = args[0] || 0
+                    y = args[1] || 0
+                }
+                else if (isStr(args[0]) && isInt(args[1]) && isInt(args[2])) {
+                    roomIndex = game.world.roomList.findIndex(r => r.name === args[0])
+                    x = args[1] || 0
+                    y = args[2] || 0
+                }
+                if (roomIndex >= 0) {
+                    x = Math.max(Math.min(x, game.world.roomWidth - 1), 0)
+                    y = Math.max(Math.min(y, game.world.roomHeight - 1), 0)
+                    game.moveAvatar(roomIndex, x, y)
+                }
+            },
+
+            'move-sprite': (game, context, args) => {
+                if (!context) return
+                let roomIndex = -1, x = 0, y = 0
+                if (isInt(args[0]) && isInt(args[1])) {
+                    roomIndex = game.currentRoomIndex
+                    x = args[0] || 0
+                    y = args[1] || 0
+                }
+                else if (isStr(args[0]) && isInt(args[1]) && isInt(args[2])) {
+                    roomIndex = game.world.roomList.findIndex(r => r.name === args[0])
+                    x = args[1] || 0
+                    y = args[2] || 0
+                }
+                if (roomIndex >= 0) {
+                    x = Math.max(Math.min(x, game.world.roomWidth - 1), 0)
+                    y = Math.max(Math.min(y, game.world.roomHeight - 1), 0)
+                    if (game.checkTileForSprite(roomIndex, x, y)) {
+                        let room = game.world.roomList[roomIndex]
+                        room.tileList.push({ spriteName: context.sprite.name, x, y })
+                        context.tile.removeMe = true
+                    }
+                }
+            },
+
+            'place-sprite': (game, context, args) => {
+                let roomIndex = -1, x = 0, y = 0
+                let sprite = game.world.spriteList.find(s => s.name === args[0])
+                if (isStr(args[0]) && isInt(args[1]) && isInt(args[2])) {
+                    roomIndex = game.currentRoomIndex
+                    x = args[1] || 0
+                    y = args[2] || 0
+                }
+                else if (isStr(args[0]) && isStr(args[1]) && isInt(args[2]) && isInt(args[3])) {
+                    roomIndex = game.world.roomList.findIndex(r => r.name === args[1])
+                    x = args[2] || 0
+                    y = args[3] || 0
+                }
+                if (sprite && roomIndex >= 0) {
+                    x = Math.max(Math.min(x, game.world.roomWidth - 1), 0)
+                    y = Math.max(Math.min(y, game.world.roomHeight - 1), 0)
+                    if (game.checkTileForSprite(roomIndex, x, y)) {
+                        let room = game.world.roomList[roomIndex]
+                        room.tileList.push({ spriteName: sprite.name, x, y })
+                        game.updateCache()
+                    }
+                }
+            },
+
+            'transform-avatar': (game, context, args) => {
+                let newSprite = game.world.spriteList.find(s => s.name === args[0])
+                if (newSprite) {
+                    game.avatar = newSprite
+                    game.updateCache()
+                }
+            },
+
+            'transform-sprite': (game, context, args) => {
+                if (!context) return
+                let newSprite = game.world.spriteList.find(s => s.name === args[0])
+                if (newSprite) {
+                    context.tile.spriteName = newSprite.name
+                    game.updateCache()
+                }
+            },
+
+            'remove-sprite': (game, context) => {
+                if (!context) return
+                context.tile.removeMe = true
+            },
+
+            'set-sprite-color': (game, context, args) => {
+                if (!context) return
+                if (isInt(args[0]) && args[0] > 0) {
+                    context.sprite.colorIndex = args[0]
+                    game.updateCache()
+                }
+                else if (isInt(args[1]) && args[1] > 0) {
+                    let sprite = game.world.spriteList.find(s => s.name === args[0])
+                    if (sprite) {
+                        sprite.colorIndex = args[1]
+                        game.updateCache()
+                    }
+                }
+            },
+
+            'set-sprite-wall': (game, context, args) => {
+                if (!context) return
+                if (args.length === 1) {
+                    context.sprite.isWall = args[0] === 'true'
+                }
+                else if (args.length === 2) {
+                    let sprite = game.world.spriteList.find(s => s.name === args[0])
+                    if (sprite) sprite.isWall = args[1] === 'true'
+                }
+            },
+
+            'set-sprite-item': (game, context, args) => {
+                if (!context) return
+                if (args.length === 1) {
+                    context.sprite.isItem = args[0] === 'true'
+                }
+                else if (args.length === 2) {
+                    let sprite = game.world.spriteList.find(s => s.name === args[0])
+                    if (sprite) sprite.isItem = args[1] === 'true'
+                }
+            },
+
+            'set-var': (game, context, args) => {
+                if (isStr(args[0]) && (isInt(args[1]) || isStr(args[1]))) {
+                    game.variables[args[0]] = args[1]
+                }
+            },
+
+            'inc-var': (game, context, args) => {
+                if (isStr(args[0])) {
+                    let varValue = game.variables[args[0]] || 0
+                    if (isInt(varValue)) {
+                        let incValue = isInt(args[1]) ? args[1] : 1
+                        game.variables[args[0]] = varValue + incValue
+                    }
+                }
+            },
+
+            'dec-var': (game, context, args) => {
+                if (isStr(args[0])) {
+                    let varValue = game.variables[args[0]] || 0
+                    if (isInt(varValue)) {
+                        let decValue = isInt(args[1]) ? args[1] : 1
+                        game.variables[args[0]] = varValue - decValue
+                    }
+                }
+            },
+
+            'set-item-count': (game, context, args) => {
+                if (isStr(args[0]) && isInt(args[1])) {
+                    let itemCount = Math.max(0, args[1])
+                    game.inventory[args[0]] = itemCount
+                }
+            },
+
+            'inc-item-count': (game, context, args) => {
+                if (isStr(args[0])) {
+                    let itemCount = game.inventory[args[0]] || 0
+                    let incValue = isInt(args[1]) ? args[1] : 1
+                    game.inventory[args[0]] = itemCount + incValue
+                }
+            },
+
+            'dec-item-count': (game, context, args) => {
+                if (isStr(args[0])) {
+                    let itemCount = game.inventory[args[0]] || 0
+                    let incValue = isInt(args[1]) ? args[1] : 1
+                    game.inventory[args[0]] = Math.max(0, itemCount - incValue)
+                }
+            },
+
+            'set-palette': (game, context, args) => {
+                let room, palette
+                if (isStr(args[0]) && isStr(args[1])) {
+                    room = game.world.roomList.find(r => r.name === args[0])
+                    palette = game.world.paletteList.find(p => p.name === args[1])
+                }
+                else if (isStr(args[0])) {
+                    room = game.currentRoom
+                    palette = game.world.paletteList.find(p => p.name === args[0])
+                }
+                if (room && palette) {
+                    room.paletteName = palette.name
+                    game.updateCache()
+                }
+            },
+
+            'set-music': (game, context, args) => {
+                let room, music
+                if (isStr(args[0]) && isStr(args[1])) {
+                    room = game.world.roomList.find(r => r.name === args[0])
+                    music = game.world.musicList.find(m => m.name === args[1])
+                }
+                else if (isStr(args[0])) {
+                    room = game.currentRoom
+                    music = game.world.musicList.find(m => m.name === args[0])
+                }
+                if (room && music) {
+                    room.musicName = music.name
+                    game.updateMusic()
+                }
+            },
+
+            'if': (game, context, args, textSettings, pushDialog, runNodes) => {
+                if (args.length >= 2) {
+                    let result = (args[0].toString() === 'true')
+                    if (result && isArr(args[1])) {
+                        runNodes(args[1], textSettings)
+                    }
+                    else if (!result && isArr(args[2])) {
+                        runNodes(args[2], textSettings)
+                    }
+                }
+            }
+
+        }
+        
+        // add custom functions and expressions
+        if (game.world.modList) {
+            game.world.modList.forEach(mod => {
+                if (mod.type === 'expression') {
+                    expressions[mod.name] = new Function('game', 'context', 'args', mod.code)
+                }
+                else if (mod.type === 'function') {
+                    expressions[mod.name] = new Function('game', 'context', 'args', 'textSettings', 'pushDialog', 'runNodes', mod.code)
+                }
+            })
+        }
+
+        // calculate the value of an expression
         let calcExpression = (node) => {
             if (node.func) {
                 let { func, args = [] } = node
 
                 args = args.map(arg => calcExpression(arg))
 
-                if (func === 'world-name') {
-                    return game.world.worldName
-                }
-
-                else if (func === 'room-name' || func === 'avatar-room') {
-                    return game.currentRoom.name
-                }
-
-                else if (func === 'avatar-x') {
-                    return game.avatarX
-                }
-
-                else if (func === 'avatar-y') {
-                    return game.avatarY
-                }
-
-                else if (func === 'avatar-name') {
-                    return game.avatar.name
-                }
-
-                else if (func === 'sprite-room' && context) {
-                    let room = game.world.roomList[context.roomIndex]
-                    return room.name
-                }
-
-                else if (func === 'sprite-x' && context) {
-                    return context.tile.x
-                }
-
-                else if (func === 'sprite-y' && context) {
-                    return context.tile.y
-                }
-
-                else if (func === 'sprite-name' && context) {
-                    return context.sprite.name
-                }
-
-                else if (func === 'sprite-wall' && context) {
-                    return context.sprite.isWall
-                }
-
-                else if (func === 'sprite-item' && context) {
-                    return context.sprite.isItem
-                }
-
-                else if (func === 'add') {
-                    return args.reduce((prev, curr) => {
-                        if (isInt(curr)) return prev + curr
-                        else return prev
-                    }, 0)
-                }
-
-                else if (func === 'sub') {
-                    if (!isInt(args[0])) return 0
-                    return args.slice(1).reduce((prev, curr) => {
-                        if (isInt(curr)) return prev - curr
-                        else return prev
-                    }, args[0])
-                }
-
-                else if (func === 'mul') {
-                    return args.reduce((prev, curr) => {
-                        if (isInt(curr)) return prev * curr
-                        else return prev
-                    }, 1)
-                }
-
-                else if (func === 'div') {
-                    let result = Math.floor(args[0] / args[1])
-                    if (!isInt(result)) return 0
-                    return result
-                }
-
-                else if (func === 'mod') {
-                    let result = args[0] % args[1]
-                    if (!isInt(result)) return 0
-                    return result
-                }
-
-                else if (func === 'random') {
-                    let min = isInt(args[0]) ? args[0] : 0
-                    let max = isInt(args[1]) ? args[1] : 1
-                    if (min > max) max = min
-                    return Math.floor(Math.random() * (max - min + 1)) + min
-                }
-
-                else if (func === 'eq') {
-                    return args[0] === args[1]
-                }
-
-                else if (func === 'gt') {
-                    if (!isInt(args[0]) || !isInt(args[1])) return false
-                    return args[0] > args[1]
-                }
-
-                else if (func === 'gte') {
-                    if (!isInt(args[0]) || !isInt(args[1])) return false
-                    return args[0] >= args[1]
-                }
-
-                else if (func === 'lt') {
-                    if (!isInt(args[0]) || !isInt(args[1])) return false
-                    return args[0] < args[1]
-                }
-
-                else if (func === 'lte') {
-                    if (!isInt(args[0]) || !isInt(args[1])) return false
-                    return args[0] <= args[1]
-                }
-
-                else if (func === 'not') {
-                    return args[0].toString() !== 'true'
-                }
-
-                else if (func === 'all-true') {
-                    return !args.find(arg => arg.toString() !== 'true')
-                }
-
-                else if (func === 'any-true') {
-                    return !!args.find(arg => arg.toString() === 'true')
-                }
-
-                else if (func === 'none-true') {
-                    return !args.find(arg => arg.toString() === 'true')
-                }
-
-                else if (func === 'var') {
-                    if (isStr(args[0])) {
-                        let varValue = game.variables[args[0]]
-                        if (isStr(varValue) || isInt(varValue)) {
-                            return varValue
-                        } else {
-                            return ''
-                        }
+                if (expressions[func]) {
+                    let result = expressions[func](game, context, args)
+                    if (typeof result !== 'undefined') {
+                        return result
                     } else {
                         return ''
                     }
-                }
-
-                else if (func === 'item-count') {
-                    if (isStr(args[0])) {
-                        let itemCount = game.inventory[args[0]] || 0
-                        return itemCount
-                    } else {
-                        return 0
-                    }
-                }
-
-                else {
+                } else {
                     return ''
                 }
 
@@ -501,249 +783,13 @@ return {
 
                 args = args.map(arg => calcExpression(arg))
 
-                if (func === 'b') {
-                    dialogNodes.push({ type: 'line-break' })
+                let pushDialog = (dialogNode) => {
+                    dialogNodes.push(dialogNode)
                 }
 
-                else if (func === 'p') {
-                    dialogNodes.push({ type: 'page-break' })
-                }
-
-                else if (func === 'wavy') {
-                    runNodes(args[0], { ...textSettings, style: 'wavy' })
-                }
-
-                else if (func === 'shaky') {
-                    runNodes(args[0], { ...textSettings, style: 'shaky' })
-                }
-
-                else if (func === 'color') {
-                    let color = calcExpression(args[0])
-                    if (!isInt(color)) color = textSettings.color
-                    runNodes(args[1], { ...textSettings, color })
-                }
-
-                else if (func === 'position') {
-                    let position = calcExpression(args[0])
-                    let positionList = ['top', 'center', 'bottom', 'fullscreen']
-                    if (!positionList.includes(position)) position = textSettings.position
-                    runNodes(args[1], { ...textSettings, position })
-                }
-
-                else if (func === 'move-avatar') {
-                    let roomIndex = -1, x = 0, y = 0
-                    if (isInt(args[0]) && isInt(args[1])) {
-                        roomIndex = game.currentRoomIndex
-                        x = args[0] || 0
-                        y = args[1] || 0
-                    }
-                    else if (isStr(args[0]) && isInt(args[1]) && isInt(args[2])) {
-                        roomIndex = game.world.roomList.findIndex(r => r.name === args[0])
-                        x = args[1] || 0
-                        y = args[2] || 0
-                    }
-                    if (roomIndex >= 0) {
-                        x = Math.max(Math.min(x, game.world.roomWidth - 1), 0)
-                        y = Math.max(Math.min(y, game.world.roomHeight - 1), 0)
-                        game.moveAvatar(roomIndex, x, y)
-                    }
-                }
-
-                else if (func === 'move-sprite' && context) {
-                    let roomIndex = -1, x = 0, y = 0
-                    if (isInt(args[0]) && isInt(args[1])) {
-                        roomIndex = game.currentRoomIndex
-                        x = args[0] || 0
-                        y = args[1] || 0
-                    }
-                    else if (isStr(args[0]) && isInt(args[1]) && isInt(args[2])) {
-                        roomIndex = game.world.roomList.findIndex(r => r.name === args[0])
-                        x = args[1] || 0
-                        y = args[2] || 0
-                    }
-                    if (roomIndex >= 0) {
-                        x = Math.max(Math.min(x, game.world.roomWidth - 1), 0)
-                        y = Math.max(Math.min(y, game.world.roomHeight - 1), 0)
-                        if (game.checkTileForSprite(roomIndex, x, y)) {
-                            let room = game.world.roomList[roomIndex]
-                            room.tileList.push({ spriteName: context.sprite.name, x, y })
-                            context.tile.removeMe = true
-                        }
-                    }
-                }
-
-                else if (func === 'place-sprite') {
-                    let roomIndex = -1, x = 0, y = 0
-                    let sprite = game.world.spriteList.find(s => s.name === args[0])
-                    if (isStr(args[0]) && isInt(args[1]) && isInt(args[2])) {
-                        roomIndex = game.currentRoomIndex
-                        x = args[1] || 0
-                        y = args[2] || 0
-                    }
-                    else if (isStr(args[0]) && isStr(args[1]) && isInt(args[2]) && isInt(args[3])) {
-                        roomIndex = game.world.roomList.findIndex(r => r.name === args[1])
-                        x = args[2] || 0
-                        y = args[3] || 0
-                    }
-                    if (sprite && roomIndex >= 0) {
-                        x = Math.max(Math.min(x, game.world.roomWidth - 1), 0)
-                        y = Math.max(Math.min(y, game.world.roomHeight - 1), 0)
-                        if (game.checkTileForSprite(roomIndex, x, y)) {
-                            let room = game.world.roomList[roomIndex]
-                            room.tileList.push({ spriteName: sprite.name, x, y })
-                            game.updateCache()
-                        }
-                    }
-                }
-
-                else if (func === 'transform-avatar') {
-                    let newSprite = game.world.spriteList.find(s => s.name === args[0])
-                    if (newSprite) {
-                        game.avatar = newSprite
-                        game.updateCache()
-                    }
-                }
-
-                else if (func === 'transform-sprite' && context) {
-                    let newSprite = game.world.spriteList.find(s => s.name === args[0])
-                    if (newSprite) {
-                        context.tile.spriteName = newSprite.name
-                        game.updateCache()
-                    }
-                }
-
-                else if (func === 'remove-sprite' && context) {
-                    context.tile.removeMe = true
-                }
-
-                else if (func === 'set-sprite-color' && context) {
-                    if (isInt(args[0]) && args[0] > 0) {
-                        context.sprite.colorIndex = args[0]
-                        game.updateCache()
-                    }
-                    else if (isInt(args[1]) && args[1] > 0) {
-                        let sprite = game.world.spriteList.find(s => s.name === args[0])
-                        if (sprite) {
-                            sprite.colorIndex = args[1]
-                            game.updateCache()
-                        }
-                    }
-                }
-
-                else if (func === 'set-sprite-wall' && context) {
-                    if (args.length === 1) {
-                        context.sprite.isWall = args[0] === 'true'
-                    }
-                    else if (args.length === 2) {
-                        let sprite = game.world.spriteList.find(s => s.name === args[0])
-                        if (sprite) sprite.isWall = args[1] === 'true'
-                    }
-                }
-
-                else if (func === 'set-sprite-item' && context) {
-                    if (args.length === 1) {
-                        context.sprite.isItem = args[0] === 'true'
-                    }
-                    else if (args.length === 2) {
-                        let sprite = game.world.spriteList.find(s => s.name === args[0])
-                        if (sprite) sprite.isItem = args[1] === 'true'
-                    }
-                }
-
-                else if (func === 'set-var') {
-                    if (isStr(args[0]) && (isInt(args[1]) || isStr(args[1]))) {
-                        game.variables[args[0]] = args[1]
-                    }
-                }
-
-                else if (func === 'inc-var') {
-                    if (isStr(args[0])) {
-                        let varValue = game.variables[args[0]] || 0
-                        if (isInt(varValue)) {
-                            let incValue = isInt(args[1]) ? args[1] : 1
-                            game.variables[args[0]] = varValue + incValue
-                        }
-                    }
-                }
-
-                else if (func === 'dec-var') {
-                    if (isStr(args[0])) {
-                        let varValue = game.variables[args[0]] || 0
-                        if (isInt(varValue)) {
-                            let decValue = isInt(args[1]) ? args[1] : 1
-                            game.variables[args[0]] = varValue - decValue
-                        }
-                    }
-                }
-
-                else if (func === 'set-item-count') {
-                    if (isStr(args[0]) && isInt(args[1])) {
-                        let itemCount = Math.max(0, args[1])
-                        game.inventory[args[0]] = itemCount
-                    }
-                }
-
-                else if (func === 'inc-item-count') {
-                    if (isStr(args[0])) {
-                        let itemCount = game.inventory[args[0]] || 0
-                        let incValue = isInt(args[1]) ? args[1] : 1
-                        game.inventory[args[0]] = itemCount + incValue
-                    }
-                }
-
-                else if (func === 'dec-item-count') {
-                    if (isStr(args[0])) {
-                        let itemCount = game.inventory[args[0]] || 0
-                        let incValue = isInt(args[1]) ? args[1] : 1
-                        game.inventory[args[0]] = Math.max(0, itemCount - incValue)
-                    }
-                }
-
-                else if (func === 'set-palette') {
-                    let room, palette
-                    if (isStr(args[0]) && isStr(args[1])) {
-                        room = game.world.roomList.find(r => r.name === args[0])
-                        palette = game.world.paletteList.find(p => p.name === args[1])
-                    }
-                    else if (isStr(args[0])) {
-                        room = game.currentRoom
-                        palette = game.world.paletteList.find(p => p.name === args[0])
-                    }
-                    if (room && palette) {
-                        room.paletteName = palette.name
-                        game.updateCache()
-                    }
-                }
-
-                else if (func === 'set-music') {
-                    let room, music
-                    if (isStr(args[0]) && isStr(args[1])) {
-                        room = game.world.roomList.find(r => r.name === args[0])
-                        music = game.world.musicList.find(m => m.name === args[1])
-                    }
-                    else if (isStr(args[0])) {
-                        room = game.currentRoom
-                        music = game.world.musicList.find(m => m.name === args[0])
-                    }
-                    if (room && music) {
-                        room.musicName = music.name
-                        game.updateMusic()
-                    }
-                }
-
-                else if (func === 'if') {
-                    if (args.length >= 2) {
-                        let result = (args[0].toString() === 'true')
-                        if (result && isArr(args[1])) {
-                            runNodes(args[1], textSettings)
-                        }
-                        else if (!result && isArr(args[2])) {
-                            runNodes(args[2], textSettings)
-                        }
-                    }
-                }
-
-                else {
+                if (funcs[func]) {
+                    funcs[func](game, context, args, textSettings, pushDialog, runNodes)
+                } else {
                     addDialogNode(calcExpression(node), textSettings)
                 }
             }

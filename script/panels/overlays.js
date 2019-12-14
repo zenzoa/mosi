@@ -434,3 +434,84 @@ class ScriptoriumOverlay extends Component {
         ])
     }
 }
+
+class ModsOverlay extends Component {
+    render({ closeOverlay, modList = [], addMod, renameMod, changeModType, updateModCode, removeMod }, { currentModIndex = 0, showRemoveModOverlay }) {
+        if (modList.length === 0) {
+            return overlay({ closeOverlay, header: 'custom scripts' }, [
+                row([
+                    button({
+                        class: 'fill',
+                        onclick: () => addMod()
+                    }, 'add script')
+                ])
+            ])
+        }
+
+        let currentMod = modList[currentModIndex]
+
+        let modDropdown = dropdown({
+            class: 'fill',
+            value: currentModIndex,
+            onchange: e => this.setState({ currentModIndex: e.target.value })
+        },
+            modList.map((mod, modIndex) => {
+                return option({ value: modIndex }, mod.name)
+            })
+        )
+
+        let addButton = iconButton({
+            onclick: () => addMod()
+        }, 'add')
+
+        let nameTextbox = textbox({
+            placeholder: 'script name',
+            value: currentMod.name,
+            onchange: e => renameMod(currentModIndex, e.target.value)
+        })
+
+        let typeButton = button({
+            class: 'fill',
+            onclick: () => {
+                let newType = ''
+                if (currentMod.type === 'function') {
+                    newType = 'expression'
+                } else {
+                    newType = 'function'
+                }
+                changeModType(currentModIndex, newType)
+            }
+        }, currentMod.type)
+
+        let removeButton = iconButton({
+            title: 'remove script',
+            onclick: () => this.setState({ showRemoveModOverlay: true }),
+        }, 'delete')
+
+        let removeModOverlay = !showRemoveModOverlay ? null :
+            h(RemoveOverlay, {
+                header: 'remove script?',
+                closeOverlay: () => this.setState({ showRemoveModOverlay: false }),
+                remove: () => {
+                    removeMod(currentModIndex)
+                    this.setState({ currentModIndex: 0, showRemoveModOverlay: false })
+                }
+            })
+
+        let codeTextarea = textarea({
+            value: currentMod.code,
+            onchange: e => updateModCode(currentModIndex, e.target.value),
+            rows: 10
+        })
+
+        return overlay({ closeOverlay, header: 'custom scripts' }, [
+            row([ modDropdown, addButton ]),
+            hr(),
+            div({}, [
+                row([ nameTextbox, typeButton, removeButton ]),
+                codeTextarea
+            ]),
+            removeModOverlay
+        ])
+    }
+}

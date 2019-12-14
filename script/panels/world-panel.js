@@ -42,7 +42,14 @@ class WorldPanel extends Component {
         setFontData,
         fontResolution,
         fontDirection,
-        fontData
+        fontData,
+        
+        modList,
+        addMod,
+        renameMod,
+        changeModType,
+        updateModCode,
+        removeMod
     }, {
         showImportOverlay,
         showExportOverlay,
@@ -51,7 +58,8 @@ class WorldPanel extends Component {
         showResetOverlay,
         showExtrasOverlay,
         showFontOverlay,
-        showResizeOverlay
+        showResizeOverlay,
+        showModsOverlay
     }) {
 
         let nameTextbox = textbox({
@@ -143,6 +151,22 @@ class WorldPanel extends Component {
                 }
             })
 
+        let modsButton = iconButton({
+            title: 'custom scripts',
+            onclick: () => this.setState({ showExtrasOverlay: false, showModsOverlay: true })
+        }, 'extras')
+
+        let modsOverlay = !showModsOverlay ? null :
+            h(ModsOverlay, {
+                closeOverlay: () => this.setState({ showModsOverlay: false }),
+                modList,
+                addMod,
+                renameMod,
+                changeModType,
+                updateModCode,
+                removeMod
+            })
+
         let extrasButton = iconButton({
             title: 'world actions',
             onclick: () => this.setState({ showExtrasOverlay: true })
@@ -156,7 +180,8 @@ class WorldPanel extends Component {
                     importButton,
                     randomButton,
                     clearButton,
-                    resetButton
+                    resetButton,
+                    modsButton
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
@@ -244,7 +269,8 @@ class WorldPanel extends Component {
             clearOverlay,
             resetOverlay,
             resizeOverlay,
-            fontOverlay
+            fontOverlay,
+            modsOverlay
         ])
     }
 }
