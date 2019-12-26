@@ -310,6 +310,59 @@ let Room = {
         let scriptList = roomList[roomIndex].scriptList
         scriptList[event] = script
         that.setState({ roomList })
+    },
+
+    getNeighbor: (that, roomIndex, direction) => {
+        let { worldWidth, worldHeight, worldWrapHorizontal, worldWrapVertical, roomList } = that.state
+        let x = Math.floor(roomIndex % worldWidth)
+        let y = Math.floor(roomIndex / worldWidth)
+        if (direction === 'north') {
+            y--
+            if (y < 0) {
+                if (worldWrapVertical) {
+                    y = worldHeight - 1
+                } else {
+                    return null
+                }
+            }
+        }
+        else if (direction === 'south') {
+            y++
+            if (y > worldHeight - 1) {
+                if (worldWrapVertical) {
+                    y = 0
+                } else {
+                    return null
+                }
+            }
+        }
+        else if (direction === 'west') {
+            x--
+            if (x < 0) {
+                if (worldWrapHorizontal) {
+                    x = worldWidth - 1
+                } else {
+                    return null
+                }
+            }
+        }
+        else if (direction === 'east') {
+            x++
+            if (x > worldWidth - 1) {
+                if (worldWrapVertical) {
+                    x = 0
+                } else {
+                    return null
+                }
+            }
+        }
+        
+        let newRoomIndex = y * worldWidth + x
+
+        return {
+            roomIndex: newRoomIndex,
+            room: roomList[newRoomIndex]
+        }
     }
 
 }

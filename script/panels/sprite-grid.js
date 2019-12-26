@@ -170,7 +170,7 @@ class SpriteGrid extends Component {
             })
 
         return div({
-            className: 'grid spritegrid ' + className,
+            className: 'grid sprite-grid ' + className,
             style: {
                 width: widthRatio * 100 + '%',
                 paddingTop: heightRatio * 100 + '%'

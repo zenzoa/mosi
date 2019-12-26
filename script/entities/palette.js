@@ -184,5 +184,13 @@ let Palette = {
         palette.colorList = palette.colorList.slice()
         palette.colorList.splice(colorIndex, 1)
         that.setState({ paletteList })
+    },
+
+    findIndex: (paletteName, paletteList) => {
+        return paletteList.findIndex(p => p.name === paletteName)
+    },
+
+    find: (paletteName, paletteList) => {
+        return paletteList.find(p => p.name === paletteName)
     }
 }

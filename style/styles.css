@@ -15,6 +15,7 @@
 :root {
     --font-size: 12px;
     --small-font-size: 10px;
+    --large-font-size: 14px;
     --button-size: 40px;
     --button-canvas-size: 32px;
 
@@ -184,8 +185,8 @@ canvas {
     background: rgba(0,0,0,0.5);
 }
 
-.roomgrid:not(:focus) .grid-highlight,
-.spritegrid:not(:focus) .grid-highlight {
+.room-grid:not(:focus) .grid-highlight,
+.sprite-grid:not(:focus) .grid-highlight {
     display: none;
 }
 
@@ -532,12 +533,19 @@ span.label {
 }
 
 .grid {
-    margin: var(--big-padding) auto var(--small-padding) ;
+    margin: var(--big-padding) auto var(--small-padding);
     cursor: pointer;
 }
 
 .grid:focus {
     box-shadow: 0 0 0 2px var(--focus-color);
+}
+
+.room-grid {
+    margin: 0
+}
+.room-block {
+    margin: var(--big-padding) auto var(--small-padding);
 }
 
 .color-grid {
@@ -692,6 +700,10 @@ hr {
     border-left: 1px solid var(--button-shadow);
 }
 
+.spacer {
+    width: var(--button-size);
+}
+
 svg.icon {
     padding: 2px;
     width: calc(var(--button-size) - var(--small-padding) * 2);
@@ -782,4 +794,31 @@ svg.logo {
 .script-item-list a {
     display: block;
     margin: var(--small-padding) 0;
+}
+
+.slice canvas {
+    opacity: 0.33;
+}
+
+.arrow-overlay {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--large-font-size);
+    text-shadow:
+        -1px 0px 0 white,
+        1px 0px 0 white,
+        0px -1px 0 white,
+        0px 1px 0 white,
+        -1px 1px 0 white,
+        1px -1px 0 white,
+        -1px -1px 0 white,
+        1px 1px 0 white
+        ;
 }

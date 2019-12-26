@@ -272,7 +272,7 @@ class RoomGrid extends Component {
         let tileX = lastTileX * tileWidth
         let tileY = lastTileY * tileHeight
 
-        let width = spriteWidth * roomWidth
+        let width = spriteWidth * (roomWidth + 2)
         let height = spriteHeight * roomHeight
         let widthRatio = width > height ? 1 : width / height
         let heightRatio = width > height ? height / width : 1
@@ -289,7 +289,7 @@ class RoomGrid extends Component {
             })
 
         return div({
-            className: 'grid roomgrid ' + className,
+            className: 'grid room-grid ' + className,
             style: {
                 width: widthRatio * 100 + '%',
                 paddingTop: heightRatio * 100 + '%',
@@ -299,8 +299,8 @@ class RoomGrid extends Component {
             tabindex: 0
         }, [
             canvas({
-                width,
-                height,
+                width: spriteWidth * roomWidth,
+                height: spriteHeight * roomHeight,
                 ref: node => { this.canvas = node }
             }),
             gridHighlight

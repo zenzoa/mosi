@@ -78,6 +78,7 @@ let row = (children) => div({ className: 'row' }, children)
 let fill = () => div({ className: 'fill' })
 let hr = () => h('hr')
 let vr = () => div({ className: 'vertical-divider' })
+let spacer = () => div({ className: 'spacer' })
 
 class Panel extends Component {
     componentDidMount() {
@@ -206,7 +207,7 @@ let paletteButton = ({ className, onclick, palette, isSelected }) => {
     )
 }
 
-let musicButton = ({ className, onclick, music, isSelected }) => {
+let musicButton = ({ className, onclick, music, isSelected, isSmall }) => {
     let selectedClass = isSelected ? ' selected' : ''
     let musicName = music.name
 
@@ -236,7 +237,7 @@ let musicButton = ({ className, onclick, music, isSelected }) => {
     
     return button({
         title: musicName,
-        className: 'music-button ' + className + selectedClass,
+        className: (isSmall ? '' : 'music-button ') + className + selectedClass,
         onclick
     }, musicGrid)
 }

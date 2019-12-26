@@ -44,7 +44,13 @@ class RoomPanel extends Component {
         currentPaletteIndex,
         currentSpriteIndex,
         musicList,
-        paletteList
+        paletteList,
+
+        roomNorth,
+        roomEast,
+        roomSouth,
+        roomWest,
+        selectRoom
     }, {
         showClearOverlay,
         showImportOverlay,
@@ -168,7 +174,8 @@ class RoomPanel extends Component {
         let currentMusicButton =
             musicButton({
                 onclick: () => this.setState({ showMusicOverlay: true }),
-                music: currentMusic
+                music: currentMusic,
+                isSmall: true
             })
             
         let musicOverlay = !showMusicOverlay ? null :
@@ -270,18 +277,83 @@ class RoomPanel extends Component {
             colorList
         })
 
+        let roomSliceNorth = h(RoomSlice, {
+            sliceHorizontal: true,
+            sliceIndex: roomHeight - 1,
+            roomWidth,
+            roomHeight,
+            spriteWidth,
+            spriteHeight,
+            spriteList,
+            colorList: roomNorth ? Palette.find(roomNorth.room.paletteName, paletteList).colorList : null,
+            tileList: roomNorth ? roomNorth.room.tileList : null,
+            onclick: roomNorth ? (() => selectRoom(roomNorth.roomIndex)) : null,
+            arrow: roomNorth ? '▲' : ''
+        })
+
+        let roomSliceEast = h(RoomSlice, {
+            sliceVertical: true,
+            sliceIndex: 0,
+            roomWidth,
+            roomHeight,
+            spriteWidth,
+            spriteHeight,
+            spriteList,
+            colorList: roomEast ? Palette.find(roomEast.room.paletteName, paletteList).colorList : null,
+            tileList: roomEast ? roomEast.room.tileList : null,
+            onclick: roomEast ? (() => selectRoom(roomEast.roomIndex)) : null,
+            arrow: roomEast ? '▶' : ''
+        })
+
+        let roomSliceSouth = h(RoomSlice, {
+            sliceHorizontal: true,
+            sliceIndex: 0,
+            roomWidth,
+            roomHeight,
+            spriteWidth,
+            spriteHeight,
+            spriteList,
+            colorList: roomSouth ? Palette.find(roomSouth.room.paletteName, paletteList).colorList : null,
+            tileList: roomSouth ? roomSouth.room.tileList : null,
+            onclick: roomSouth ? (() => selectRoom(roomSouth.roomIndex)) : null,
+            arrow: roomSouth ? '▼' : ''
+        })
+
+        let roomSliceWest = h(RoomSlice, {
+            sliceVertical: true,
+            sliceIndex: roomWidth - 1,
+            roomWidth,
+            roomHeight,
+            spriteWidth,
+            spriteHeight,
+            spriteList,
+            colorList: roomWest ? Palette.find(roomWest.room.paletteName, paletteList).colorList : null,
+            tileList: roomWest ? roomWest.room.tileList : null,
+            onclick: roomWest ? (() => selectRoom(roomWest.roomIndex)) : null,
+            arrow: roomWest ? '◀' : ''
+        })
+
         return panel({ header: 'room', id: 'roomPanel', closeTab }, [
             row([
                 backButton,
                 nameTextbox,
                 extrasButton
             ]),
-            roomGrid,
+            div({ class: 'room-block' }, [
+                row([ roomSliceNorth ]),
+                row([ roomSliceWest, roomGrid, roomSliceEast ]),
+                row([ roomSliceSouth ])
+            ]),
             row([
                 scriptButton,
                 fill(),
+                icon('song'),
                 currentMusicButton,
+                spacer(),
+                icon('palette'),
                 currentPaletteButton,
+                spacer(),
+                icon('sprite'),
                 currentSpriteButton
             ]),
             extrasOverlay,

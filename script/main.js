@@ -191,7 +191,10 @@ class Main extends Component {
         let welcomeTab = !tabVisibility.welcome ? null :
             h(WelcomePanel, {
                 closeTab: this.closeTab.bind(this, 'welcome'),
-                getStarted: () => this.setCurrentTab('world')
+                getStarted: () => {
+                    this.closeTab('welcome')
+                    this.setCurrentTab('room')
+                }
             })
 
         let worldTab = !tabVisibility.world ? null :
@@ -279,7 +282,13 @@ class Main extends Component {
                 currentPaletteIndex: roomPaletteIndex,
                 currentSpriteIndex,
                 musicList,
-                paletteList
+                paletteList,
+
+                roomNorth: Room.getNeighbor(this, currentRoomIndex, 'north'),
+                roomEast: Room.getNeighbor(this, currentRoomIndex, 'east'),
+                roomSouth: Room.getNeighbor(this, currentRoomIndex, 'south'),
+                roomWest: Room.getNeighbor(this, currentRoomIndex, 'west'),
+                selectRoom: Room.select.bind(this, this),
             })
 
         let spriteListTab = !tabVisibility.spriteList ? null :
@@ -397,6 +406,7 @@ class Main extends Component {
                 closeOverlay: () => this.setState({ showErrorOverlay: false })
             })
 
+        let introButtonSelected = tabVisibility.welcome
         let worldButtonSelected = tabVisibility.world || tabVisibility.room || (tabVisibility.script && scriptTabType !== 'sprite')
         let spriteButtonSelected = tabVisibility.sprite || tabVisibility.spriteList || (tabVisibility.script && scriptTabType === 'sprite')
         let paletteButtonSelected = tabVisibility.palette || tabVisibility.paletteList
@@ -404,6 +414,12 @@ class Main extends Component {
 
         let header = tabVisibility.play ? null :
             div({ className: 'editor-header row' }, [
+                fill(),
+                iconButton({
+                    title: 'intro',
+                    className: introButtonSelected ? ' selected' : '',
+                    onclick: () => this.setCurrentTab('welcome')
+                }, 'mosi'),
                 iconButton({
                     title: 'world',
                     className: worldButtonSelected ? ' selected' : '',
@@ -428,12 +444,7 @@ class Main extends Component {
                     title: 'play',
                     onclick: () => this.setCurrentTab('play')
                 }, 'play-game'),
-                fill(),
-                iconButton({
-                    title: 'intro',
-                    className: 'logo simple' + (tabVisibility.welcome ? ' selected' : ''),
-                    onclick: () => this.setCurrentTab('welcome')
-                }, 'mosi')
+                fill()
             ])
 
         if (tabVisibility.play) {
