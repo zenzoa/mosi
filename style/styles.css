@@ -547,6 +547,9 @@ span.label {
 .room-block {
     margin: var(--big-padding) auto var(--small-padding);
 }
+.room-block .row {
+    justify-content: center;
+}
 
 .color-grid {
     display: grid;

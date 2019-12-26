@@ -288,6 +288,27 @@ let Sprite = {
         let scriptList = spriteList[spriteIndex].scriptList
         scriptList[event] = script
         that.setState({ spriteList })
+    },
+
+    resize: (sprite, newWidth, newHeight) => {
+        let oldWidth = sprite.width
+        let oldHeight = sprite.height
+
+        sprite.frameList = sprite.frameList.map(frame => {
+            let newFrame = Array(newWidth * newHeight).fill(0)
+            for (let x = 0; x < oldWidth; x++) {
+                for (let y = 0; y < oldHeight; y++) {
+                    let oldIndex = y * oldWidth + x
+                    let oldPixelData = frame[oldIndex]
+                    let newIndex = y * newWidth + x
+                    newFrame[newIndex] = oldPixelData
+                }
+            }
+            return newFrame
+        })
+
+        sprite.width = newWidth
+        sprite.height = newHeight
     }
 
 }

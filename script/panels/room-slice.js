@@ -62,8 +62,8 @@ class RoomSlice extends Component {
                 sliceIndex
             } = this.props
 
-            let width = sliceHorizontal ? spriteWidth * roomWidth : spriteWidth
-            let height = sliceVertical ? spriteHeight * roomHeight : spriteHeight
+            let width = sliceHorizontal ? (spriteWidth * roomWidth) : spriteWidth
+            let height = sliceVertical ? (spriteHeight * roomHeight) : spriteHeight
             let xBgOffset = sliceVertical ? 0 : spriteWidth
             let yBgOffset = 0
             
@@ -109,7 +109,7 @@ class RoomSlice extends Component {
     }
 
     render({ className, spriteWidth, spriteHeight, roomWidth, roomHeight, sliceVertical, sliceHorizontal, onclick, arrow }) {
-        let width = spriteWidth * (roomWidth + 2)
+        let width = sliceVertical ? spriteWidth * roomWidth : spriteWidth * (roomWidth + 2)
         let height = spriteHeight * roomHeight
         let widthRatio = width > height ? 1 : width / height
         let heightRatio = width > height ? height / width : 1

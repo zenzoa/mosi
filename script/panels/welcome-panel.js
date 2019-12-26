@@ -7,7 +7,7 @@ class WelcomePanel extends Component {
             div({ className: 'welcome-links' }, [
                 h('strong', {}, 'version 1.1'),
                 h('br'),
-                span({}, 'added support for custom scripts')
+                span({}, 'added adjacent room edges, support for custom scripts, and less destructive resizing')
             ]),
             div({ className: 'welcome-links' }, [
                 a({ href: 'https://github.com/zenzoa/mosi/wiki', target: '_blank' }, 'tutorial'),

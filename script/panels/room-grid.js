@@ -274,8 +274,8 @@ class RoomGrid extends Component {
 
         let width = spriteWidth * (roomWidth + 2)
         let height = spriteHeight * roomHeight
-        let widthRatio = width > height ? 1 : width / height
-        let heightRatio = width > height ? height / width : 1
+        let widthRatio = width > height ? 1 : (spriteWidth * roomWidth) / height
+        let heightRatio = width > height ? height / (spriteWidth * roomWidth) : 1
 
         let gridHighlight = !usingKeyboard ? null :
             div({

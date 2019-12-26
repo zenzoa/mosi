@@ -356,13 +356,19 @@ let Room = {
                 }
             }
         }
-        
+
         let newRoomIndex = y * worldWidth + x
 
         return {
             roomIndex: newRoomIndex,
             room: roomList[newRoomIndex]
         }
+    },
+
+    resize: (room, newWidth, newHeight) => {
+        room.tileList = room.tileList.filter(tile => {
+            return (tile.x < newWidth && tile.y < newHeight)
+        })
     }
 
 }

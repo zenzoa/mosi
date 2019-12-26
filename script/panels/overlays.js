@@ -309,8 +309,12 @@ class ResizeWorldOverlay extends Component {
         let roomResized = roomWidth !== this.props.roomWidth || roomHeight !== this.props.roomHeight
         let spriteResized = spriteWidth !== this.props.spriteWidth || spriteHeight !== this.props.spriteHeight
         let resizedString = ''
-        if ((worldResized || roomResized) && !spriteResized) resizedString = 'rooms'
-        else if ((worldResized || roomResized)) resizedString = 'rooms and sprites'
+        if (worldResized && roomResized && spriteResized) resizedString = 'world, rooms, and sprites'
+        else if (worldResized && roomResized) resizedString = 'world and rooms'
+        else if (worldResized && spriteResized) resizedString = 'world and sprites'
+        else if (roomResized && spriteResized) resizedString = 'room and sprites'
+        else if (worldResized)  resizedString = 'world'
+        else if (roomResized)  resizedString = 'rooms'
         else if (spriteResized)  resizedString = 'sprites'
         
         let resizeButton =
@@ -322,7 +326,7 @@ class ResizeWorldOverlay extends Component {
 
         let confirmResizeOverlay = !showConfirmResizeOverlay ? null :
             h(RemoveOverlay, {
-                header: `clear all ${resizedString}?`,
+                header: `are you sure you want to resize your ${resizedString}?`,
                 closeOverlay: () => this.setState({ showConfirmResizeOverlay: false }),
                 remove: () => {
                     resize(this.state)

@@ -163,17 +163,29 @@ let World = {
         let roomResized = world.roomWidth !== roomWidth || world.roomHeight !== roomHeight
         let spriteResized = world.spriteWidth !== spriteWidth || world.spriteHeight !== spriteHeight
 
-        if (worldResized || roomResized) {
-            roomList = World.clear(that, { worldWidth, worldHeight, roomWidth, roomHeight, paletteList, musicList }, true)
+        if (worldResized) {
+            let oldWidth = world.worldWidth
+            let oldHeight = world.worldHeight
+            let newRoomList = Array(worldWidth * worldHeight).fill(0).map((_, i) => {
+                let x = Math.floor(i % worldWidth)
+                let y = Math.floor(i / worldWidth)
+                if (x < oldWidth && y < oldHeight) {
+                    return roomList[y * oldWidth + x]
+                } else {
+                    return Room.create(x, y, paletteList[0].name, musicList[0].name)
+                }
+            })
+            roomList = newRoomList
+        }
+
+        if (roomResized) {
+            roomList = roomList.slice()
+            roomList.forEach(room => Room.resize(room, roomWidth, roomHeight))
         }
 
         if (spriteResized) {
             spriteList = spriteList.slice()
-            spriteList.forEach(sprite => {
-                sprite.frameList = [Array(spriteWidth * spriteHeight).fill(0)]
-                sprite.width = spriteWidth
-                sprite.height = spriteHeight
-            })
+            spriteList.forEach(sprite => Sprite.resize(sprite, spriteWidth, spriteHeight))
         }
 
         let currentRoomIndex = 0
