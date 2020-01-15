@@ -349,7 +349,7 @@ let Room = {
         else if (direction === 'east') {
             x++
             if (x > worldWidth - 1) {
-                if (worldWrapVertical) {
+                if (worldWrapHorizontal) {
                     x = 0
                 } else {
                     return null
