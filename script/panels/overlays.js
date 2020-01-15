@@ -21,8 +21,8 @@ class RemoveOverlay extends Component {
 class ExtrasOverlay extends Component {
     render({ header, content, buttons, closeOverlay }) {
         return overlay({ closeOverlay, header },
-            div({ className: 'content' }, 
-                content ? content : row(buttons)
+            div({ className: 'extras-overlay content' },
+                content ? content : buttons
             )
         )
     }

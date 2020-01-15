@@ -254,6 +254,9 @@ let World = {
             if (!world.fontDirection) world.fontDirection = 'ltr'
             if (!world.fontData) world.fontData = Font.parse(ASCII_TINY)
 
+            // set version
+            world.version = VERSION
+
             that.setState(world)
         }
         catch (e) {

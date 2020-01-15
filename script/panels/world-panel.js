@@ -76,7 +76,7 @@ class WorldPanel extends Component {
             onclick: openScriptTab
         }, 'script')
 
-        let importButton = iconButton({
+        let importButton = button({
             title: 'import world',
             onclick: () => this.setState({ showExtrasOverlay: false, showImportOverlay: true })
         }, 'import')
@@ -92,7 +92,7 @@ class WorldPanel extends Component {
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
 
-        let exportButton = iconButton({
+        let exportButton = button({
             title: 'export world',
             onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
@@ -105,11 +105,10 @@ class WorldPanel extends Component {
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })
     
-        let resetButton =
-            iconButton({
+        let resetButton = button({
                 title: 'reset world',
                 onclick: () => this.setState({ showExtrasOverlay: false, showResetOverlay: true }),
-            }, 'delete')
+            }, 'reset everything')
 
         let resetOverlay = !showResetOverlay ? null :
             h(RemoveOverlay, {
@@ -121,10 +120,10 @@ class WorldPanel extends Component {
                 }
             })
 
-        let randomButton = iconButton({
+        let randomButton = button({
             title: 'randomize world',
             onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
-        }, 'random')
+        }, 'randomize')
 
         let randomOverlay = !showRandomOverlay ? null :
             h(RemoveOverlay, {
@@ -136,10 +135,10 @@ class WorldPanel extends Component {
                 }
             })
 
-        let clearButton = iconButton({
+        let clearButton = button({
             title: 'clear world',
             onclick: () => this.setState({ showExtrasOverlay: false, showClearOverlay: true })
-        }, 'clear')
+        }, 'clear world')
 
         let clearOverlay = !showClearOverlay ? null :
             h(RemoveOverlay, {
@@ -151,10 +150,10 @@ class WorldPanel extends Component {
                 }
             })
 
-        let modsButton = iconButton({
+        let modsButton = button({
             title: 'custom scripts',
             onclick: () => this.setState({ showExtrasOverlay: false, showModsOverlay: true })
-        }, 'extras')
+        }, 'custom scripts')
 
         let modsOverlay = !showModsOverlay ? null :
             h(ModsOverlay, {
@@ -167,40 +166,9 @@ class WorldPanel extends Component {
                 removeMod
             })
 
-        let extrasButton = iconButton({
-            title: 'world actions',
-            onclick: () => this.setState({ showExtrasOverlay: true })
-        }, 'extras')
-
-        let extrasOverlay = !showExtrasOverlay ? null :
-            h(ExtrasOverlay, {
-                header: 'world actions',
-                buttons: [
-                    exportButton,
-                    importButton,
-                    randomButton,
-                    clearButton,
-                    resetButton,
-                    modsButton
-                ],
-                closeOverlay: () => this.setState({ showExtrasOverlay: false })
-            })
-
-        let wrapHorizontalButton = iconButton({
-            title: 'wrap horizontal',
-            className: (worldWrapHorizontal ? 'selected' : ''),
-            onclick: () => setWrapHorizontal(!worldWrapHorizontal)
-        }, 'wrap-h')
-
-        let wrapVerticalButton = iconButton({
-            title: 'wrap vertical',
-            className: (worldWrapVertical ? 'selected' : ''),
-            onclick: () => setWrapVertical(!worldWrapVertical)
-        }, 'wrap-v')
-
-        let resizeButton = iconButton({
+        let resizeButton = button({
             title: 'resize world',
-            onclick: () => this.setState({ showResizeOverlay: true })
+            onclick: () => this.setState({ showExtrasOverlay: false, showResizeOverlay: true })
         }, 'resize')
 
         let resizeOverlay = !showResizeOverlay ? null :
@@ -218,10 +186,10 @@ class WorldPanel extends Component {
                 closeOverlay: () => this.setState({ showResizeOverlay: false })
             })
 
-        let fontButton = iconButton({
+        let fontButton = button({
             title: 'font settings',
-            onclick: () => this.setState({ showFontOverlay: true })
-        }, 'font')
+            onclick: () => this.setState({ showExtrasOverlay: false, showFontOverlay: true })
+        }, 'font settings')
 
         let fontOverlay = !showFontOverlay ? null :
             h(FontOverlay, {
@@ -233,6 +201,40 @@ class WorldPanel extends Component {
                 setFontData,
                 closeOverlay: () => this.setState({ showFontOverlay: false })
             })
+
+        let extrasButton = iconButton({
+            title: 'world actions',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, 'extras')
+
+        let extrasOverlay = !showExtrasOverlay ? null :
+            h(ExtrasOverlay, {
+                header: 'world actions',
+                buttons: [
+                    resizeButton,
+                    modsButton,
+                    fontButton,
+                    hr(),
+                    exportButton,
+                    importButton,
+                    randomButton,
+                    clearButton,
+                    resetButton
+                ],
+                closeOverlay: () => this.setState({ showExtrasOverlay: false })
+            })
+
+        let wrapHorizontalButton = iconButton({
+            title: 'wrap horizontal',
+            className: (worldWrapHorizontal ? 'selected' : ''),
+            onclick: () => setWrapHorizontal(!worldWrapHorizontal)
+        }, 'wrap-h')
+
+        let wrapVerticalButton = iconButton({
+            title: 'wrap vertical',
+            className: (worldWrapVertical ? 'selected' : ''),
+            onclick: () => setWrapVertical(!worldWrapVertical)
+        }, 'wrap-v')
 
         let worldGrid = h(WorldGrid, {
             className: 'initial-focus',
@@ -250,18 +252,13 @@ class WorldPanel extends Component {
 
         return panel({ header: 'world', id: 'worldPanel', closeTab }, [
             row([
+                extrasButton,
                 nameTextbox,
-                extrasButton
+                scriptButton,
+                wrapHorizontalButton,
+                wrapVerticalButton
             ]),
             worldGrid,
-            row([
-                scriptButton,
-                fill(),
-                wrapHorizontalButton,
-                wrapVerticalButton,
-                resizeButton,
-                fontButton
-            ]),
             extrasOverlay,
             importOverlay,
             exportOverlay,

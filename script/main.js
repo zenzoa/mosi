@@ -1,5 +1,6 @@
 let VERSION = 1.1
 let FRAME_RATE = 400
+let SCREEN_WIDTH = 0
 
 class Main extends Component {
     constructor() {
@@ -12,7 +13,8 @@ class Main extends Component {
             scriptTabType: { type: 'sprite', index: 0 },
             oneTabMode: true,
             showErrorOverlay: false,
-            errorState: ''
+            errorState: '',
+            spritePalette: [0, 1, 2, 3]
         }
 
         this.setCurrentTab = (tab, skipHistory) => {
@@ -63,6 +65,7 @@ class Main extends Component {
         }
 
         this.resize = () => {
+            SCREEN_WIDTH = window.innerWidth - 16
             let oneTabMode = window.innerWidth < 900
             let tabVisibility = this.state.tabVisibility
             if (oneTabMode) {
@@ -163,7 +166,8 @@ class Main extends Component {
         fontDirection,
         fontData,
 
-        modList
+        modList,
+        spritePalette
     }) {
         let currentRoom = roomList[currentRoomIndex]
 
@@ -289,6 +293,8 @@ class Main extends Component {
                 roomSouth: Room.getNeighbor(this, currentRoomIndex, 'south'),
                 roomWest: Room.getNeighbor(this, currentRoomIndex, 'west'),
                 selectRoom: Room.select.bind(this, this),
+
+                spritePalette
             })
 
         let spriteListTab = !tabVisibility.spriteList ? null :
@@ -417,31 +423,38 @@ class Main extends Component {
                 fill(),
                 iconButton({
                     title: 'intro',
-                    className: introButtonSelected ? ' selected' : '',
+                    className: 'simple' + (introButtonSelected ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('welcome')
                 }, 'mosi'),
                 iconButton({
                     title: 'world',
-                    className: worldButtonSelected ? ' selected' : '',
-                    onclick: () => this.setCurrentTab('world')
+                    className: 'simple' + (worldButtonSelected ? ' selected' : ''),
+                    onclick: () => {
+                        if (tabVisibility.room) {
+                            this.setCurrentTab('world')
+                        } else {
+                            this.setCurrentTab('room')
+                        }
+                    }
                 }, 'world'),
                 iconButton({
                     title: 'sprites',
-                    className: spriteButtonSelected ? ' selected' : '',
+                    className: 'simple' + (spriteButtonSelected ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('spriteList')
                 }, 'sprites'),
                 iconButton({
                     title: 'colors',
-                    className: paletteButtonSelected ? ' selected' : '',
+                    className: 'simple' + (paletteButtonSelected ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('paletteList')
                 }, 'palettes'),
                 iconButton({
                     title: 'music',
-                    className: musicButtonSelected ? ' selected' : '',
+                    className: 'simple' + (musicButtonSelected ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('musicList')
                 }, 'music'),
                 iconButton({
                     title: 'play',
+                    className: 'simple',
                     onclick: () => this.setCurrentTab('play')
                 }, 'play-game'),
                 fill()

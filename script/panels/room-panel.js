@@ -50,7 +50,9 @@ class RoomPanel extends Component {
         roomEast,
         roomSouth,
         roomWest,
-        selectRoom
+        selectRoom,
+
+        spritePalette
     }, {
         showClearOverlay,
         showImportOverlay,
@@ -81,10 +83,10 @@ class RoomPanel extends Component {
             onclick: openScriptTab
         }, 'script')
     
-        let clearButton = iconButton({
+        let clearButton = button({
             title: 'clear room',
             onclick: () => this.setState({ showExtrasOverlay: false, showClearOverlay: true })
-        }, 'clear')
+        }, 'clear room')
 
         let clearOverlay = !showClearOverlay ? null :
             h(RemoveOverlay, {
@@ -96,10 +98,10 @@ class RoomPanel extends Component {
                 }
             })
 
-        let randomButton = iconButton({
+        let randomButton = button({
             title: 'randomize room',
             onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
-        }, 'random')
+        }, 'randomize')
 
         let randomOverlay = !showRandomOverlay ? null :
             h(RemoveOverlay, {
@@ -111,7 +113,7 @@ class RoomPanel extends Component {
                 }
             })
 
-        let importButton = iconButton({
+        let importButton = button({
             title: 'import room',
             onclick: () => this.setState({ showExtrasOverlay: false, showImportOverlay: true })
         }, 'import')
@@ -127,7 +129,7 @@ class RoomPanel extends Component {
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
     
-        let exportButton = iconButton({
+        let exportButton = button({
             title: 'export room',
             onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
@@ -140,10 +142,10 @@ class RoomPanel extends Component {
                 closeOverlay: () => this.setState({ showExportOverlay: false })
             })
     
-        let gifButton = iconButton({
+        let gifButton = button({
             title: 'create GIF',
             onclick: () => this.setState({ showExtrasOverlay: false, showGifOverlay: true })
-        }, 'gif')
+        }, 'create gif')
 
         let gifOverlay = !showGifOverlay ? null :
             h(GifOverlay, {
@@ -162,11 +164,12 @@ class RoomPanel extends Component {
             h(ExtrasOverlay, {
                 header: 'room actions',
                 buttons: [
+                    gifButton,
+                    hr(),
                     exportButton,
                     importButton,
                     randomButton,
-                    clearButton,
-                    gifButton
+                    clearButton
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
@@ -228,37 +231,6 @@ class RoomPanel extends Component {
                 },
                 currentPaletteIndex,
                 paletteList
-            })
-
-        let currentSpriteButton = !sprite ? null :
-            spriteButton({
-                onclick: () => this.setState({ showSpriteOverlay: true }),
-                sprite,
-                colorList
-            })
-            
-        let spriteOverlay = !showSpriteOverlay ? null :
-            h(SpriteListOverlay, {
-                closeOverlay: () => this.setState({ showSpriteOverlay: false }),
-                selectSprite: spriteIndex => {
-                    selectSprite(spriteIndex)
-                    this.setState({ showSpriteOverlay: false })
-                },
-                editSprite: () => {
-                    editSprite()
-                    this.setState({ showSpriteOverlay: false })
-                },
-                addSprite: sprite => {
-                    addSprite(sprite)
-                    this.setState({ showSpriteOverlay: false })
-                },
-                importSprite: spriteData => {
-                    importSprite(spriteData)
-                    this.setState({ showSpriteOverlay: false })
-                },
-                spriteList,
-                currentSpriteIndex,
-                colorList
             })
 
         let roomGrid = h(RoomGrid, {
@@ -333,11 +305,59 @@ class RoomPanel extends Component {
             arrow: roomWest ? '◀' : ''
         })
 
+        let spritePaletteButtons = spritePalette.map(spriteIndex => {
+            if (!spriteList[spriteIndex]) return
+
+            return spriteButton({
+                className: 'simple',
+                isSelected: spriteIndex === currentSpriteIndex,
+                onclick: () => {
+                    if (spriteIndex === currentSpriteIndex) {
+                        editSprite()
+                    } else {
+                        selectSprite(spriteIndex)
+                    }
+                },
+                sprite: spriteList[spriteIndex],
+                colorList
+            })
+        })
+
+        let addSpriteToPaletteButton = iconButton({
+            onclick: () => this.setState({ showSpriteOverlay: true }),
+        }, 'add')
+            
+        let spriteOverlay = !showSpriteOverlay ? null :
+            h(SpriteListOverlay, {
+                closeOverlay: () => this.setState({ showSpriteOverlay: false }),
+                selectSprite: spriteIndex => {
+                    selectSprite(spriteIndex)
+                    this.setState({ showSpriteOverlay: false })
+                },
+                editSprite: () => {
+                    editSprite()
+                    this.setState({ showSpriteOverlay: false })
+                },
+                addSprite: sprite => {
+                    addSprite(sprite)
+                    this.setState({ showSpriteOverlay: false })
+                },
+                importSprite: spriteData => {
+                    importSprite(spriteData)
+                    this.setState({ showSpriteOverlay: false })
+                },
+                spriteList,
+                currentSpriteIndex,
+                colorList
+            })
+
         return panel({ header: 'room', id: 'roomPanel', closeTab }, [
             row([
-                backButton,
+                extrasButton,
                 nameTextbox,
-                extrasButton
+                scriptButton,
+                currentMusicButton,
+                currentPaletteButton
             ]),
             div({ class: 'room-block' }, [
                 row([ roomSliceNorth ]),
@@ -345,16 +365,9 @@ class RoomPanel extends Component {
                 row([ roomSliceSouth ])
             ]),
             row([
-                scriptButton,
+                spritePaletteButtons,
                 fill(),
-                icon('song'),
-                currentMusicButton,
-                spacer(),
-                icon('palette'),
-                currentPaletteButton,
-                spacer(),
-                icon('sprite'),
-                currentSpriteButton
+                addSpriteToPaletteButton
             ]),
             extrasOverlay,
             clearOverlay,

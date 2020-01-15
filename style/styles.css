@@ -91,11 +91,13 @@ canvas {
     overflow-y: auto;
 }
 
-.one-tab-mode .editor-header,
+.one-tab-mode .editor-header {
+    width: 100%;
+}
 .one-tab-mode .panel {
     margin: 0 auto;
     width: 100%;
-    max-width: calc(100vh - var(--button-size) * 4 - var(--big-padding) * 6);
+    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 6);
 }
 
 .one-tab-mode .panel-header {
@@ -311,6 +313,10 @@ button,
     min-width: var(--button-size);
     height: var(--button-size);
     border-radius: var(--small-radius);
+    background: var(--input-bg);
+    box-shadow:
+        0 2px 0 0 var(--button-bg) inset,
+        0 2px 0 0 var(--input-bg);
 }
 
 input,
@@ -318,6 +324,10 @@ textarea,
 .dropdown {
     width: 100%;
     padding: var(--small-padding) var(--big-padding);
+}
+
+input {
+    text-align: center;
 }
 
 input:focus {
@@ -328,15 +338,13 @@ textarea {
     height: auto;
 }
 
-input:hover,
 input:focus,
-textarea,
-textarea:hover,
 textarea:focus {
-    background: var(--input-bg);
     box-shadow:
         0 2px 0 0 var(--button-bg) inset,
-        0 2px 0 0 var(--input-bg);
+        0 2px 0 0 var(--input-bg),
+        0 0 0 2px var(--focus-color),
+        0 2px 0 2px var(--focus-color);
 }
 
 input[type="file"] {
@@ -346,7 +354,6 @@ input[type="file"] {
 .color-textbox {
     color: white;
     font-weight: bold;
-    text-align: center;
     text-shadow:
         -1px 0px 0 black,
         1px 0px 0 black,
@@ -439,7 +446,6 @@ button.simple.selected:active {
 }
 
 button canvas {
-    box-shadow: 0 0 2px 1px var(--button-shadow);
     border-radius: var(--tiny-radius);
 }
 
@@ -473,8 +479,6 @@ a:focus {
 
 .one-tab-mode .editor-header {
     padding-bottom: var(--small-padding);
-    border-bottom-left-radius: var(--big-radius);
-    border-bottom-right-radius: var(--big-radius);
     background: var(--overlay-header-bg);
 }
 
@@ -549,6 +553,11 @@ span.label {
 }
 .room-block .row {
     justify-content: center;
+}
+
+.sprite-button.simple {
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .color-grid {
@@ -692,7 +701,19 @@ span.label {
     padding: var(--big-padding);
 }
 
+.extras-overlay {
+    display: flex;
+    flex-direction: column;
+}
+
+.extras-overlay button {
+    display: block;
+    flex-grow: 1;
+    margin-bottom: var(--big-padding);
+}
+
 hr {
+    width: 100%;
     border: none;
     border-bottom: 1px solid var(--button-shadow);
 }
@@ -814,14 +835,4 @@ svg.logo {
     align-items: center;
     justify-content: center;
     font-size: var(--large-font-size);
-    text-shadow:
-        -1px 0px 0 white,
-        1px 0px 0 white,
-        0px -1px 0 white,
-        0px 1px 0 white,
-        -1px 1px 0 white,
-        1px -1px 0 white,
-        -1px -1px 0 white,
-        1px 1px 0 white
-        ;
 }

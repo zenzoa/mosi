@@ -26,9 +26,18 @@ let Sprite = {
 
     select: (that, spriteIndex, nextTab) => {
         let currentSpriteIndex = spriteIndex
+
         let scriptTabType = 'sprite'
         if (nextTab) that.setCurrentTab(nextTab)
-        that.setState({ currentSpriteIndex, scriptTabType })
+
+        let spritePalette = that.state.spritePalette.filter(i => that.state.spriteList[i])
+        if (!spritePalette.includes(spriteIndex)) spritePalette.push(spriteIndex)
+        let maxSpritesInPalette = Math.floor((SCREEN_WIDTH / 40) - 1)
+        if (spritePalette.length > maxSpritesInPalette) {
+            spritePalette = spritePalette.slice(spritePalette.length - maxSpritesInPalette)
+        }
+
+        that.setState({ currentSpriteIndex, scriptTabType, spritePalette })
     },
 
     add: (that, sprite) => {
@@ -59,7 +68,15 @@ let Sprite = {
         spriteList.push(sprite)
         let currentSpriteIndex = spriteList.length - 1
         that.setCurrentTab('sprite')
-        that.setState({ spriteList, currentSpriteIndex })
+
+        let spritePalette = that.state.spritePalette.filter(i => that.state.spriteList[i])
+        if (!spritePalette.includes(currentSpriteIndex)) spritePalette.push(currentSpriteIndex)
+        let maxSpritesInPalette = Math.floor((SCREEN_WIDTH / 40) - 1)
+        if (spritePalette.length > maxSpritesInPalette) {
+            spritePalette = spritePalette.slice(spritePalette.length - maxSpritesInPalette)
+        }
+
+        that.setState({ spriteList, currentSpriteIndex, spritePalette })
     },
 
     import: (that, spriteData) => {
