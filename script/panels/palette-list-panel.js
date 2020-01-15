@@ -8,7 +8,6 @@ class PaletteListPanel extends Component {
 
 class PaletteList extends Component {
     render ({
-        backButton,
         selectPalette,
         editPalette,
         addPalette,
@@ -21,17 +20,23 @@ class PaletteList extends Component {
         let paletteButtonList = paletteList.map((palette, i) => {
             return paletteButton({
                 className: i === currentPaletteIndex ? 'initial-focus' : '',
-                onclick: () => selectPalette(i, 'palette'),
+                onclick: () => {
+                    if (currentPaletteIndex === i) {
+                        editPalette()
+                    } else {
+                        selectPalette(i, 'palette')
+                    }
+                },
                 isSelected: (i === currentPaletteIndex),
                 palette
             })
         })
 
-        let editPaletteButton = !editPalette ? null :
-            iconButton({ title: 'edit palette', onclick: editPalette }, 'edit')
-
         let addPaletteButton = !addPalette ? null :
-            iconButton({ title: 'add palette', onclick: addPalette }, 'add')
+            iconButton({
+                title: 'new palette',
+                onclick: addPalette
+            }, 'add')
 
         let importPaletteButton = !importPalette ? null :
             iconButton({
@@ -52,12 +57,9 @@ class PaletteList extends Component {
 
         return div({ className: 'content' }, [
             row([
-                backButton,
-                fill(),
                 importPaletteButton,
-                addPaletteButton,
-                editPaletteButton ? vr() : null,
-                editPaletteButton
+                fill(),
+                addPaletteButton
             ]),
             hr(),
             div({ className: 'paletteList' }, [

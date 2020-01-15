@@ -28,7 +28,6 @@ class MusicPanel extends Component {
     }
 
     render({
-        backButton,
         closeTab,
         renameMusic,
         removeMusic,
@@ -242,7 +241,6 @@ class MusicPanel extends Component {
 
         return panel({ header: 'song', id: 'musicPanel', closeTab }, [
             row([
-                backButton,
                 nameTextbox,
                 extrasButton,
                 vr(),

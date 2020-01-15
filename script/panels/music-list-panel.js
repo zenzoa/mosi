@@ -8,7 +8,6 @@ class MusicListPanel extends Component {
 
 class MusicList extends Component {
     render ({
-        backButton,
         selectMusic,
         editMusic,
         addMusic,
@@ -21,17 +20,23 @@ class MusicList extends Component {
         let musicButtonList = musicList.map((music, i) => {
             return musicButton({
                 className: (i === currentMusicIndex ? 'initial-focus' : ''),
-                onclick: () => selectMusic(i, 'music'),
+                onclick: () => {
+                    if (currentMusicIndex === i) {
+                        editMusic()
+                    } else {
+                        selectMusic(i, 'music')
+                    }
+                },
                 isSelected: (i === currentMusicIndex),
                 music
             })
         })
 
-        let editMusicButton = !editMusic ? null :
-            iconButton({ title: 'edit music', onclick: editMusic }, 'edit')
-
         let addMusicButton = !addMusic ? null :
-            iconButton({ title: 'add music', onclick: addMusic }, 'add')
+            iconButton({
+                title: 'add music',
+                onclick: addMusic
+            }, 'add')
 
         let importMusicButton = !importMusic ? null :
             iconButton({
@@ -52,12 +57,9 @@ class MusicList extends Component {
 
         return div({ className: 'content' }, [
             row([
-                backButton,
-                fill(),
                 importMusicButton,
-                addMusicButton,
-                editMusicButton ? vr() : null,
-                editMusicButton
+                fill(),
+                addMusicButton
             ]),
             hr(),
             div({ className: 'musicList' }, [

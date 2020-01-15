@@ -19,10 +19,12 @@ class PlayPanel extends Component {
         return div({ className: 'main' }, [
             div({ className: 'editor-header row' }, [
                 iconButton({
+                    className: 'simple',
                     onclick: closeTab
                 }, 'back'),
                 fill(),
                 iconButton({
+                    className: 'simple',
                     onclick: () => this.setState({ showShareOverlay: true })
                 }, 'share')
             ]),

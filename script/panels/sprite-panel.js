@@ -13,7 +13,6 @@ class SpritePanel extends Component {
     }
 
     render({
-        backButton,
         closeTab,
         openScriptTab,
 
@@ -164,9 +163,9 @@ class SpritePanel extends Component {
                     hr(),
                     gifButton,
                     hr(),
+                    exportButton,
                     duplicateButton,
                     removeButton,
-                    exportButton
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
@@ -321,7 +320,6 @@ class SpritePanel extends Component {
     
         return panel({ header: 'sprite', id: 'spritePanel', closeTab }, [
             row([
-                // backButton,
                 nameButton,
                 scriptButton,
                 transparentButton,
@@ -330,7 +328,6 @@ class SpritePanel extends Component {
             ]),
             spriteGrid,
             row([
-                // icon('animation'),
                 spritePreview,
                 vr(),
                 frameButtonList,

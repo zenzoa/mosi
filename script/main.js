@@ -249,7 +249,6 @@ class Main extends Component {
 
         let roomTab = !tabVisibility.room ? null :
             h(RoomPanel, {
-                backButton,
                 closeTab: this.closeTab.bind(this, 'room'),
                 openScriptTab: this.openScriptTab.bind(this, 'room'),
 
@@ -311,7 +310,6 @@ class Main extends Component {
 
         let spriteTab = !tabVisibility.sprite ? null :
             h(SpritePanel, {
-                backButton,
                 closeTab: this.closeTab.bind(this, 'sprite'),
                 openScriptTab: this.openScriptTab.bind(this, 'sprite'),
 
@@ -347,7 +345,6 @@ class Main extends Component {
 
         let scriptTab = !tabVisibility.script ? null :
             h(ScriptPanel, {
-                backButton,
                 closeTab: this.closeTab.bind(this, 'script'),
                 updateScript: scriptClass ? scriptClass.updateScript.bind(this, this, scriptIndex) : null,
                 scriptList
@@ -365,7 +362,6 @@ class Main extends Component {
 
         let paletteTab = !tabVisibility.palette ? null :
             h(PalettePanel, {
-                backButton,
                 closeTab: this.closeTab.bind(this, 'palette'),
                 renamePalette: Palette.rename.bind(this, this, currentPaletteIndex),
                 removePalette: Palette.remove.bind(this, this, currentPaletteIndex),
@@ -392,7 +388,6 @@ class Main extends Component {
 
         let musicTab = !tabVisibility.music ? null :
             h(MusicPanel, {
-                backButton,
                 closeTab: this.closeTab.bind(this, 'music'),
                 renameMusic: Music.rename.bind(this, this, currentMusicIndex),
                 removeMusic: Music.remove.bind(this, this, currentMusicIndex),
@@ -437,17 +432,35 @@ class Main extends Component {
                 iconButton({
                     title: 'sprites',
                     className: 'simple' + (spriteButtonSelected ? ' selected' : ''),
-                    onclick: () => this.setCurrentTab('spriteList')
+                    onclick: () => {
+                        if (tabVisibility.sprite) {
+                            this.setCurrentTab('spriteList')
+                        } else {
+                            this.setCurrentTab('sprite')
+                        }
+                    }
                 }, 'sprites'),
                 iconButton({
                     title: 'colors',
                     className: 'simple' + (paletteButtonSelected ? ' selected' : ''),
-                    onclick: () => this.setCurrentTab('paletteList')
+                    onclick: () => {
+                        if (tabVisibility.palette) {
+                            this.setCurrentTab('paletteList')
+                        } else {
+                            this.setCurrentTab('palette')
+                        }
+                    }
                 }, 'palettes'),
                 iconButton({
                     title: 'music',
                     className: 'simple' + (musicButtonSelected ? ' selected' : ''),
-                    onclick: () => this.setCurrentTab('musicList')
+                    onclick: () => {
+                        if (tabVisibility.music) {
+                            this.setCurrentTab('musicList')
+                        } else {
+                            this.setCurrentTab('music')
+                        }
+                    }
                 }, 'music'),
                 fill(),
                 iconButton({

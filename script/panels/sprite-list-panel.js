@@ -15,7 +15,6 @@ class SpriteList extends Component {
     }
 
     render ({
-        backButton,
         selectSprite,
         editSprite,
         addSprite,
@@ -57,18 +56,24 @@ class SpriteList extends Component {
             .map(({ sprite, i }) =>
                 spriteButton({
                     className: i === currentSpriteIndex ? 'initial-focus' : '',
-                    onclick: () => selectSprite(i, 'sprite'),
+                    onclick: () => {
+                        if (currentSpriteIndex === i) {
+                            editSprite()
+                        } else {
+                            selectSprite(i, 'sprite')
+                        }
+                    },
                     sprite,
                     colorList,
                     isSelected: (i === currentSpriteIndex)
                 })
             )
 
-        let editSpriteButton = !editSprite ? null :
-            iconButton({ title: 'edit sprite', onclick: editSprite }, 'edit')
-
         let addSpriteButton = !addSprite ? null :
-            iconButton({ title: 'add sprite', onclick: addSprite }, 'add')
+            iconButton({
+                title: 'new sprite',
+                onclick: addSprite
+            }, 'add')
 
         let importSpriteButton = !importSprite ? null :
             iconButton({
@@ -89,12 +94,9 @@ class SpriteList extends Component {
 
         return div({ className: 'content' }, [
             row([
-                backButton,
-                filterInput,
                 importSpriteButton,
-                addSpriteButton,
-                editSpriteButton ? vr() : null,
-                editSpriteButton
+                filterInput,
+                addSpriteButton
             ]),
             hr(),
             div({ className: 'spritelist' }, [

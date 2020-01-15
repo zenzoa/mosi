@@ -41,7 +41,6 @@ class ScriptPanel extends Component {
     }
 
     render ({
-        backButton,
         closeTab,
         updateScript,
         scriptList
@@ -87,7 +86,6 @@ class ScriptPanel extends Component {
 
         return panel({ header: 'script', id: 'scriptPanel', closeTab }, [
             row([
-                backButton,
                 eventButtons
             ]),
             scriptText,

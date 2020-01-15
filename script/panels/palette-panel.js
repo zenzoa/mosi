@@ -35,7 +35,6 @@ class PalettePanel extends Component {
     }
 
     render({
-        backButton,
         closeTab,
         removePalette,
         renamePalette,
@@ -58,14 +57,18 @@ class PalettePanel extends Component {
     }) {
         let currentColor = palette.colorList[currentColorIndex]
 
+        let nameButton = button({
+            className: 'fill',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, palette.name)
+
         let nameTextbox = textbox({
             placeholder: 'palette name',
             value: palette.name,
             onchange: e => renamePalette(e.target.value)
         })
     
-        let exportButton = iconButton({
-            title: 'export palette',
+        let exportButton = button({
             onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
@@ -78,10 +81,9 @@ class PalettePanel extends Component {
             })
     
         let removeButton = paletteList.length < 2 ? null :
-            iconButton({
-                title: 'remove palette',
+            button({
                 onclick: () => this.setState({ showExtrasOverlay: false, showRemovePaletteOverlay: true }),
-            }, 'delete')
+            }, 'remove palette')
 
         let removePaletteOverlay = !showRemovePaletteOverlay ? null :
             h(RemoveOverlay, {
@@ -93,19 +95,16 @@ class PalettePanel extends Component {
                 }
             })
 
-        let duplicateButton = iconButton({
-            title: 'duplicate palette',
+        let duplicateButton = button({
             onclick: () => {
                 this.setState({ showExtrasOverlay: false })
                 duplicatePalette()
             }
         }, 'duplicate')
 
-        let randomButton = iconButton({
-            className: 'icon',
-            title: 'randomize palette',
+        let randomButton = button({
             onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
-        }, 'random')
+        }, 'randomize')
 
         let randomOverlay = !showRandomOverlay ? null :
             h(RemoveOverlay, {
@@ -119,7 +118,7 @@ class PalettePanel extends Component {
 
         let colorButtonList = palette.colorList.map((color, i) => {
             return colorButton({
-                className: i === currentColorIndex ? 'initial-focus' : '',
+                className: 'simple' + (i === currentColorIndex ? ' initial-focus' : ''),
                 isSelected: (i === currentColorIndex),
                 onclick: () => this.setState({ currentColorIndex: i }),
                 color
@@ -154,19 +153,16 @@ class PalettePanel extends Component {
                 }
             })
 
-        let extrasButton = iconButton({
-            title: 'palette actions',
-            onclick: () => this.setState({ showExtrasOverlay: true })
-        }, 'extras')
-
         let extrasOverlay = !showExtrasOverlay ? null :
             h(ExtrasOverlay, {
                 header: 'palette actions',
                 buttons: [
-                    duplicateButton,
-                    removeButton,
+                    nameTextbox,
+                    hr(),
                     exportButton,
-                    randomButton
+                    randomButton,
+                    duplicateButton,
+                    removeButton
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
@@ -219,9 +215,7 @@ class PalettePanel extends Component {
 
         return panel({ header: 'palette', id: 'palettePanel', closeTab }, [
             row([
-                backButton,
-                nameTextbox,
-                extrasButton
+                nameButton
             ]),
             row(
                 colorButtonList.concat([
@@ -229,8 +223,10 @@ class PalettePanel extends Component {
                     removeColorButton
                 ])
             ),
+            hr(),
             colorGrid,
             colorSlices,
+            hr(),
             row([ colorTextbox ]),
             extrasOverlay,
             exportOverlay,

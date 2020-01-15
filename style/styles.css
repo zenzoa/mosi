@@ -364,6 +364,11 @@ input[type="file"] {
         -1px -1px 0 black,
         1px 1px 0 black
         ;
+    box-shadow: none;
+}
+
+.color-textbox:focus {
+    box-shadow: 0 0 0 2px var(--focus-color);
 }
 
 .overlay input {
@@ -567,8 +572,6 @@ span.label {
 }
 
 .color-grid.one-row {
-    border-top: 1px solid var(--button-shadow);
-    border-bottom: 1px solid var(--button-shadow);
     padding: var(--small-padding) 0;
     grid-template-rows: repeat(1, calc(var(--button-size) * 0.8));
 }
@@ -594,6 +597,7 @@ span.label {
 
 .color-grid-item button,
 .music-grid-item button {
+    transform: none;
     margin: 0;
     padding: 0;
     min-width: 0;

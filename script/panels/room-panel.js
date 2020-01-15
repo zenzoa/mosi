@@ -5,7 +5,6 @@ class RoomPanel extends Component {
     }
 
     render({
-        backButton,
         closeTab,
         openScriptTab,
         
