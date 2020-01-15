@@ -69,22 +69,18 @@ class RoomPanel extends Component {
         let currentPalette = paletteList[currentPaletteIndex]
         let colorList = currentPalette.colorList
 
+        let extrasButton = button({
+            className: 'fill',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, room.name)
+
         let nameTextbox = textbox({
             placeholder: 'room name',
             value: room.name,
             onchange: e => renameRoom(e.target.value)
         })
     
-        let scriptList = Object.keys(room.scriptList).map(key => room.scriptList[key])
-        let hasScripts = scriptList.find(script => !!script)
-        let scriptButton = iconButton({
-            title: 'script',
-            className: (hasScripts ? 'selected' : ''),
-            onclick: openScriptTab
-        }, 'script')
-    
         let clearButton = button({
-            title: 'clear room',
             onclick: () => this.setState({ showExtrasOverlay: false, showClearOverlay: true })
         }, 'clear room')
 
@@ -99,7 +95,6 @@ class RoomPanel extends Component {
             })
 
         let randomButton = button({
-            title: 'randomize room',
             onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
         }, 'randomize')
 
@@ -114,7 +109,6 @@ class RoomPanel extends Component {
             })
 
         let importButton = button({
-            title: 'import room',
             onclick: () => this.setState({ showExtrasOverlay: false, showImportOverlay: true })
         }, 'import')
 
@@ -130,7 +124,6 @@ class RoomPanel extends Component {
             })
     
         let exportButton = button({
-            title: 'export room',
             onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
@@ -143,7 +136,6 @@ class RoomPanel extends Component {
             })
     
         let gifButton = button({
-            title: 'create GIF',
             onclick: () => this.setState({ showExtrasOverlay: false, showGifOverlay: true })
         }, 'create gif')
 
@@ -155,15 +147,12 @@ class RoomPanel extends Component {
                 closeOverlay: () => this.setState({ showGifOverlay: false })
             })
 
-        let extrasButton = iconButton({
-            title: 'room actions',
-            onclick: () => this.setState({ showExtrasOverlay: true })
-        }, 'extras')
-
         let extrasOverlay = !showExtrasOverlay ? null :
             h(ExtrasOverlay, {
                 header: 'room actions',
                 buttons: [
+                    nameTextbox,
+                    hr(),
                     gifButton,
                     hr(),
                     exportButton,
@@ -173,9 +162,18 @@ class RoomPanel extends Component {
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
+    
+        let scriptList = Object.keys(room.scriptList).map(key => room.scriptList[key])
+        let hasScripts = scriptList.find(script => !!script)
+        let scriptButton = iconButton({
+            title: 'script',
+            className: 'simple' + (hasScripts ? ' selected' : ''),
+            onclick: openScriptTab
+        }, 'script')
 
         let currentMusicButton =
             musicButton({
+                className: 'simple',
                 onclick: () => this.setState({ showMusicOverlay: true }),
                 music: currentMusic,
                 isSmall: true
@@ -206,6 +204,7 @@ class RoomPanel extends Component {
 
         let currentPaletteButton =
             paletteButton({
+                className: 'simple',
                 onclick: () => this.setState({ showPaletteOverlay: true }),
                 palette: currentPalette
             })
@@ -354,7 +353,6 @@ class RoomPanel extends Component {
         return panel({ header: 'room', id: 'roomPanel', closeTab }, [
             row([
                 extrasButton,
-                nameTextbox,
                 scriptButton,
                 currentMusicButton,
                 currentPaletteButton

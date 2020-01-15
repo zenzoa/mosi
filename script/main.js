@@ -183,6 +183,7 @@ class Main extends Component {
         let backButton = !oneTabMode ? null :
             iconButton({
                 title: 'back',
+                className: 'simple',
                 onclick: this.closeTab.bind(this, currentTab)
             }, 'back')
 
@@ -420,12 +421,8 @@ class Main extends Component {
 
         let header = tabVisibility.play ? null :
             div({ className: 'editor-header row' }, [
+                backButton,
                 fill(),
-                iconButton({
-                    title: 'intro',
-                    className: 'simple' + (introButtonSelected ? ' selected' : ''),
-                    onclick: () => this.setCurrentTab('welcome')
-                }, 'mosi'),
                 iconButton({
                     title: 'world',
                     className: 'simple' + (worldButtonSelected ? ' selected' : ''),
@@ -452,12 +449,12 @@ class Main extends Component {
                     className: 'simple' + (musicButtonSelected ? ' selected' : ''),
                     onclick: () => this.setCurrentTab('musicList')
                 }, 'music'),
+                fill(),
                 iconButton({
                     title: 'play',
                     className: 'simple',
                     onclick: () => this.setCurrentTab('play')
-                }, 'play-game'),
-                fill()
+                }, 'play-game')
             ])
 
         if (tabVisibility.play) {

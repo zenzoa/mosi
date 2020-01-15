@@ -380,6 +380,7 @@ textarea {
 button,
 input[type="file"],
 .dropdown {
+    transform: translateY(-2px);
     min-width: var(--button-size);
     min-height: var(--button-size);
     border-radius: var(--small-radius);
@@ -392,7 +393,7 @@ input[type="file"],
 
 button:active,
 input[type="file"]:active {
-    transform: translateY(2px);
+    transform: translateY(0);
     box-shadow:
         0 1px 0 0 var(--button-highlight) inset,
         0 -1px 0 0 var(--button-highlight2) inset,
@@ -426,9 +427,11 @@ button.selected:active {
 }
 
 button.simple {
-    transform: translateY(2px);
+    transform: translateY(0);
     box-shadow: none;
     background: none;
+    margin-left: 1px;
+    margin-right: 1px;
 }
 
 button.simple:hover,
@@ -478,7 +481,6 @@ a:focus {
 }
 
 .one-tab-mode .editor-header {
-    padding-bottom: var(--small-padding);
     background: var(--overlay-header-bg);
 }
 
@@ -553,11 +555,6 @@ span.label {
 }
 .room-block .row {
     justify-content: center;
-}
-
-.sprite-button.simple {
-    margin-left: 0;
-    margin-right: 0;
 }
 
 .color-grid {
@@ -678,7 +675,7 @@ span.label {
 }
 
 .overlay {
-    min-width: 50%;
+    min-width: 67%;
     max-width: 100%;
     margin: var(--big-padding);
     border-radius: var(--big-radius);
@@ -709,7 +706,6 @@ span.label {
 .extras-overlay button {
     display: block;
     flex-grow: 1;
-    margin-bottom: var(--big-padding);
 }
 
 hr {

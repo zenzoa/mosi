@@ -41,7 +41,8 @@ class SpritePanel extends Component {
         showRemoveFrameOverlay,
         showClearFrameOverlay,
         showRandomFrameOverlay,
-        showExtrasOverlay
+        showExtrasOverlay,
+        showFrameExtrasOverlay
     }) {
         if (!sprite) return
 
@@ -51,6 +52,11 @@ class SpritePanel extends Component {
         while (colorIndex > 0 && !colorList[colorIndex]) colorIndex--
         let color = colorList[colorIndex]
         let backgroundColor = colorList[0]
+
+        let nameButton = button({
+            className: 'fill',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, name)
 
         let nameTextbox = textbox({
             placeholder: 'sprite name',
@@ -78,20 +84,20 @@ class SpritePanel extends Component {
         let wallButton = isAvatar ? null :
             iconButton({
                 title: 'wall',
-                className: (isWall ? 'selected' : ''),
+                className: 'simple' + (isWall ? ' selected' : ''),
                 onclick: () => setSpriteIsWall(!isWall)
             }, 'wall')
     
         let itemButton = isAvatar ? null :
             iconButton({
                 title: 'item',
-                className: (isItem ? 'selected' : ''),
+                className: 'simple' + (isItem ? ' selected' : ''),
                 onclick: () => setSpriteIsItem(!isItem)
             }, 'item')
     
         let transparentButton = iconButton({
             title: 'transparent',
-            className: (isTransparent ? 'selected' : ''),
+            className: 'simple' + (isTransparent ? ' selected' : ''),
             onclick: () => setSpriteIsTransparent(!isTransparent)
         }, 'transparent')
     
@@ -100,12 +106,11 @@ class SpritePanel extends Component {
         let scriptButton = isAvatar ? null :
             iconButton({
                 title: 'script',
-                className: (hasScripts ? 'selected' : ''),
+                className: 'simple' + (hasScripts ? ' selected' : ''),
                 onclick: openScriptTab
             }, 'script')
     
-        let exportButton = iconButton({
-            title: 'export sprite',
+        let exportButton = button({
             onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
@@ -118,10 +123,9 @@ class SpritePanel extends Component {
             })
     
         let removeButton = isAvatar ? null :
-            iconButton({
-                title: 'remove sprite',
+            button({
                 onclick: () => this.setState({ showExtrasOverlay: false, showRemoveSpriteOverlay: true }),
-            }, 'delete')
+            }, 'remove sprite')
 
         let removeSpriteOverlay = !showRemoveSpriteOverlay ? null :
             h(RemoveOverlay, {
@@ -133,18 +137,16 @@ class SpritePanel extends Component {
                 }
             })
 
-        let duplicateButton = iconButton({
-            title: 'duplicate sprite',
+        let duplicateButton = button({
             onclick: () => {
                 this.setState({ showExtrasOverlay: false })
                 duplicateSprite()
             }
         }, 'duplicate')
 
-        let gifButton = iconButton({
-            title: 'create GIF',
+        let gifButton = button({
             onclick: () => this.setState({ showExtrasOverlay: false, showGifOverlay: true })
-        }, 'gif')
+        }, 'create gif')
 
         let gifOverlay = !showGifOverlay ? null :
             h(GifOverlay, {
@@ -153,12 +155,27 @@ class SpritePanel extends Component {
                 maxScale: 8,
                 closeOverlay: () => this.setState({ showGifOverlay: false })
             })
+
+        let extrasOverlay = !showExtrasOverlay ? null :
+            h(ExtrasOverlay, {
+                header: 'sprite settings',
+                buttons: [
+                    nameTextbox,
+                    hr(),
+                    gifButton,
+                    hr(),
+                    duplicateButton,
+                    removeButton,
+                    exportButton
+                ],
+                closeOverlay: () => this.setState({ showExtrasOverlay: false })
+            })
     
         let frameButtonList = frameList.length === 1 ? null :
             frameList.map((frame, i) => {
                 let selectedClass = i === currentFrameIndex ? ' selected' : ''
                 return button({
-                    className: 'sprite-button' + selectedClass,
+                    className: 'simple sprite-button' + selectedClass,
                     onclick: () => this.setState({ currentFrameIndex: i })
                 }, h(SpriteCanvas, {
                     width,
@@ -178,13 +195,12 @@ class SpritePanel extends Component {
                     addFrame(newFrame)
                     this.setState({ currentFrameIndex: frameList.length - 1 })
                 }
-            }, 'add')
+            }, frameList.length > 1 ? 'add' : 'animation')
     
         let removeFrameButton = frameList.length <= 1 ? null :
-            iconButton({
-                title: 'remove frame',
+            button({
                 onclick: () => this.setState({ showRemoveFrameOverlay: true })
-            }, 'delete')
+            }, 'remove frame')
 
         let removeFrameOverlay = !showRemoveFrameOverlay ? null :
             h(RemoveOverlay, {
@@ -194,14 +210,13 @@ class SpritePanel extends Component {
                     removeFrame(currentFrameIndex)
                     this.setState({
                         currentFrameIndex: Math.max(0, currentFrameIndex - 1),
-                        showRemoveFrameOverlay: false
+                        showRemoveFrameOverlay: false,
+                        showFrameExtrasOverlay: false
                     })
                 }
             })
     
-        let clearFrameButton = iconButton({
-            className: 'icon',
-            title: 'clear frame',
+        let clearFrameButton = button({
             onclick: () => this.setState({ showClearFrameOverlay: true })
         }, 'clear')
 
@@ -214,16 +229,14 @@ class SpritePanel extends Component {
                     updateFrame(currentFrameIndex, frame)
                     this.setState({
                         showClearFrameOverlay: false,
-                        showExtrasOverlay: false
+                        showFrameExtrasOverlay: false
                     })
                 }
             })
 
-        let randomFrameButton = iconButton({
-            className: 'icon',
-            title: 'randomize frame',
+        let randomFrameButton = button({
             onclick: () => this.setState({ showRandomFrameOverlay: true })
-        }, 'random')
+        }, 'randomize')
 
         let randomFrameOverlay = !showRandomFrameOverlay ? null :
             h(RemoveOverlay, {
@@ -234,63 +247,50 @@ class SpritePanel extends Component {
                     updateFrame(currentFrameIndex, frame)
                     this.setState({
                         showRandomFrameOverlay: false,
-                        showExtrasOverlay: false
+                        showFrameExtrasOverlay: false
                     })
                 }
             })
 
-        let flipFrameHorizontalButton = iconButton({
-            className: 'icon',
-            title: 'flip frame left-right',
+        let flipFrameHorizontalButton = button({
             onclick: () => {
-                this.setState({ showExtrasOverlay: false })
+                this.setState({ showFrameExtrasOverlay: false })
                 updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, true))
             }
-        }, 'flip-h')
+        }, 'flip horizontally')
 
-        let flipFrameVerticalButton = iconButton({
-            className: 'icon',
-            title: 'flip frame up-down',
+        let flipFrameVerticalButton = button({
             onclick: () => {
-                this.setState({ showExtrasOverlay: false })
+                this.setState({ showFrameExtrasOverlay: false })
                 updateFrame(currentFrameIndex, Sprite.flipFrame(width, height, currentFrame, false))
             }
-        }, 'flip-v')
+        }, 'flip vertically')
 
-        let rotateFrameButton = iconButton({
-            className: 'icon',
-            title: 'rotate frame',
+        let rotateFrameButton = button({
             onclick: () => {
-                this.setState({ showExtrasOverlay: false })
+                this.setState({ showFrameExtrasOverlay: false })
                 updateFrame(currentFrameIndex, Sprite.rotateFrame(width, height, currentFrame))
             }
         }, 'rotate')
 
-        let extrasButton = iconButton({
-            title: 'sprite actions',
-            onclick: () => this.setState({ showExtrasOverlay: true })
-        }, 'extras')
+        let frameExtrasButton = iconButton({
+            title: 'frame actions',
+            onclick: () => this.setState({ showFrameExtrasOverlay: true })
+        }, 'edit')
 
-        let extrasOverlay = !showExtrasOverlay ? null :
+        let frameExtrasOverlay = !showFrameExtrasOverlay ? null :
             h(ExtrasOverlay, {
-                header: 'sprite actions',
-                content: [
-                    row([
-                        duplicateButton,
-                        removeButton,
-                        exportButton,
-                        gifButton
-                    ]),
+                header: 'frame actions',
+                buttons: [
+                    flipFrameHorizontalButton,
+                    flipFrameVerticalButton,
+                    rotateFrameButton,
                     hr(),
-                    row([
-                        randomFrameButton,
-                        clearFrameButton,
-                        flipFrameHorizontalButton,
-                        flipFrameVerticalButton,
-                        rotateFrameButton
-                    ])
+                    randomFrameButton,
+                    clearFrameButton,
+                    removeFrameButton
                 ],
-                closeOverlay: () => this.setState({ showExtrasOverlay: false })
+                closeOverlay: () => this.setState({ showFrameExtrasOverlay: false })
             })
     
         let drawPixel = (pixelIndex, newValue) => {
@@ -321,26 +321,25 @@ class SpritePanel extends Component {
     
         return panel({ header: 'sprite', id: 'spritePanel', closeTab }, [
             row([
-                backButton,
-                nameTextbox,
-                extrasButton
-            ]),
-            row([
-                icon('animation'),
-                frameButtonList,
-                addFrameButton,
-                removeFrameButton
+                // backButton,
+                nameButton,
+                scriptButton,
+                transparentButton,
+                itemButton,
+                wallButton
             ]),
             spriteGrid,
             row([
-                scriptButton,
+                // icon('animation'),
+                spritePreview,
+                vr(),
+                frameButtonList,
+                addFrameButton,
                 fill(),
-                wallButton,
-                itemButton,
-                transparentButton,
-                spritePreview
+                frameExtrasButton
             ]),
             extrasOverlay,
+            frameExtrasOverlay,
             exportOverlay,
             gifOverlay,
             removeSpriteOverlay,

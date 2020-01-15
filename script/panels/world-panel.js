@@ -62,22 +62,18 @@ class WorldPanel extends Component {
         showModsOverlay
     }) {
 
+        let nameButton = button({
+            className: 'fill',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, worldName)
+
         let nameTextbox = textbox({
             placeholder: 'name of world',
             value: worldName,
             onchange: e => renameWorld(e.target.value)
         })
-    
-        let scriptList = Object.keys(worldScriptList).map(key => worldScriptList[key])
-        let hasScripts = scriptList.find(script => !!script)
-        let scriptButton = iconButton({
-            title: 'script',
-            className: (hasScripts ? 'selected' : ''),
-            onclick: openScriptTab
-        }, 'script')
 
         let importButton = button({
-            title: 'import world',
             onclick: () => this.setState({ showExtrasOverlay: false, showImportOverlay: true })
         }, 'import')
 
@@ -93,7 +89,6 @@ class WorldPanel extends Component {
             })
 
         let exportButton = button({
-            title: 'export world',
             onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
@@ -106,7 +101,6 @@ class WorldPanel extends Component {
             })
     
         let resetButton = button({
-                title: 'reset world',
                 onclick: () => this.setState({ showExtrasOverlay: false, showResetOverlay: true }),
             }, 'reset everything')
 
@@ -121,7 +115,6 @@ class WorldPanel extends Component {
             })
 
         let randomButton = button({
-            title: 'randomize world',
             onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
         }, 'randomize')
 
@@ -136,9 +129,8 @@ class WorldPanel extends Component {
             })
 
         let clearButton = button({
-            title: 'clear world',
             onclick: () => this.setState({ showExtrasOverlay: false, showClearOverlay: true })
-        }, 'clear world')
+        }, 'clear')
 
         let clearOverlay = !showClearOverlay ? null :
             h(RemoveOverlay, {
@@ -151,7 +143,6 @@ class WorldPanel extends Component {
             })
 
         let modsButton = button({
-            title: 'custom scripts',
             onclick: () => this.setState({ showExtrasOverlay: false, showModsOverlay: true })
         }, 'custom scripts')
 
@@ -167,7 +158,6 @@ class WorldPanel extends Component {
             })
 
         let resizeButton = button({
-            title: 'resize world',
             onclick: () => this.setState({ showExtrasOverlay: false, showResizeOverlay: true })
         }, 'resize')
 
@@ -187,7 +177,6 @@ class WorldPanel extends Component {
             })
 
         let fontButton = button({
-            title: 'font settings',
             onclick: () => this.setState({ showExtrasOverlay: false, showFontOverlay: true })
         }, 'font settings')
 
@@ -202,15 +191,12 @@ class WorldPanel extends Component {
                 closeOverlay: () => this.setState({ showFontOverlay: false })
             })
 
-        let extrasButton = iconButton({
-            title: 'world actions',
-            onclick: () => this.setState({ showExtrasOverlay: true })
-        }, 'extras')
-
         let extrasOverlay = !showExtrasOverlay ? null :
             h(ExtrasOverlay, {
-                header: 'world actions',
+                header: 'world settings',
                 buttons: [
+                    nameTextbox,
+                    hr(),
                     resizeButton,
                     modsButton,
                     fontButton,
@@ -223,16 +209,24 @@ class WorldPanel extends Component {
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
+    
+        let scriptList = Object.keys(worldScriptList).map(key => worldScriptList[key])
+        let hasScripts = scriptList.find(script => !!script)
+        let scriptButton = iconButton({
+            title: 'script',
+            className: 'simple' + (hasScripts ? ' selected' : ''),
+            onclick: openScriptTab
+        }, 'script')
 
         let wrapHorizontalButton = iconButton({
             title: 'wrap horizontal',
-            className: (worldWrapHorizontal ? 'selected' : ''),
+            className: 'simple' + (worldWrapHorizontal ? ' selected' : ''),
             onclick: () => setWrapHorizontal(!worldWrapHorizontal)
         }, 'wrap-h')
 
         let wrapVerticalButton = iconButton({
             title: 'wrap vertical',
-            className: (worldWrapVertical ? 'selected' : ''),
+            className: 'simple' + (worldWrapVertical ? ' selected' : ''),
             onclick: () => setWrapVertical(!worldWrapVertical)
         }, 'wrap-v')
 
@@ -252,8 +246,7 @@ class WorldPanel extends Component {
 
         return panel({ header: 'world', id: 'worldPanel', closeTab }, [
             row([
-                extrasButton,
-                nameTextbox,
+                nameButton,
                 scriptButton,
                 wrapHorizontalButton,
                 wrapVerticalButton
