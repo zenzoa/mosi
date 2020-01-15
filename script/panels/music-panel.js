@@ -53,14 +53,19 @@ class MusicPanel extends Component {
         let currentInstrument = currentVoice.instrument
         let currentFreq = currentVoice.noteList[currentNoteIndex]
 
+        let nameButton = button({
+            class: 'fill',
+            onclick: () => this.setState({ showExtrasOverlay: true })
+        }, music.name)
+
         let nameTextbox = textbox({
+            className: 'initial-focus',
             placeholder: 'music name',
             value: music.name,
             onchange: e => renameMusic(e.target.value)
         })
     
-        let exportButton = iconButton({
-            title: 'export music',
+        let exportButton = button({
             onclick: () => this.setState({ showExtrasOverlay: false, showExportOverlay: true })
         }, 'export')
 
@@ -73,10 +78,10 @@ class MusicPanel extends Component {
             })
     
         let removeButton = musicList.length < 2 ? null :
-            iconButton({
+            button({
                 title: 'remove music',
                 onclick: () => this.setState({ showExtrasOverlay: false, showRemoveOverlay: true }),
-            }, 'delete')
+            }, 'remove song')
 
         let removeOverlay = !showRemoveOverlay ? null :
             h(RemoveOverlay, {
@@ -88,20 +93,17 @@ class MusicPanel extends Component {
                 }
             })
 
-        let duplicateButton = iconButton({
+        let duplicateButton = button({
             title: 'duplicate music',
-            className: 'initial-focus',
             onclick: () => {
                 this.setState({ showExtrasOverlay: false })
                 duplicateMusic()
             }
         }, 'duplicate')
 
-        let randomButton = iconButton({
-            className: 'icon',
-            title: 'randomize music',
+        let randomButton = button({
             onclick: () => this.setState({ showExtrasOverlay: false, showRandomOverlay: true })
-        }, 'random')
+        }, 'randomize')
 
         let randomOverlay = !showRandomOverlay ? null :
             h(RemoveOverlay, {
@@ -113,8 +115,7 @@ class MusicPanel extends Component {
                 }
             })
     
-        let clearButton = iconButton({
-            title: 'clear music',
+        let clearButton = button({
             onclick: () => this.setState({ showExtrasOverlay: false, showClearOverlay: true })
         }, 'clear')
 
@@ -128,20 +129,17 @@ class MusicPanel extends Component {
                 }
             })
 
-        let extrasButton = iconButton({
-            title: 'music actions',
-            onclick: () => this.setState({ showExtrasOverlay: true })
-        }, 'extras')
-
         let extrasOverlay = !showExtrasOverlay ? null :
             h(ExtrasOverlay, {
                 header: 'music actions',
                 buttons: [
-                    duplicateButton,
-                    removeButton,
+                    nameTextbox,
+                    hr(),
                     exportButton,
                     randomButton,
-                    clearButton
+                    duplicateButton,
+                    clearButton,
+                    removeButton
                 ],
                 closeOverlay: () => this.setState({ showExtrasOverlay: false })
             })
@@ -199,7 +197,7 @@ class MusicPanel extends Component {
         beats.forEach((beat, i) => {
             beatButtons.push(
                 iconButton({
-                    className: music.beat === beat ? 'selected' : '',
+                    className: 'simple' + (music.beat === beat ? ' selected' : ''),
                     onclick: () => setBeat(beat),
                     title: Math.floor(60 / beat) + ' bpm'
                 }, beatIcons[i])
@@ -241,13 +239,12 @@ class MusicPanel extends Component {
 
         return panel({ header: 'song', id: 'musicPanel', closeTab }, [
             row([
-                nameTextbox,
-                extrasButton,
-                vr(),
+                nameButton,
                 playButton
             ]),
             row([
                 icon('beat'),
+                vr(),
                 beatButtons
             ]),
             musicGrid,

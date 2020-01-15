@@ -691,6 +691,7 @@ span.label {
     flex-direction: row;
     align-items: center;
     padding-left: calc(var(--big-padding) * 2);
+    padding-right: var(--small-padding);
     background: var(--overlay-header-bg);
 }
 

@@ -63,6 +63,7 @@ class PalettePanel extends Component {
         }, palette.name)
 
         let nameTextbox = textbox({
+            className: 'initial-focus',
             placeholder: 'palette name',
             value: palette.name,
             onchange: e => renamePalette(e.target.value)
