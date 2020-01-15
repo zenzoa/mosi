@@ -397,13 +397,10 @@ class ScriptoriumOverlay extends Component {
                 let argText = scriptItem.args.map(a => '[' + a + ']').join(' ')
                 let scriptText = scriptItem.text.replace('?', argText)
                 return div({},
-                    a({
-                        href: '',
-                        onclick: e => {
-                            e.preventDefault()
-                            insertText(scriptText)
-                        }
-                    }, scriptItem.name)
+                    link({ onclick: e => {
+                        e.preventDefault()
+                        insertText(scriptText)
+                    }}, scriptItem.name)
                 )
             })
 
@@ -429,7 +426,7 @@ class ScriptoriumOverlay extends Component {
 
         let moreInfoLink = currentSection ? null :
             div({ className: 'welcome-links' }, [
-                a({ href: 'https://github.com/zenzoa/mosi/wiki/scripts', target: '_blank' }, 'more info on scripts'),
+                link({ href: 'https://github.com/zenzoa/mosi/wiki/scripts' }, 'more info on scripts')
             ])
 
         return overlay({ closeOverlay, header: 'insert script' }, [

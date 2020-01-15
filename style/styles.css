@@ -565,7 +565,7 @@ span.label {
 .color-grid {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
-    grid-template-rows: repeat(8, calc(var(--button-size) * 0.8));
+    grid-template-rows: repeat(8, calc(var(--button-size) * 0.67));
     column-gap: 1px;
     row-gap: 1px;
     margin: var(--big-padding) var(--small-padding) var(--small-padding);
@@ -573,7 +573,7 @@ span.label {
 
 .color-grid.one-row {
     padding: var(--small-padding) 0;
-    grid-template-rows: repeat(1, calc(var(--button-size) * 0.8));
+    grid-template-rows: repeat(1, calc(var(--button-size) * 0.67));
 }
 
 .color-grid-item {
@@ -783,6 +783,12 @@ svg.logo {
 
 .welcome-links {
     margin: var(--big-padding) 0;
+    text-align: center;
+}
+
+.help-link {
+    margin-top: var(--big-padding);
+    padding-top: var(--big-padding);
     text-align: center;
 }
 

@@ -335,6 +335,7 @@ class SpritePanel extends Component {
                 fill(),
                 frameExtrasButton
             ]),
+            helpLink('sprites'),
             extrasOverlay,
             frameExtrasOverlay,
             exportOverlay,

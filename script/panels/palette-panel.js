@@ -228,6 +228,7 @@ class PalettePanel extends Component {
             colorSlices,
             hr(),
             row([ colorTextbox ]),
+            helpLink('palettes'),
             extrasOverlay,
             exportOverlay,
             removePaletteOverlay,

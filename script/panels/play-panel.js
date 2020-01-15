@@ -34,6 +34,7 @@ class PlayPanel extends Component {
                     ref: n => this.gameWrapper = n
                 })
             ),
+            helpLink('play'),
             shareOverlay
         ])
 

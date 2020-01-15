@@ -198,8 +198,8 @@ class WorldPanel extends Component {
                     nameTextbox,
                     hr(),
                     resizeButton,
-                    modsButton,
                     fontButton,
+                    modsButton,
                     hr(),
                     exportButton,
                     importButton,
@@ -252,6 +252,7 @@ class WorldPanel extends Component {
                 wrapVerticalButton
             ]),
             worldGrid,
+            helpLink('world'),
             extrasOverlay,
             importOverlay,
             exportOverlay,

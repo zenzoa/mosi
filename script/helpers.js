@@ -254,3 +254,15 @@ let colorButton = ({ className, onclick, color, title, isSelected }) => {
         div({ className: 'color-blocks'}, colorBlock)
     )
 }
+
+let link = ({ href, onclick }, children) => {
+    href = href || ''
+    let target = href ? '_blank' : null
+    return a({ href, target, onclick }, children)
+}
+
+let helpLink = (wikiPage, className) => {
+    return div({ className: className || 'help-link' }, [
+        link({ href: 'https://github.com/zenzoa/mosi/wiki/' + wikiPage }, 'more info')
+    ])
+}

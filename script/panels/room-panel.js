@@ -366,6 +366,7 @@ class RoomPanel extends Component {
                 fill(),
                 addSpriteToPaletteButton
             ]),
+            helpLink('rooms'),
             extrasOverlay,
             clearOverlay,
             importOverlay,

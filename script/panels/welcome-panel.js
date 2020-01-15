@@ -10,9 +10,9 @@ class WelcomePanel extends Component {
                 span({}, 'added adjacent room edges, support for custom scripts, and less destructive resizing')
             ]),
             div({ className: 'welcome-links' }, [
-                a({ href: 'https://github.com/zenzoa/mosi/wiki', target: '_blank' }, 'tutorial'),
+                link({ href: 'https://github.com/zenzoa/mosi/wiki' }, 'tutorial'),
                 ' | ',
-                a({ href: 'https://github.com/zenzoa/mosi/issues/new', target: '_blank' }, 'found a bug?')
+                link({ href: 'https://github.com/zenzoa/mosi/issues/new' }, 'found a bug?')
             ]),
             row([
                 button({
