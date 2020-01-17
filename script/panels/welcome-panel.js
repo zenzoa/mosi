@@ -5,9 +5,9 @@ class WelcomePanel extends Component {
                 img({ src: 'images/logo.png' })
             ]),
             div({ className: 'welcome-links' }, [
-                h('strong', {}, 'version 1.1'),
+                h('strong', {}, 'version ' + VERSION),
                 h('br'),
-                span({}, 'added adjacent room edges, support for custom scripts, and less destructive resizing')
+                span({}, 'added adjacent room edges, support for custom scripts, less destructive resizing, improved ui')
             ]),
             div({ className: 'welcome-links' }, [
                 link({ href: 'https://github.com/zenzoa/mosi/wiki' }, 'tutorial'),

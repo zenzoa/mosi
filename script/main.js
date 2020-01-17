@@ -1,4 +1,4 @@
-let VERSION = 1.1
+let VERSION = 1.2
 let FRAME_RATE = 400
 let SCREEN_WIDTH = 0
 
