@@ -151,6 +151,7 @@ canvas {
 }
 
 .grid-highlight {
+    z-index: 1;
     position: absolute;
     border-radius: 4px;
     box-shadow: 0 0 0 4px black;
@@ -549,7 +550,7 @@ span.label {
 }
 
 .grid:focus {
-    box-shadow: 0 0 0 2px var(--focus-color);
+    /* box-shadow: 0 0 0 2px var(--focus-color); */
 }
 
 .room-grid {

@@ -64,8 +64,6 @@ class RoomSlice extends Component {
 
             let width = sliceHorizontal ? (spriteWidth * roomWidth) : spriteWidth
             let height = sliceVertical ? (spriteHeight * roomHeight) : spriteHeight
-            let xBgOffset = sliceVertical ? 0 : spriteWidth
-            let yBgOffset = 0
             
             let context = this.canvas.getContext('2d')
 
@@ -74,14 +72,14 @@ class RoomSlice extends Component {
             if (!tileList || !colorList) return
 
             context.fillStyle = colorList[0]
-            context.fillRect(xBgOffset, yBgOffset, width, height)
+            context.fillRect(0, 0, width, height)
 
             tileList.forEach(tile => {
                 let { spriteName, x, y } = tile
                 let sprite = spriteList.find(sprite => sprite.name === spriteName)
                 if (sprite) {
                     if ((sliceVertical && sliceIndex === x) || (sliceHorizontal && sliceIndex === y)) {
-                        let xOffset = sliceVertical ? 0 : (x + 1) * sprite.width
+                        let xOffset = sliceVertical ? 0 : x * sprite.width
                         let yOffset = sliceHorizontal ? 0 : y * sprite.height
                         let frameList = this.spriteFrameList[sprite.name]
                         let frameData = frameList[0]
@@ -109,23 +107,27 @@ class RoomSlice extends Component {
     }
 
     render({ className, spriteWidth, spriteHeight, roomWidth, roomHeight, sliceVertical, sliceHorizontal, onclick, arrow }) {
-        let width = sliceVertical ? spriteWidth * roomWidth : spriteWidth * (roomWidth + 2)
+        let width = spriteWidth * roomWidth
         let height = spriteHeight * roomHeight
-        let widthRatio = width > height ? 1 : width / height
-        let heightRatio = width > height ? height / width : 1
+
+        let tileWidth = 100 / (roomWidth + 2)
+        let tileHeight = tileWidth * (spriteWidth / spriteHeight)
+        
+        let canvasWidth = tileWidth * roomWidth
+        let canvasHeight = tileHeight * roomHeight
 
         return div({
             className: 'slice grid room-grid ' + className,
             style: {
-                width: (sliceHorizontal ? widthRatio : (widthRatio / roomWidth)) * 100 + '%',
-                paddingTop: (sliceVertical ? heightRatio : (heightRatio / roomHeight)) * 100 + '%'
+                width: (sliceHorizontal ? canvasWidth : tileWidth) + '%',
+                paddingTop: (sliceVertical ? canvasHeight : tileHeight) + '%'
             },
             ref: node => { this.node = node },
             onclick
         }, [
             canvas({
-                width: sliceHorizontal ? (spriteWidth * (roomWidth + 2)) : spriteWidth,
-                height: sliceVertical ? (spriteHeight * roomHeight) : spriteHeight,
+                width: sliceHorizontal ? width : spriteWidth,
+                height: sliceVertical ? height : spriteHeight,
                 ref: node => { this.canvas = node }
             }),
             div({ className: 'arrow-overlay' }, arrow)

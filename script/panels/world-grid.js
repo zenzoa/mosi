@@ -199,13 +199,16 @@ class WorldGrid extends Component {
     }) {
         let tileWidth = 100 / worldWidth
         let tileHeight = 100 / worldHeight
+
         let tileX = Math.floor(roomIndex % worldWidth) * tileWidth
         let tileY = Math.floor(roomIndex / worldWidth) * tileHeight
+        
         let startX = Math.floor(startRoomIndex % worldWidth) * tileWidth
         let startY = Math.floor(startRoomIndex / worldWidth) * tileHeight
 
         let width = worldWidth * roomWidth
         let height = worldHeight * roomHeight
+        
         let widthRatio = width > height ? 1 : width / height
         let heightRatio = width > height ? height / width : 1
 

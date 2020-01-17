@@ -150,13 +150,14 @@ class SpriteGrid extends Component {
     }
 
     render({ className, width, height }, { usingKeyboard, lastTileX, lastTileY }) {
-        let tileWidth = 100 / width
-        let tileHeight = 100 / height
+        let canvasWidth = 100
+        let canvasHeight = 100 * (width / height)
+
+        let tileWidth = canvasWidth / width
+        let tileHeight = canvasHeight / height
+
         let tileX = lastTileX * tileWidth
         let tileY = lastTileY * tileHeight
-
-        let widthRatio = width > height ? 1 : width / height
-        let heightRatio = width > height ? height / width : 1
 
         let gridHighlight = !usingKeyboard ? null :
             div({
@@ -172,8 +173,8 @@ class SpriteGrid extends Component {
         return div({
             className: 'grid sprite-grid ' + className,
             style: {
-                width: widthRatio * 100 + '%',
-                paddingTop: heightRatio * 100 + '%'
+                width: canvasWidth + '%',
+                paddingTop: canvasHeight + '%'
             },
             ref: node => { this.node = node },
             tabindex: 0

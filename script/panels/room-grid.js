@@ -267,15 +267,16 @@ class RoomGrid extends Component {
     }
 
     render({ className, spriteWidth, spriteHeight, roomWidth, roomHeight, colorList }, { usingKeyboard, lastTileX, lastTileY }) {
-        let tileWidth = 100 / roomWidth
-        let tileHeight = 100 / roomHeight
-        let tileX = lastTileX * tileWidth
-        let tileY = lastTileY * tileHeight
+        let tileWidth = 100 / (roomWidth + 2)
+        let tileHeight = tileWidth * (spriteWidth / spriteHeight)
+        
+        let canvasWidth = tileWidth * roomWidth
+        let canvasHeight = tileHeight * roomHeight
 
-        let width = spriteWidth * (roomWidth + 2)
-        let height = spriteHeight * roomHeight
-        let widthRatio = width > height ? 1 : (spriteWidth * roomWidth) / height
-        let heightRatio = width > height ? height / (spriteWidth * roomWidth) : 1
+        let highlightWidth = 100 / roomWidth
+        let highlightHeight = 100 / roomHeight
+        let tileX = lastTileX * highlightWidth
+        let tileY = lastTileY * highlightHeight
 
         let gridHighlight = !usingKeyboard ? null :
             div({
@@ -283,16 +284,16 @@ class RoomGrid extends Component {
                 style: {
                     left: tileX + '%',
                     top: tileY + '%',
-                    width: tileWidth + '%',
-                    height: tileHeight + '%'
+                    width: highlightWidth + '%',
+                    height: highlightHeight + '%'
                 }
             })
 
         return div({
             className: 'grid room-grid ' + className,
             style: {
-                width: widthRatio * 100 + '%',
-                paddingTop: heightRatio * 100 + '%',
+                width: canvasWidth + '%',
+                paddingTop: canvasHeight + '%',
                 backgroundColor: colorList[0]
             },
             ref: node => { this.node = node },
