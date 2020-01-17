@@ -74,7 +74,6 @@ class RoomPanel extends Component {
         }, room.name)
 
         let nameTextbox = textbox({
-            className: 'initial-focus',
             placeholder: 'room name',
             value: room.name,
             onchange: e => renameRoom(e.target.value)

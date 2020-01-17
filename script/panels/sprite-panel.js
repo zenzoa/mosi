@@ -58,7 +58,6 @@ class SpritePanel extends Component {
         }, name)
 
         let nameTextbox = textbox({
-            className: 'initial-focus',
             placeholder: 'sprite name',
             value: name,
             onchange: e => renameSprite(e.target.value)

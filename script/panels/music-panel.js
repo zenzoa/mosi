@@ -59,7 +59,6 @@ class MusicPanel extends Component {
         }, music.name)
 
         let nameTextbox = textbox({
-            className: 'initial-focus',
             placeholder: 'music name',
             value: music.name,
             onchange: e => renameMusic(e.target.value)

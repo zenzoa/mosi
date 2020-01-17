@@ -68,7 +68,6 @@ class WorldPanel extends Component {
         }, worldName)
 
         let nameTextbox = textbox({
-            className: 'initial-focus',
             placeholder: 'name of world',
             value: worldName,
             onchange: e => renameWorld(e.target.value)
