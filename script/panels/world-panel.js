@@ -251,7 +251,9 @@ class WorldPanel extends Component {
                 wrapHorizontalButton,
                 wrapVerticalButton
             ]),
-            worldGrid,
+            div({ className: 'grid-container' }, [
+                worldGrid,
+            ]),
             helpLink('world'),
             extrasOverlay,
             importOverlay,

@@ -97,7 +97,6 @@ canvas {
 .one-tab-mode .panel {
     margin: 0 auto;
     width: 100%;
-    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 6);
 }
 
 .one-tab-mode .panel-header {
@@ -114,7 +113,6 @@ canvas {
 .multi-tab-mode .panel {
     flex-basis: 400px;
     flex-shrink: 0;
-    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 12);
 }
 
 .multi-tab-mode .panel-header {
@@ -125,6 +123,11 @@ canvas {
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
+}
+
+.grid-container {
+    margin: 0 auto;
+    max-width: calc(100vh - var(--button-size) * 5 - var(--big-padding) * 6)
 }
 
 .grid {

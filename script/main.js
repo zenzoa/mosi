@@ -65,7 +65,7 @@ class Main extends Component {
         }
 
         this.resize = () => {
-            SCREEN_WIDTH = window.innerWidth - 16
+            SCREEN_WIDTH = Math.min(400, window.innerWidth) - 16
             let oneTabMode = window.innerWidth < 900
             let tabVisibility = this.state.tabVisibility
             if (oneTabMode) {

@@ -326,7 +326,9 @@ class SpritePanel extends Component {
                 itemButton,
                 wallButton
             ]),
-            spriteGrid,
+            div({ className: 'grid-container' }, [
+                spriteGrid,
+            ]),
             row([
                 spritePreview,
                 vr(),

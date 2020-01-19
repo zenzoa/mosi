@@ -356,7 +356,7 @@ class RoomPanel extends Component {
                 currentMusicButton,
                 currentPaletteButton
             ]),
-            div({ class: 'room-block' }, [
+            div({ class: 'grid-container room-block' }, [
                 row([ roomSliceNorth ]),
                 row([ roomSliceWest, roomGrid, roomSliceEast ]),
                 row([ roomSliceSouth ])
