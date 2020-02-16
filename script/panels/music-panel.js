@@ -3,23 +3,13 @@ class MusicPanel extends Component {
         super()
 
         this.state = {
-            currentVoiceIndex: 0,
-            currentNoteIndex: 0
+            currentNoteIndex: 5
         }
 
         this.scales = Music.getScales()
 
         this.updateBeatIndicator = (noteIndex) => {
             this.beatIndicator.style.left = ((noteIndex + 0.5) / 16 * 100) + '%'
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        if (this.props.music !== nextProps.music) {
-            this.setState({
-                currentVoiceIndex: 0,
-                currentNoteIndex: 0
-            })
         }
     }
 
@@ -40,7 +30,6 @@ class MusicPanel extends Component {
         musicList,
         music,
     }, {
-        currentVoiceIndex,
         currentNoteIndex,
         showExportOverlay,
         showRemoveOverlay,
@@ -49,10 +38,6 @@ class MusicPanel extends Component {
         showExtrasOverlay,
         isPlaying
     }) {
-        let currentVoice = music.voiceList[currentVoiceIndex]
-        let currentInstrument = currentVoice.instrument
-        let currentFreq = currentVoice.noteList[currentNoteIndex]
-
         let nameButton = button({
             class: 'fill',
             onclick: () => this.setState({ showExtrasOverlay: true })
@@ -148,7 +133,6 @@ class MusicPanel extends Component {
         for (let i = 0; i < gridCount; i++) {
             let voiceIndex = Math.floor(i / 16)
             let noteIndex = Math.floor(i % 16)
-            let isSelected = voiceIndex === currentVoiceIndex && noteIndex === currentNoteIndex
             let voice = music.voiceList[voiceIndex]
             let freq = voice.noteList[noteIndex]
             let scale = this.scales[voiceIndex]
@@ -157,21 +141,13 @@ class MusicPanel extends Component {
             gridItems.push(
                 div({ className: 'music-grid-item', style: { background: color } },
                     button({
-                        className: (isSelected ? 'selected initial-focus' : ''),
                         onclick: () => {
-                            if (isSelected) {
-                                if (colorIndex >= 0) {
-                                    this.lastFreq = freq
-                                    setNote(currentVoiceIndex, currentNoteIndex, null)
-                                } else if (this.lastFreq) {
-                                    setNote(currentVoiceIndex, currentNoteIndex, this.lastFreq)
-                                }
+                            let scale = this.scales[voiceIndex]
+                            let newFreq = scale[currentNoteIndex]
+                            if (freq) {
+                                setNote(voiceIndex, noteIndex, null)
                             } else {
-                                this.lastFreq = null
-                                this.setState({
-                                    currentVoiceIndex: voiceIndex,
-                                    currentNoteIndex: noteIndex
-                                })
+                                setNote(voiceIndex, noteIndex, newFreq)
                             }
                         }
                     })
@@ -205,18 +181,16 @@ class MusicPanel extends Component {
 
         let noteButtons = []
         let noteNames = ['C', 'E-flat', 'F', 'G', 'B-flat']
-        this.scales[currentVoiceIndex].forEach((freq, i) => {
-            let isSelected = (freq === currentFreq)
+        this.scales[0].forEach((freq, i) => {
+            let isSelected = (i === currentNoteIndex)
             noteButtons.push(
                 colorButton({
                     isSelected,
                     onclick: () => {
-                        if (isSelected) {
-                            setNote(currentVoiceIndex, currentNoteIndex, null)
-                        } else {
-                            setNote(currentVoiceIndex, currentNoteIndex, freq)
-                            MusicPlayer.playNote(freq, currentInstrument, music.beat)
-                        }
+                        let voice = music.voiceList && music.voiceList[0]
+                        let instrument = voice && voice.instrument
+                        if (instrument) MusicPlayer.playNote(freq, instrument)
+                        this.setState({ currentNoteIndex: i })
                     },
                     color: Music.noteColors[i],
                     title: noteNames[i % 5]
