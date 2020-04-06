@@ -33,6 +33,11 @@ canvas {
     image-rendering: crisp-edges;
     image-rendering: -moz-crisp-edges;
 }
+
+canvas:focus {
+    outline: none;
+}
+
 </style>
 
 <script>

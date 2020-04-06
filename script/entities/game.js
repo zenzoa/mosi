@@ -11,6 +11,7 @@ return class {
         el.appendChild(this.wrapper)
 
         this.canvas = document.createElement('canvas')
+        this.canvas.tabIndex = "1"
         this.canvas.width = world.roomWidth * world.spriteWidth
         this.canvas.height = world.roomHeight * world.spriteHeight
         this.canvas.style.position = 'absolute'
@@ -574,6 +575,7 @@ return class {
 
         this.pointerStart = (e) => {
             e.preventDefault()
+            this.canvas.focus()
             let pointer = e.touches ? e.touches[0] : e
             this.pointerIsDown = true
             this.movesSinceLastTouch = 0
@@ -615,6 +617,7 @@ return class {
         }
 
         this.resize = () => {
+            this.canvas.focus()
             let width = this.canvas.width
             let height = this.canvas.height
             let widthRatio = width > height ? 1 : width / height
