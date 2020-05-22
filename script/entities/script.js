@@ -486,13 +486,25 @@ return {
 
             'is-empty': (game, context, args) => {
                 if (args.length >= 2 && isInt(args[0]) && isInt(args[1])) {
-                    x = args[0] || 0
-                    y = args[1] || 0
+                    let x = args[0] || 0
+                    let y = args[1] || 0
                     let tilesInRoom = game.currentRoom.tileList
                     let tilesAtLocation = tilesInRoom.filter(t =>
                             t.x === x && t.y === y
                         )
                     return (tilesAtLocation.length === 0)
+                }
+            },
+
+            'sprite-at': (game, context, args) => {
+                if (args.length >= 2 && isInt(args[0]) && isInt(args[1])) {
+                    let x = args[0] || 0
+                    let y = args[1] || 0
+                    let tilesInRoom = game.currentRoom.tileList
+                    let tilesAtLocation = tilesInRoom.filter(t =>
+                            t.x === x && t.y === y
+                        )
+                    return tilesAtLocation
                 }
             },
 
@@ -782,13 +794,19 @@ return {
             'pick': (game, context, args, textSettings, pushDialog, runNodes) => {
                 if (args.length >= 2 && isArr(args[0])) {
                     let oldTile = context.tile
+                    let oldSprite = context.sprite
                     let tiles = args[0]
                     let nodes = args[1]
                     tiles.forEach(t => {
                         context.tile = t
-                        runNodes(nodes, textSettings)
+                        context.sprite = game.world.spriteList.find(s => s.name === t.spriteName)
+                        console.log(t, context.sprite)
+                        if (context.sprite) {
+                            runNodes(nodes, textSettings)
+                        }
                     })
                     context.tile = oldTile
+                    context.sprite = oldSprite
                 }
             }
 
