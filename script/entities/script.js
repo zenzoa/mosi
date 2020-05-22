@@ -72,11 +72,6 @@ let scriptorium = {
             args: [],
             spriteOnly: true
         },
-        // {
-        //     name: 'sprite\'s room name',
-        //     text: '{sprite-room}',
-        //     spriteOnly: true
-        // },
         {
             name: 'sprite\'s x-position (column)',
             text: '{sprite-x}',
@@ -148,6 +143,11 @@ let scriptorium = {
             name: 'current room\'s name',
             text: '{room-name}',
             args: []
+        },
+        {
+            name: 'whether tile is empty',
+            text: '{is-empty ?}',
+            args: ['x', 'y']
         },
         {
             name: 'set room\'s palette',
@@ -482,6 +482,49 @@ return {
                 } else {
                     return 0
                 }
+            },
+
+            'is-empty': (game, context, args) => {
+                if (args.length >= 2 && isInt(args[0]) && isInt(args[1])) {
+                    x = args[0] || 0
+                    y = args[1] || 0
+                    let tilesInRoom = game.currentRoom.tileList
+                    let tilesAtLocation = tilesInRoom.filter(t =>
+                            t.x === x && t.y === y
+                        )
+                    return (tilesAtLocation.length === 0)
+                }
+            },
+
+            'sprites-in-room': (game, context) => {
+                let currentTile = context ? context.tile : null
+                let tilesInRoom = game.currentRoom.tileList
+                let tilesExceptMe = tilesInRoom.filter(t => t !== currentTile)
+                return tilesExceptMe
+            },
+
+            'sprites-named': (game, context, args) => {
+                if (args.length > 0 && isStr(args[0])) {
+                    let spriteName = args[0]
+                    let currentTile = context ? context.tile : null
+                    let tilesInRoom = game.currentRoom.tileList
+                    let tilesWithName = tilesInRoom.filter(t =>
+                            t.spriteName === spriteName && t !== currentTile
+                        )
+                    return tilesWithName
+                }
+            },
+
+            'neighbors': (game, context) => {
+                if (context && context.tile) {
+                    let x = context.tile.x
+                    let y = context.tile.y
+                    let tilesInRoom = game.currentRoom.tileList
+                    let adjacentTiles = tilesInRoom.filter(t =>
+                            Math.abs(t.x - x) <= 1 && Math.abs(t.y - y) <= 1 && t !== context.tile
+                        )
+                    return adjacentTiles
+                }
             }
 
         }
@@ -734,6 +777,19 @@ return {
                         runNodes(args[2], textSettings)
                     }
                 }
+            },
+
+            'pick': (game, context, args, textSettings, pushDialog, runNodes) => {
+                if (args.length >= 2 && isArr(args[0])) {
+                    let oldTile = context.tile
+                    let tiles = args[0]
+                    let nodes = args[1]
+                    tiles.forEach(t => {
+                        context.tile = t
+                        runNodes(nodes, textSettings)
+                    })
+                    context.tile = oldTile
+                }
             }
 
         }
@@ -910,6 +966,8 @@ return {
                             }
                             funcArgs.push(ifNodes)
                             if (elseNodes.length) funcArgs.push(elseNodes)
+                        } else if (funcName === 'pick') {
+                            funcArgs.push(parseTextNode('/pick'))
                         } else if (funcName === 'color') {
                             funcArgs.push(parseTextNode('/color'))
                         } else if (funcName === 'wavy') {
