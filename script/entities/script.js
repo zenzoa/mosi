@@ -146,7 +146,7 @@ let scriptorium = {
         },
         {
             name: 'whether tile is empty',
-            text: '{is-empty ?}',
+            text: '{empty ?}',
             args: ['x', 'y']
         },
         {
@@ -484,7 +484,7 @@ return {
                 }
             },
 
-            'is-empty': (game, context, args) => {
+            'empty': (game, context, args) => {
                 if (args.length >= 2 && isInt(args[0]) && isInt(args[1])) {
                     let x = args[0] || 0
                     let y = args[1] || 0
