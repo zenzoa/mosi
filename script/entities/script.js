@@ -800,7 +800,6 @@ return {
                     tiles.forEach(t => {
                         context.tile = t
                         context.sprite = game.world.spriteList.find(s => s.name === t.spriteName)
-                        console.log(t, context.sprite)
                         if (context.sprite) {
                             runNodes(nodes, textSettings)
                         }

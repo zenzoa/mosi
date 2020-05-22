@@ -58,10 +58,8 @@ class SpriteList extends Component {
                     className: i === currentSpriteIndex ? 'initial-focus' : '',
                     onclick: () => {
                         if (currentSpriteIndex === i && editSprite) {
-                            console.log('edit sprite', i)
                             editSprite()
                         } else {
-                            console.log('select sprite', i)
                             selectSprite(i, 'sprite')
                         }
                     },

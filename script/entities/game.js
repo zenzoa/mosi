@@ -324,12 +324,14 @@ return class {
                 2
             )
             this.pageStartTimestamp = null
+            this.pageIsComplete = false
         }
 
         this.progressDialog = () => {
             if (this.pageIsComplete) {
                 this.pageStartTimestamp = null
                 this.dialogPages.shift()
+                this.pageIsComplete = false
             } else {
                 this.pageIsComplete = true
             }
