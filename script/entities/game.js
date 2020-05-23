@@ -102,7 +102,7 @@ return class {
             // update avatar
             this.timeToNextInput -= dt
             if (this.timeToNextInput <= 0) {
-                if (this.dialogPages.length === 0) this.updateAvatar()
+                this.updateAvatar()
                 this.timeToNextInput = 200
             }
 
@@ -158,7 +158,9 @@ return class {
             let stopMoving = false
 
             // check input
-            if (this.keyActive) {
+            if (this.dialogPages.length > 0) {
+                // do nothing if there's dialog up
+            } else if (this.keyActive) {
                 let key = this.keyCodes[this.keyCodes.length - 1]
                 if (key === 'ArrowLeft') {
                     x--
@@ -332,8 +334,6 @@ return class {
                 this.pageStartTimestamp = null
                 this.dialogPages.shift()
                 this.pageIsComplete = false
-            } else {
-                this.pageIsComplete = true
             }
         }
 

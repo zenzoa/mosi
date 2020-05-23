@@ -40,6 +40,7 @@ return {
         let lineList = []
         let nodesOnLine = []
         let spacingSoFar = 0
+        let charsSoFar = 0
 
         newNodes.forEach(node => {
             if (node.type === 'page-break') {
@@ -48,6 +49,7 @@ return {
                 lineList = []
                 nodesOnLine = []
                 spacingSoFar = 0
+                charsSoFar = 0
             }
             else if (node.type === 'line-break') {
                 if (nodesOnLine.length) lineList.push(nodesOnLine)
@@ -57,8 +59,9 @@ return {
                 }
                 nodesOnLine = []
                 spacingSoFar = 0
+                charsSoFar = 0
             }
-            else {
+            else if (node.type === 'text') {
                 let nodeWidth = Text.textWidth(fontData, node.text)
                 if (spacingSoFar + nodeWidth > pageWidth) {
                     if (nodesOnLine.length) lineList.push(nodesOnLine)
@@ -68,10 +71,16 @@ return {
                     }
                     nodesOnLine = [node]
                     spacingSoFar = nodeWidth
+                    charsSoFar = node.text.length
                 } else {
                     nodesOnLine.push(node)
                     spacingSoFar += nodeWidth
+                    charsSoFar += node.text.length
                 }
+            }
+            else if (node.type === 'action') {
+                node.charPosition = charsSoFar
+                nodesOnLine.push(node)
             }
         })
 
@@ -121,7 +130,8 @@ return {
 
     drawPage: (context, fontData, fontDirection, lineList, timestamp, maxChars) => {
         let lineHeight = Math.floor(fontData.height * 2)
-        let position = lineList[0][0].position
+        let firstTextLine = lineList[0].find(l => l.type === 'text')
+        let position = firstTextLine ? firstTextLine.position : 'none'
 
         // draw background
         let bgWidth = context.canvas.width - (fontData.width * 2)
@@ -136,7 +146,9 @@ return {
             bgY = context.canvas.height - bgHeight - fontData.width
         }
 
-        if (position === 'fullscreen') {
+        if (position === 'none') {
+            // don't draw background
+        } else if (position === 'fullscreen') {
             context.fillStyle = 'black'
             context.fillRect(0, 0, context.canvas.width, context.canvas.height)
         } else {
@@ -157,25 +169,33 @@ return {
             let spacingSoFar = 0
 
             nodeList.forEach(node => {
-                let nodeText = maxChars >= 0 ? node.text.slice(0, currentMaxChars) : node.text
-                numChars += node.text.length
 
-                let seqWidth = Text.drawSeq(
-                    context,
-                    fontData,
-                    fontDirection,
-                    nodeText,
-                    node.color,
-                    node.style,
-                    x + spacingSoFar,
-                    y + (lineIndex * lineHeight),
-                    timestamp,
-                    charIndex
-                )
+                if (node.type === 'text') {
+                    let nodeText = maxChars >= 0 ? node.text.slice(0, currentMaxChars) : node.text
+                    numChars += node.text.length
 
-                if (maxChars) currentMaxChars -= nodeText.length
-                charIndex += nodeText.length
-                spacingSoFar += seqWidth
+                    let seqWidth = Text.drawSeq(
+                        context,
+                        fontData,
+                        fontDirection,
+                        nodeText,
+                        node.color,
+                        node.style,
+                        x + spacingSoFar,
+                        y + (lineIndex * lineHeight),
+                        timestamp,
+                        charIndex
+                    )
+
+                    if (maxChars) currentMaxChars -= nodeText.length
+                    charIndex += nodeText.length
+                    spacingSoFar += seqWidth
+
+                } else if (node.type === 'action' && maxChars >= node.charPosition) {
+                    node.actionFunc()
+                    node.type = 'completed-action'
+                }
+
             })
         })
 
@@ -187,8 +207,8 @@ return {
         context.fillStyle = 'white'
         context.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight)
 
-        // return true if all characters were drawn
-        let allCharsDrawn = numChars <= maxChars
+        // return true if all characters were drawn (includes slight timing buffer)
+        let allCharsDrawn = numChars + 5 <= maxChars
         return allCharsDrawn
     },
 

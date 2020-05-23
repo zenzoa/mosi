@@ -328,6 +328,14 @@ return {
             }
         }
 
+        let addActionNode = (name, action) => {
+            dialogNodes.push({
+                type: 'action',
+                actionName: name,
+                actionFunc: action
+            })
+        }
+
         // define expressions
         let expressions = {
 
@@ -542,6 +550,7 @@ return {
         }
 
         // define functions
+        let immediateEvalFunctions = ['b', 'p', 'color', 'wavy', 'shaky', 'color', 'position', 'if', 'pick']
         let funcs = {
             'b': (game, context, args, textSettings, pushDialog) => {
                 pushDialog({ type: 'line-break' })
@@ -861,7 +870,13 @@ return {
                 }
 
                 if (funcs[func]) {
-                    funcs[func](game, context, args, textSettings, pushDialog, runNodes)
+                    if (immediateEvalFunctions.includes(func)) {
+                        funcs[func](game, context, args, textSettings, pushDialog, runNodes)
+                    } else {
+                        addActionNode(func, () => {
+                            funcs[func](game, context, args, textSettings, pushDialog, runNodes)
+                        })
+                    }
                 } else {
                     addDialogNode(calcExpression(node, context), textSettings)
                 }
