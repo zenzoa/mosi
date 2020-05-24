@@ -550,7 +550,7 @@ return {
         }
 
         // define functions
-        let immediateEvalFunctions = ['b', 'p', 'color', 'wavy', 'shaky', 'color', 'position', 'if', 'pick']
+        let immediateEvalFunctions = ['b', 'p', 'color', 'wavy', 'shaky', 'color', 'position']
         let funcs = {
             'b': (game, context, args, textSettings, pushDialog) => {
                 pushDialog({ type: 'line-break' })
@@ -789,13 +789,14 @@ return {
             },
 
             'if': (game, context, args, textSettings, pushDialog, runNodes) => {
+                let evalImmediately = true
                 if (args.length >= 2) {
                     let result = (args[0].toString() === 'true')
                     if (result && isArr(args[1])) {
-                        runNodes(args[1], context, textSettings)
+                        runNodes(args[1], context, textSettings, evalImmediately)
                     }
                     else if (!result && isArr(args[2])) {
-                        runNodes(args[2], context, textSettings)
+                        runNodes(args[2], context, textSettings, evalImmediately)
                     }
                 }
             },
@@ -856,7 +857,7 @@ return {
         }
 
         // run the next bit of script
-        let runNode = (node, context, textSettings) => {
+        let runNode = (node, context, textSettings, evalImmediately) => {
             if (isStr(node)) {
                 addDialogNode(node, textSettings)
 
@@ -870,13 +871,14 @@ return {
                 }
 
                 if (funcs[func]) {
-                    if (immediateEvalFunctions.includes(func)) {
-                        funcs[func](game, context, args, textSettings, pushDialog, runNodes)
-                    } else {
-                        addActionNode(func, () => {
-                            funcs[func](game, context, args, textSettings, pushDialog, runNodes)
-                        })
-                    }
+                    funcs[func](game, context, args, textSettings, pushDialog, runNodes)
+                    // if (evalImmediately || immediateEvalFunctions.includes(func)) {
+                    //     funcs[func](game, context, args, textSettings, pushDialog, runNodes)
+                    // } else {
+                    //     addActionNode(func, () => {
+                    //         funcs[func](game, context, args, textSettings, pushDialog, runNodes)
+                    //     })
+                    // }
                 } else {
                     addDialogNode(calcExpression(node, context), textSettings)
                 }
@@ -884,9 +886,9 @@ return {
         }
 
         // run a list of scripts
-        let runNodes = (nodes = [], context, textSettings) => {
+        let runNodes = (nodes = [], context, textSettings, evalImmediately) => {
             nodes.forEach(node => {
-                runNode(node, context, textSettings)
+                runNode(node, context, textSettings, evalImmediately)
             })
         }
 
