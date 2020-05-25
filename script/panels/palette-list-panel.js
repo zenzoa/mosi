@@ -9,7 +9,6 @@ class PaletteListPanel extends Component {
 class PaletteList extends Component {
     render ({
         selectPalette,
-        editPalette,
         addPalette,
         importPalette,
         currentPaletteIndex,
@@ -21,11 +20,7 @@ class PaletteList extends Component {
             return paletteButton({
                 className: i === currentPaletteIndex ? 'initial-focus' : '',
                 onclick: () => {
-                    if (currentPaletteIndex === i) {
-                        editPalette()
-                    } else {
-                        selectPalette(i, 'palette')
-                    }
+                    selectPalette(i, 'palette')
                 },
                 isSelected: (i === currentPaletteIndex),
                 palette
