@@ -35,6 +35,7 @@ return class {
 
         this.frameRate = 400
         this.dialogRate = 50
+        this.nextPageDelay = 200
 
         this.begin = () => {
             // set up avatar
@@ -57,8 +58,9 @@ return class {
             this.avatarDirection = 'right'
 
             // initialize dialog variables
-            this.dialogPages = []
+            this.dialogNodes = []
             this.pageIsComplete = false
+            this.nextPageTimer = 0
 
             // get starting room
             this.moveRooms(this.startingRoom(), true)
@@ -158,7 +160,7 @@ return class {
             let stopMoving = false
 
             // check input
-            if (this.dialogPages.length > 0) {
+            if (this.dialogNodes.length > 0) {
                 // do nothing if there's dialog up
             } else if (this.keyActive) {
                 let key = this.keyCodes[this.keyCodes.length - 1]
@@ -319,43 +321,75 @@ return class {
         }
 
         this.startDialog = (dialogNodes) => {
-            this.dialogPages = Text.nodesToPages(
-                dialogNodes,
-                this.world.fontData,
-                this.textCanvas.width - (this.world.fontData.width * 6),
-                2
-            )
+            this.dialogNodes = dialogNodes
             this.pageStartTimestamp = null
             this.pageIsComplete = false
+            window.textPosition = null
         }
 
         this.progressDialog = () => {
-            if (this.pageIsComplete) {
+            if (this.pageIsComplete && this.nextPageTimer >= this.nextPageDelay) {
                 this.pageStartTimestamp = null
-                this.dialogPages.shift()
                 this.pageIsComplete = false
+                this.nextPageTimer = 0
+                this.dialogNodes = this.dialogNodes.slice(this.nextPageNodeIndex)
+
+                if (this.dialogNodes.length === 0) {
+                    // clear text canvas when dialog is complete
+                    this.textContext.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height)
+                }
+            } else {
+                this.pageIsComplete = true
             }
         }
 
         this.updateDialog = (timestamp) => {
-            this.textContext.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height)
-            if (this.dialogPages.length === 0) return
+            if (this.dialogNodes.length === 0) return
 
+            let canvas = this.textCanvas
+            let context = this.textContext
+            let { fontData, fontDirection } = this.world
+
+            context.clearRect(0, 0, canvas.width, canvas.height)
+
+            // calculate number of characters to draw
             if (!this.pageStartTimestamp) this.pageStartTimestamp = timestamp
             let dt = timestamp - this.pageStartTimestamp
-
             let maxChars = this.pageIsComplete ? -1 : Math.floor(dt / this.dialogRate)
-            
-            let allCharsDrawn = Text.drawPage(
-                this.textContext,
-                this.world.fontData,
-                this.world.fontDirection,
-                this.dialogPages[0],
+
+            // draw background
+            if (!window.textPosition) window.textPosition = 'none'
+            let { bgX, bgY, bgWidth, bgHeight } = Text.drawBackground(context, fontData, window.textPosition)
+
+            // draw continue indicator
+            if (this.pageIsComplete) {
+                this.nextPageTimer += Math.floor(dt / this.dialogRate)
+                Text.drawContinueIndicator(context, fontData, bgX, bgY, bgWidth, bgHeight)
+            }
+
+            // draw text
+            let nextPageNodeIndex = Text.drawNode({
+                nodes: this.dialogNodes,
+                canvas,
+                context,
+                fontData,
+                fontDirection,
                 timestamp,
-                maxChars
-            )
-            if (allCharsDrawn) {
+                maxChars,
+                bgX, bgY
+            })
+
+            if (nextPageNodeIndex >= 0) {
+                // TODO: start timer before showing continue indicator
+
+                let textNodeCount = this.dialogNodes.filter((node, i) =>
+                        (node.type === 'text' && i < nextPageNodeIndex)
+                    ).length
+
                 this.pageIsComplete = true
+                this.nextPageNodeIndex = nextPageNodeIndex
+
+                if (textNodeCount === 0) this.progressDialog()
             }
         }
 
@@ -559,7 +593,7 @@ return class {
             if (e.key === 'm') {
                 window.muteMusic = !window.muteMusic
             }
-            else if (this.dialogPages.length > 0) {
+            else if (this.dialogNodes.length > 0) {
                 if (e.key.startsWith('Arrow')) {
                     this.progressDialog()
                 }
@@ -607,7 +641,7 @@ return class {
             if (this.pointerIsDown) {
                 e.preventDefault()
                 this.pointerIsDown = false
-                if (this.dialogPages.length > 0) {
+                if (this.dialogNodes.length > 0) {
                     this.progressDialog()
                 } else {
                     if (this.movesSinceLastTouch === 0) {

@@ -1,118 +1,192 @@
 let textScript = `
 return {
 
-    nodesToPages: (dialogNodes, fontData, pageWidth, linesPerPage) => {
-        let lastPosition
+    drawNode: ({ nodes, nodeIndex = 0, canvas, context, fontData, fontDirection, timestamp, bgX = 0, bgY = 0, charsSoFar = 0, maxChars, spacingSoFar = 0, currentLine = 0, linesPerPage = 2 }) => {
+        if (nodeIndex >= nodes.length) {
+            return nodeIndex
+        }
 
-        // break individual nodes up based on line breaks
-        let newNodes = []
-        dialogNodes.forEach(node => {
-            if (node.type === 'text') {
-                // if new position is defined, create a new page
-                if (!lastPosition) lastPosition = node.position
-                if (node.position !== lastPosition) {
-                    newNodes.push({ type: 'page-break' })
+        let node = nodes[nodeIndex]
+
+        if (node.type === 'text') {
+            let nodeIsComplete = true
+
+            // set position
+            window.textPosition = node.position
+
+            // find starting position
+            let x = bgX + (fontData.width * 2)
+            let y = (currentLine * fontData.height * 2) + bgY + (fontData.height * 2)
+
+            // find widths of page and a single space
+            let pageWidth = canvas.width - (fontData.width * 6)
+            let spaceWidth = fontData.width
+
+            // figure out if first word in node should be preceeded by a space
+            let startWithSpace = node.text.startsWith(' ')
+            let previousTextNodes = nodes.slice(0, nodeIndex).filter(n => n.type === 'text')
+            if (previousTextNodes.length > 0) {
+                let previousTextNode = previousTextNodes[previousTextNodes.length - 1]
+                let previousText = previousTextNode.text
+                if (previousText.endsWith(' ')) startWithSpace = true
+            }
+
+            // divide text into words
+            let words = node.text.split(/\\s+/)
+
+            // draw each word on screen
+            for (let i = 0; i < words.length; i++) {
+                let word = words[i]
+
+                // ignore empty words
+                if (!word) continue
+
+                // add preceeding space if not first word in line or node
+                if ((i > 0 || startWithSpace) && spacingSoFar > 0) word = ' ' + word
+
+                // find how many characters are left
+                let charsLeft = maxChars - charsSoFar
+                if (maxChars >= 0 && charsLeft <= 0) {
+                    return -1
                 }
 
-                // break by newlines
-                let lines = node.text.split('\\n')
+                // find how much space (pixels) left
+                let spaceLeftOnLine = pageWidth - spacingSoFar
 
-                // break long lines up into smaller lines
-                let allLines = []
-                lines.forEach(line => {
-                    let subLines = Text.breakIntoLines(fontData, line, pageWidth)
-                    subLines.forEach(subLine => allLines.push(subLine))
-                })
-
-                // add nodes for lines and line breaks
-                allLines.forEach((line, i) => {
-                    if (i > 0 && i <= allLines.length - 1) {
-                        newNodes.push({ type: 'line-break' })
-                    }
-                    newNodes.push({ ...node, text: line })
-                })
-            } else {
-                newNodes.push(node)
-            }
-        })
-
-        let pageList = []
-        let lineList = []
-        let nodesOnLine = []
-        let spacingSoFar = 0
-        let charsSoFar = 0
-
-        newNodes.forEach(node => {
-            if (node.type === 'page-break') {
-                if (nodesOnLine.length) lineList.push(nodesOnLine)
-                if (lineList.length) pageList.push(lineList)
-                lineList = []
-                nodesOnLine = []
-                spacingSoFar = 0
-                charsSoFar = 0
-            }
-            else if (node.type === 'line-break') {
-                if (nodesOnLine.length) lineList.push(nodesOnLine)
-                if (lineList.length >= linesPerPage) {
-                    if (lineList.length) pageList.push(lineList)
-                    lineList = []
+                // truncate word if needed
+                let wordWidth = Text.textWidth(fontData, word)
+                let displayWord = maxChars >= 0 ? word.substring(0, charsLeft) : word
+                if (displayWord.length < word.length) {
+                    nodeIsComplete = false
                 }
-                nodesOnLine = []
-                spacingSoFar = 0
-                charsSoFar = 0
-            }
-            else if (node.type === 'text') {
-                let nodeWidth = Text.textWidth(fontData, node.text)
-                if (spacingSoFar + nodeWidth > pageWidth) {
-                    if (nodesOnLine.length) lineList.push(nodesOnLine)
-                    if (lineList.length >= linesPerPage) {
-                        if (lineList.length) pageList.push(lineList)
-                        lineList = []
-                    }
-                    nodesOnLine = [node]
-                    spacingSoFar = nodeWidth
-                    charsSoFar = node.text.length
+
+                if (wordWidth <= spaceLeftOnLine || spacingSoFar === 0) {
+
+                    // draw word
+                    let seqWidth = Text.drawSeq(
+                        context,
+                        fontData,
+                        fontDirection,
+                        displayWord,
+                        node.color,
+                        node.style,
+                        x + spacingSoFar,
+                        y,
+                        timestamp
+                    )
+                    spacingSoFar += seqWidth
+                    charsSoFar += displayWord.length
+
                 } else {
-                    nodesOnLine.push(node)
-                    spacingSoFar += nodeWidth
-                    charsSoFar += node.text.length
+
+                    // put remaining text in new node
+                    let remainingText = words.slice(i).join(' ')
+                    if (remainingText.trim().length === 0) break
+                    nodes.splice(nodeIndex + 1, 0, {
+                        type: 'text',
+                        text: remainingText,
+                        color: node.color,
+                        position: node.position,
+                        style: node.style
+                    })
+
+                    // start new line
+                    nodes.splice(nodeIndex + 1, 0, { type: 'line-break' })
+
+                    // shorten this node
+                    node.text = words.slice(0, i).join(' ')
+
+                    break
+
                 }
             }
-            else if (node.type === 'action') {
-                node.charPosition = charsSoFar
-                nodesOnLine.push(node)
+
+            if (!nodeIsComplete) {
+                return -1
             }
+        }
+
+        if (node.type === 'line-break') {
+            currentLine += 1
+            spacingSoFar = 0
+            if (currentLine >= linesPerPage) {
+                node.type = 'page-break'
+            }
+        }
+
+        if (node.type === 'page-break') {
+            currentLine = 0
+            spacingSoFar = 0
+            charsSoFar = 0
+            return nodeIndex + 1
+        }
+        
+        if (node.type === 'action') {
+            // initialize list of local nodes
+            let localNodes = []
+            let addNode = (node) => {
+                localNodes.push(node)
+            }
+
+            // run action
+            node.actionFunc(addNode)
+
+            // insert any nodes generated by action into list of nodes
+            localNodes.forEach((node, i) => {
+                nodes.splice(nodeIndex + 1 + i, 0, node)
+            })
+            // nodes = nodes.slice(0, nodeIndex + 1).concat(localNodes).concat(nodes.slice(nodeIndex + 1))
+
+            // mark action as completed so it doesn't run again
+            node.type = 'completed-action'
+        }
+
+        // draw next node
+        return Text.drawNode({
+            nodeIndex: nodeIndex + 1,
+            nodes,
+            canvas, context,
+            fontData, fontDirection,
+            timestamp,
+            bgX, bgY,
+            charsSoFar, maxChars,
+            spacingSoFar, currentLine, linesPerPage
         })
-
-        if (nodesOnLine.length) lineList.push(nodesOnLine)
-        if (lineList.length) pageList.push(lineList)
-
-        return pageList
     },
 
-    breakIntoLines: (fontData, text, pageWidth) => {
-        let lines = []
+    drawBackground: (context, fontData, position, linesPerPage = 2) => {
+        let bgWidth = context.canvas.width - (fontData.width * 2)
+        let bgHeight = Math.floor(fontData.height * (linesPerPage * 2 + 3))
+        let bgX = fontData.width
+        let bgY
+        if (position === 'top') {
+            bgY = fontData.width
+        } else if (position === 'bottom') {
+            bgY = context.canvas.height - bgHeight - fontData.width
+        } else {
+            bgY = Math.floor(context.canvas.height / 2 - bgHeight / 2)
+        }
 
-        let words = text.split(' ')
-        let wordsOnLine = []
-        let spacingSoFar = 0
-        let spaceWidth = fontData.width
+        if (position === 'none') {
+            // don't draw background
+        } else if (position === 'fullscreen') {
+            context.fillStyle = 'black'
+            context.fillRect(0, 0, context.canvas.width, context.canvas.height)
+        } else {
+            context.fillStyle = 'black'
+            context.fillRect(bgX, bgY, bgWidth, bgHeight)
+        }
 
-        words.forEach(word => {
-            let wordWidth = Text.textWidth(fontData, word)
-            if (spacingSoFar + spaceWidth + wordWidth > pageWidth) {
-                lines.push(wordsOnLine.join(' '))
-                wordsOnLine = [word]
-                spacingSoFar = wordWidth
-            } else {
-                wordsOnLine.push(word)
-                spacingSoFar += spaceWidth + wordWidth
-            }
-        })
+        return { bgX, bgY, bgWidth, bgHeight }
+    },
 
-        if (wordsOnLine.length) lines.push(wordsOnLine.join(' '))
-
-        return lines
+    drawContinueIndicator: (context, fontData, bgX, bgY, bgWidth, bgHeight) => {
+        let indicatorWidth = fontData.width
+        let indicatorHeight = fontData.width
+        let indicatorX = bgX + bgWidth - fontData.width - indicatorWidth
+        let indicatorY = bgY + bgHeight - fontData.height - indicatorHeight
+        context.fillStyle = 'white'
+        context.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight)
     },
 
     textWidth: (fontData, text) => {
@@ -126,90 +200,6 @@ return {
             textWidth += charWidth
         }
         return textWidth
-    },
-
-    drawPage: (context, fontData, fontDirection, lineList, timestamp, maxChars) => {
-        let lineHeight = Math.floor(fontData.height * 2)
-        let firstTextLine = lineList[0].find(l => l.type === 'text')
-        let position = firstTextLine ? firstTextLine.position : 'none'
-
-        // draw background
-        let bgWidth = context.canvas.width - (fontData.width * 2)
-        let bgHeight = Math.floor(fontData.height * 7)
-        let bgX = fontData.width
-        let bgY
-        if (position === 'top') {
-            bgY = fontData.width
-        } else if (position === 'center' || position === 'fullscreen') {
-            bgY = Math.floor(context.canvas.height / 2 - bgHeight / 2)
-        } else {
-            bgY = context.canvas.height - bgHeight - fontData.width
-        }
-
-        if (position === 'none') {
-            // don't draw background
-        } else if (position === 'fullscreen') {
-            context.fillStyle = 'black'
-            context.fillRect(0, 0, context.canvas.width, context.canvas.height)
-        } else {
-            context.fillStyle = 'black'
-            context.fillRect(bgX, bgY, bgWidth, bgHeight)
-        }
-
-        let x = bgX + fontData.width * 2
-        let y = bgY + fontData.height * 2
-
-        let numChars = 0
-        let currentMaxChars = maxChars
-
-        // draw each line
-        lineList.forEach((nodeList, lineIndex) => {
-
-            let charIndex = 0
-            let spacingSoFar = 0
-
-            nodeList.forEach(node => {
-
-                if (node.type === 'text') {
-                    let nodeText = maxChars >= 0 ? node.text.slice(0, currentMaxChars) : node.text
-                    numChars += node.text.length
-
-                    let seqWidth = Text.drawSeq(
-                        context,
-                        fontData,
-                        fontDirection,
-                        nodeText,
-                        node.color,
-                        node.style,
-                        x + spacingSoFar,
-                        y + (lineIndex * lineHeight),
-                        timestamp,
-                        charIndex
-                    )
-
-                    if (maxChars) currentMaxChars -= nodeText.length
-                    charIndex += nodeText.length
-                    spacingSoFar += seqWidth
-
-                } else if (node.type === 'action' && maxChars >= node.charPosition) {
-                    node.actionFunc()
-                    node.type = 'completed-action'
-                }
-
-            })
-        })
-
-        // draw 'next page' indicator
-        let indicatorWidth = fontData.width
-        let indicatorHeight = fontData.width
-        let indicatorX = bgX + bgWidth - fontData.width - indicatorWidth
-        let indicatorY = bgY + bgHeight - fontData.height - indicatorHeight
-        context.fillStyle = 'white'
-        context.fillRect(indicatorX, indicatorY, indicatorWidth, indicatorHeight)
-
-        // return true if all characters were drawn (includes slight timing buffer)
-        let allCharsDrawn = numChars + 5 <= maxChars
-        return allCharsDrawn
     },
 
     drawSeq: (context, fontData, fontDirection, text, color, style, x, y, timestamp, i = 0) => {

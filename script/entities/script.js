@@ -310,32 +310,6 @@ return {
         let isInt = x => !isNaN(x) && parseInt(x) === parseFloat(x)
         let isArr = x => Array.isArray(x)
 
-        // add a chunk of formatted dialog
-        let addDialogNode = (text = '', { color, style, position }) => {
-            text = text.toString().replace(/^\\n+/g, '').replace(/\\n+$/g, '')
-            if (!text) return
-            let lastNode = dialogNodes[dialogNodes.length - 1]
-            if (lastNode && lastNode.color === color && lastNode.style === style && lastNode.position === position) {
-                lastNode.text += text
-            } else {
-                let currentPalette = game.world.paletteList[game.currentPaletteIndex]
-                let colorCode = currentPalette.colorList[color] || 'white'
-                dialogNodes.push({
-                    type: 'text',
-                    color: colorCode,
-                    text, style, position
-                })
-            }
-        }
-
-        let addActionNode = (name, action) => {
-            dialogNodes.push({
-                type: 'action',
-                actionName: name,
-                actionFunc: action
-            })
-        }
-
         // define expressions
         let expressions = {
 
@@ -550,35 +524,34 @@ return {
         }
 
         // define functions
-        let immediateEvalFunctions = ['b', 'p', 'color', 'wavy', 'shaky', 'color', 'position']
         let funcs = {
-            'b': (game, context, args, textSettings, pushDialog) => {
-                pushDialog({ type: 'line-break' })
+            'b': (game, context, args, textSettings, addNode) => {
+                addNode({ type: 'line-break' })
             },
 
-            'p': (game, context, args, textSettings, pushDialog) => {
-                pushDialog({ type: 'page-break' })
+            'p': (game, context, args, textSettings, addNode) => {
+                addNode({ type: 'page-break' })
             },
 
-            'wavy': (game, context, args, textSettings, pushDialog, runNodes) => {
-                runNodes(args[0], context, { ...textSettings, style: 'wavy' })
+            'wavy': (game, context, args, textSettings, addNode, runNodes) => {
+                runNodes(args[0], context, { ...textSettings, style: 'wavy' }, addNode)
             },
 
-            'shaky': (game, context, args, textSettings, pushDialog, runNodes) => {
-                runNodes(args[0], context, { ...textSettings, style: 'shaky' })
+            'shaky': (game, context, args, textSettings, addNode, runNodes) => {
+                runNodes(args[0], context, { ...textSettings, style: 'shaky' }, addNode)
             },
 
-            'color': (game, context, args, textSettings, pushDialog, runNodes) => {
+            'color': (game, context, args, textSettings, addNode, runNodes) => {
                 let color = args[0]
                 if (!isInt(color)) color = textSettings.color
-                runNodes(args[1], context, { ...textSettings, color })
+                runNodes(args[1], context, { ...textSettings, color }, addNode)
             },
 
-            'position': (game, context, args, textSettings, pushDialog, runNodes) => {
+            'position': (game, context, args, textSettings, addNode, runNodes) => {
                 let position = args[0]
                 let positionList = ['top', 'center', 'bottom', 'fullscreen']
                 if (!positionList.includes(position)) position = textSettings.position
-                runNodes(args[1], context, { ...textSettings, position })
+                runNodes(args[1], context, { ...textSettings, position }, addNode)
             },
 
             'move-avatar': (game, context, args) => {
@@ -788,20 +761,19 @@ return {
                 }
             },
 
-            'if': (game, context, args, textSettings, pushDialog, runNodes) => {
-                let evalImmediately = true
+            'if': (game, context, args, textSettings, addNode, runNodes) => {
                 if (args.length >= 2) {
                     let result = (args[0].toString() === 'true')
                     if (result && isArr(args[1])) {
-                        runNodes(args[1], context, textSettings, evalImmediately)
+                        runNodes(args[1], context, textSettings, addNode)
                     }
                     else if (!result && isArr(args[2])) {
-                        runNodes(args[2], context, textSettings, evalImmediately)
+                        runNodes(args[2], context, textSettings, addNode)
                     }
                 }
             },
 
-            'pick': (game, context, args, textSettings, pushDialog, runNodes) => {
+            'pick': (game, context, args, textSettings, addNode, runNodes) => {
                 if (args.length >= 2 && isArr(args[0])) {
                     let tiles = args[0]
                     let nodes = args[1]
@@ -813,12 +785,32 @@ return {
                                 sprite: tileSprite,
                                 roomIndex: game.currentRoomIndex
                             }
-                            runNodes(nodes, localContext, textSettings)
+                            runNodes(nodes, localContext, textSettings, addNode)
                         }
                     })
                 }
             }
 
+        }
+
+        let stringToTextNode = (text = '', { color, style, position }) => {
+            text = text.toString().replace(/^\\n+/g, '').replace(/\\n+$/g, '')
+            if (!text) return
+            let currentPalette = game.world.paletteList[game.currentPaletteIndex]
+            let colorCode = currentPalette.colorList[color] || 'white'
+            return {
+                type: 'text',
+                color: colorCode,
+                text, style, position
+            }
+        }
+
+        let addActionNode = (name, action) => {
+            dialogNodes.push({
+                type: 'action',
+                actionName: name,
+                actionFunc: action
+            })
         }
         
         // add custom functions and expressions
@@ -828,7 +820,7 @@ return {
                     expressions[mod.name] = new Function('game', 'context', 'args', mod.code)
                 }
                 else if (mod.type === 'function') {
-                    expressions[mod.name] = new Function('game', 'context', 'args', 'textSettings', 'pushDialog', 'runNodes', mod.code)
+                    expressions[mod.name] = new Function('game', 'context', 'args', 'textSettings', 'addNode', 'runNodes', mod.code)
                 }
             })
         }
@@ -856,44 +848,54 @@ return {
             }
         }
 
-        // run the next bit of script
-        let runNode = (node, context, textSettings, evalImmediately) => {
+        // run a bit of script
+        let runNode = (node, context, textSettings, addNode) => {
+
             if (isStr(node)) {
-                addDialogNode(node, textSettings)
+
+                let textNode = stringToTextNode(node, textSettings)
+                if (textNode) addNode(textNode)
 
             } else if (node.func) {
+
                 let { func, args = [] } = node
 
-                args = args.map(arg => calcExpression(arg, context))
-
-                let pushDialog = (dialogNode) => {
-                    dialogNodes.push(dialogNode)
-                }
-
+                let actionFunc = () => {}
                 if (funcs[func]) {
-                    funcs[func](game, context, args, textSettings, pushDialog, runNodes)
-                    // if (evalImmediately || immediateEvalFunctions.includes(func)) {
-                    //     funcs[func](game, context, args, textSettings, pushDialog, runNodes)
-                    // } else {
-                    //     addActionNode(func, () => {
-                    //         funcs[func](game, context, args, textSettings, pushDialog, runNodes)
-                    //     })
-                    // }
+                    actionFunc = (addNodeInner) => {
+                        args = args.map(arg => calcExpression(arg, context))
+                        funcs[func](game, context, args, textSettings, addNodeInner, runNodes)
+                    }
                 } else {
-                    addDialogNode(calcExpression(node, context), textSettings)
+                    actionFunc = (addNodeInner) => {
+                        args = args.map(arg => calcExpression(arg, context))
+                        let expression = calcExpression(node, context)
+                        let expressionNode = stringToTextNode(expression, textSettings)
+                        if (expressionNode) addNodeInner(expressionNode)
+                    }
                 }
+
+                addNode({
+                    type: 'action',
+                    actionName: func,
+                    actionFunc: actionFunc
+                })
+
             }
         }
 
         // run a list of scripts
-        let runNodes = (nodes = [], context, textSettings, evalImmediately) => {
+        let runNodes = (nodes = [], context, textSettings, addNode) => {
             nodes.forEach(node => {
-                runNode(node, context, textSettings, evalImmediately)
+                runNode(node, context, textSettings, addNode)
             })
         }
 
         // run the actual script already
-        runNodes(parsedScript, context, defaultTextSettings)
+        let addNode = (node) => {
+            dialogNodes.push(node)
+        }
+        runNodes(parsedScript, context, defaultTextSettings, addNode)
 
         // display any dialog created from the script
         if (dialogNodes.length > 0) game.startDialog(dialogNodes)
