@@ -363,8 +363,14 @@ return class {
 
             // draw continue indicator
             if (this.pageIsComplete) {
-                this.nextPageTimer += Math.floor(dt / this.dialogRate)
-                Text.drawContinueIndicator(context, fontData, bgX, bgY, bgWidth, bgHeight)
+                if (window.textPosition === 'none') {
+                    // skip end-of-page delay if no text
+                    this.nextPageTimer = this.nextPageDelay
+                } else {
+                    // otherwise show next-page indicator and progress the delay timer
+                    this.nextPageTimer += Math.floor(dt / this.dialogRate)
+                    Text.drawContinueIndicator(context, fontData, bgX, bgY, bgWidth, bgHeight)
+                }
             }
 
             // draw text
