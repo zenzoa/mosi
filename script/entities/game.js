@@ -369,7 +369,9 @@ return class {
                 } else {
                     // otherwise show next-page indicator and progress the delay timer
                     this.nextPageTimer += Math.floor(dt / this.dialogRate)
-                    Text.drawContinueIndicator(context, fontData, bgX, bgY, bgWidth, bgHeight)
+                    if (this.nextPageTimer >= this.nextPageDelay) {
+                        Text.drawContinueIndicator(context, fontData, bgX, bgY, bgWidth, bgHeight)
+                    }
                 }
             }
 
@@ -386,8 +388,6 @@ return class {
             })
 
             if (nextPageNodeIndex >= 0) {
-                // TODO: start timer before showing continue indicator
-
                 let textNodeCount = this.dialogNodes.filter((node, i) =>
                         (node.type === 'text' && i < nextPageNodeIndex)
                     ).length

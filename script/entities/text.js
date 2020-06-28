@@ -135,10 +135,13 @@ return {
             localNodes.forEach((node, i) => {
                 nodes.splice(nodeIndex + 1 + i, 0, node)
             })
-            // nodes = nodes.slice(0, nodeIndex + 1).concat(localNodes).concat(nodes.slice(nodeIndex + 1))
 
             // mark action as completed so it doesn't run again
-            node.type = 'completed-action'
+            if (node.actionName === 'delay') {
+                charsSoFar += window.delayTimer
+            } else {
+                node.type = 'completed-action'
+            }
         }
 
         // draw next node

@@ -789,6 +789,12 @@ return {
                         }
                     })
                 }
+            },
+
+            'delay': (game, context, args, textSettings, addNode, runNodes) => {
+                if (isInt(args[0])) {
+                    window.delayTimer = args[0]
+                }
             }
 
         }
