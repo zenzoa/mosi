@@ -495,11 +495,7 @@ class Main extends Component {
 }
 
 window.onload = () => {
-    let musicInitEvent = () => {
-        MusicPlayer.init()
-        document.removeEventListener('click', musicInitEvent)
-    }
-    document.addEventListener('click', musicInitEvent)
+    MusicPlayer.init()
 
     render(h(Main), document.body)
 }

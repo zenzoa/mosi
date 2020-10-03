@@ -225,7 +225,36 @@ return {
 
     init: () => {
         let AudioContext = window.AudioContext || window.webkitAudioContext
-        MusicPlayer.audioContext = new AudioContext()
+        if (AudioContext) {
+            MusicPlayer.audioContext = new AudioContext()
+        }
+
+        let fixAudioContext = (e) => {
+            if (AudioContext) {
+                // create empty buffer and play it
+                let buffer = MusicPlayer.audioContext.createBuffer(1, 1, 22050)
+                let source = MusicPlayer.audioContext.createBufferSource()
+                source.buffer = buffer;
+                source.connect(MusicPlayer.audioContext.destination)
+                source.start(0)
+
+                // unlock html5 audio to play web audio when mute toggle is on
+                let silenceDataURL = "data:audio/mp3;base64,//MkxAAHiAICWABElBeKPL/RANb2w+yiT1g/gTok//lP/W/l3h8QO/OCdCqCW2Cw//MkxAQHkAIWUAhEmAQXWUOFW2dxPu//9mr60ElY5sseQ+xxesmHKtZr7bsqqX2L//MkxAgFwAYiQAhEAC2hq22d3///9FTV6tA36JdgBJoOGgc+7qvqej5Zu7/7uI9l//MkxBQHAAYi8AhEAO193vt9KGOq+6qcT7hhfN5FTInmwk8RkqKImTM55pRQHQSq//MkxBsGkgoIAABHhTACIJLf99nVI///yuW1uBqWfEu7CgNPWGpUadBmZ////4sL//MkxCMHMAH9iABEmAsKioqKigsLCwtVTEFNRTMuOTkuNVVVVVVVVVVVVVVVVVVV//MkxCkECAUYCAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV"
+                let tag = document.createElement('audio')
+                tag.controls = false
+                tag.preload = 'auto'
+                tag.loop = false
+                tag.src = silenceDataURL
+                tag.play()
+            }
+
+            document.removeEventListener('touchstart', fixAudioContext)
+            document.removeEventListener('touchend', fixAudioContext)
+        }
+
+        document.addEventListener('touchstart', fixAudioContext)
+        document.addEventListener('touchend', fixAudioContext)
+
     },
 
     playNote: (freq, { wave = 'triangle', attack = 0, decay = 0.5, sustain = 0, release = 0, volume = 1 }, beat = 1) => {
