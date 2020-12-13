@@ -8,6 +8,7 @@ class GIF {
         // find color table size that fits palette
         let colorTableSize = 0
         while (colors.length > Math.pow(2, colorTableSize + 1)) colorTableSize++
+        if (colorTableSize === 0) colorTableSize = 1
 
         // pad out palette
         colors = colors.slice()
