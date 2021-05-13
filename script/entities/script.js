@@ -433,15 +433,27 @@ return {
             },
 
             'all-true': (game, context, args) => {
-                return !args.find(arg => arg.toString() !== 'true')
+                let result = true
+                args.forEach(arg => {
+                    if (arg.toString() !== 'true') result = false
+                })
+                return result
             },
 
             'any-true': (game, context, args) => {
-                return !!args.find(arg => arg.toString() === 'true')
+                let result = false
+                args.forEach(arg => {
+                    if (arg.toString() === 'true') result = true
+                })
+                return result
             },
 
             'none-true': (game, context, args) => {
-                return !args.find(arg => arg.toString() === 'true')
+                let result = true
+                args.forEach(arg => {
+                    if (arg.toString() === 'true') result = false
+                })
+                return result
             },
 
             'var': (game, context, args) => {
