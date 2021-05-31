@@ -379,6 +379,7 @@ class Main extends Component {
         let musicListTab = !tabVisibility.musicList ? null :
             h(MusicListPanel, {
                 closeTab: this.closeTab.bind(this, 'musicList'),
+                editMusic: Music.select.bind(this, this),
                 selectMusic: Music.select.bind(this, this),
                 addMusic: Music.add.bind(this, this),
                 importMusic: Music.import.bind(this, this),

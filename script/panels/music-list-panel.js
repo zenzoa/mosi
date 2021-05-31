@@ -22,7 +22,7 @@ class MusicList extends Component {
                 className: (i === currentMusicIndex ? 'initial-focus' : ''),
                 onclick: () => {
                     if (currentMusicIndex === i) {
-                        editMusic()
+                        editMusic(i, 'music')
                     } else {
                         selectMusic(i, 'music')
                     }
