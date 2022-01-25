@@ -7,7 +7,7 @@ let Font = {
         let characterList = {}
 
         try {
-            let lines = data.split('\n')
+            let lines = data.split(/\r\n?|\n/)
             let i = 0
             while (i < lines.length) {
                 let line = lines[i].toLowerCase()
