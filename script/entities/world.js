@@ -202,6 +202,13 @@ let World = {
 
     import: (that, worldData) => {
         try {
+            // extract data from html
+            if (typeof worldData === 'string' && worldData.indexOf('<!DOCTYPE html>') >= 0) {
+                worldData = worldData.substring(worldData.indexOf('window.GAME_DATA = ')).replace('window.GAME_DATA = ', '')
+                worldData = worldData.substring(0, worldData.indexOf('</script>'))
+            }
+
+            // parse data
             let world = typeof worldData === 'string' ? JSON.parse(worldData) : worldData
 
             // create at least one sprite

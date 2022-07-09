@@ -84,7 +84,7 @@ class WorldPanel extends Component {
                     importWorld(data)
                     this.setState({ showImportOverlay: false })
                 },
-                fileType: '.mosi',
+                fileType: '.mosi,.html',
                 closeOverlay: () => this.setState({ showImportOverlay: false })
             })
 
