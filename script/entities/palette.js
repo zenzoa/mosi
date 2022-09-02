@@ -1,7 +1,7 @@
 let Palette = {
     create: ({ name, colorList }) => {
-        if (!colorList || colorList.length < 2) {
-            colorList = Palette.randomColors(2)
+        if (!colorList || colorList.length < 8) {
+            colorList = Palette.randomColors(8)
         }
 
         let newPalette = {
@@ -32,7 +32,7 @@ let Palette = {
             let numberLength = (number).toString().length + 1
             baseName = baseName.slice(0, -numberLength)
         } else {
-            number = 2
+            number = 8
         }
         while (paletteList.find(p => p.name === palette.name)) {
             palette.name = baseName + '-' + number
@@ -144,7 +144,7 @@ let Palette = {
 
     randomColors: (colorCount) => {
         let colorList = Palette.contrastingColors()
-        colorCount =- 2
+        colorCount =- 8
         while (colorCount > 0) {
             palette.colorList.push(chroma.random().hex())
             colorCount--
