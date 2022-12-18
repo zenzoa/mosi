@@ -112,7 +112,7 @@ return class {
             let tileList = this.currentRoom.tileList
             let palette = this.world.paletteList[this.currentPaletteIndex]
             let colorList = palette.colorList
-            
+
             // draw background
             let canvasWidth = this.world.spriteWidth * this.world.roomWidth
             let canvasHeight = this.world.spriteHeight * this.world.roomHeight
@@ -164,15 +164,15 @@ return class {
                 // do nothing if there's dialog up
             } else if (this.keyActive) {
                 let key = this.keyCodes[this.keyCodes.length - 1]
-                if (key === 'ArrowLeft') {
+                if (key === 'ArrowLeft' || key === 'a') {
                     x--
                     this.avatarDirection = 'left'
-                } else if (key === 'ArrowRight') {
+                } else if (key === 'ArrowRight' || key === 'd') {
                     x++
                     this.avatarDirection = 'right'
-                } else if (key === 'ArrowUp') {
+                } else if (key === 'ArrowUp' || key === 'w') {
                     y--
-                } else if (key === 'ArrowDown') {
+                } else if (key === 'ArrowDown' || key === 's') {
                     y++
                 }
             } else if (this.pointerIsDown || this.oneMoreMove) {
@@ -436,7 +436,7 @@ return class {
 
             // update color palette
             this.currentPaletteIndex = this.world.paletteList.findIndex(p => p.name === this.currentRoom.paletteName)
-            
+
             // play new music
             this.updateMusic()
 
@@ -452,7 +452,7 @@ return class {
         this.updateMusic = () => {
             // find music for current room
             let musicIndex = this.world.musicList.findIndex(m => m.name === this.currentRoom.musicName)
-            
+
             // stop previous music and play new music, if changed
             if (musicIndex !== this.currentMusicIndex) {
                 this.currentMusicIndex = musicIndex
@@ -512,7 +512,7 @@ return class {
 
             context.fillStyle = color
             this.drawFrame(frame, spriteWidth, context)
-            
+
             let frameData = frameCanvas
             return frameData
         }
@@ -523,7 +523,7 @@ return class {
             while (colorIndex > 0 && !colorList[colorIndex]) colorIndex--
             let color = colorList[colorIndex]
             let bgColor = sprite.isTransparent ? null : colorList[0]
-            
+
             if (sprite && !this.spriteFrameList[name]) {
                 this.spriteFrameList[name] = sprite.frameList.map(frame => {
                     return this.getFrameData(frame, color, flipped, bgColor)
@@ -567,7 +567,7 @@ return class {
             this.wrapper.addEventListener('mousedown', this.pointerStart)
             document.addEventListener('mouseup', this.pointerEnd)
             document.addEventListener('mousemove', this.pointerMove)
-    
+
             this.wrapper.addEventListener('touchstart', this.pointerStart, { passive: false })
             document.addEventListener('touchend', this.pointerEnd, { passive: false })
             document.addEventListener('touchcancel', this.pointerEnd, { passive: false })
@@ -584,23 +584,23 @@ return class {
             this.wrapper.removeEventListener('mousedown', this.pointerDown)
             document.removeEventListener('mouseup', this.pointerEnd)
             document.removeEventListener('mousemove', this.pointerMove)
-    
+
             this.wrapper.removeEventListener('touchstart', this.pointerDown)
             document.removeEventListener('touchend', this.pointerEnd)
             document.removeEventListener('touchcancel', this.pointerEnd)
             document.removeEventListener('touchmove', this.pointerMove)
-            
+
             window.removeEventListener('resize', this.resize)
         }
 
         this.keyDown = (e) => {
-            if (e.key.startsWith('Arrow')) e.preventDefault() // prevent arrow keys from scrolling page
+            if (e.key.startsWith('Arrow') || ['w', 'a', 's', 'd'].includes(e.key)) e.preventDefault() // prevent arrow keys from scrolling page
             if (e.repeat) return // ignore key repeats
             if (e.key === 'm') {
                 window.muteMusic = !window.muteMusic
             }
             else if (this.dialogNodes.length > 0) {
-                if (e.key.startsWith('Arrow')) {
+                if (e.key.startsWith('Arrow') || ['w', 'a', 's', 'd'].includes(e.key)) {
                     this.progressDialog()
                 }
             } else {
