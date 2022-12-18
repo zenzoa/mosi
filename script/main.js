@@ -29,7 +29,7 @@ class Main extends Component {
             if ((skipHistory instanceof MouseEvent || !skipHistory) && currentTab !== tab) {
                 tabHistory.push(currentTab)
             }
-            
+
             window.setTimeout(() => {
                 let tabEl = document.getElementById(tab + 'Panel')
                 if (tabEl) tabEl.scrollIntoView({ behavior: 'smooth', inline: 'center'})
@@ -38,7 +38,7 @@ class Main extends Component {
             tabVisibility[tab] = true
             currentTab = tab
             this.setState({ currentTab, tabVisibility, tabHistory })
-        } 
+        }
 
         this.closeTab = (tab) => {
             let { tabVisibility, tabHistory, oneTabMode } = this.state
@@ -319,6 +319,7 @@ class Main extends Component {
                 setSpriteIsTransparent: Sprite.setIsTransparent.bind(this, this, currentSpriteIndex),
                 setColorIndex: Sprite.setColorIndex.bind(this, this, currentSpriteIndex),
                 exportSprite: Sprite.export.bind(this, this, currentSpriteIndex),
+                convertSprite: Sprite.convertToAvatar.bind(this, this, currentSpriteIndex),
                 removeSprite: Sprite.remove.bind(this, this, currentSpriteIndex),
                 createSpriteGif: Sprite.createGif.bind(this, this, currentSpriteIndex),
                 duplicateSprite: Sprite.add.bind(this, this, currentSprite),

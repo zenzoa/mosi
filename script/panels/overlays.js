@@ -7,6 +7,17 @@ class ErrorOverlay extends Component {
     }
 }
 
+class ConfirmOverlay extends Component {
+    render({ confirm, closeOverlay, header }) {
+        return overlay({ closeOverlay, header }, [
+            row([
+                button({ onclick: confirm, className: 'initial-focus fill' }, 'yes!'),
+                button({ onclick: closeOverlay, className: 'fill' }, 'no')
+            ])
+        ])
+    }
+}
+
 class RemoveOverlay extends Component {
     render({ remove, closeOverlay, header, fileType }) {
         return overlay({ closeOverlay, header }, [
@@ -52,7 +63,7 @@ class ImportOverlay extends Component {
         ])
 
         return overlay({ closeOverlay, header },
-            div({ className: 'content' }, 
+            div({ className: 'content' },
                 textImport.concat(fileImport)
             )
         )
@@ -262,7 +273,7 @@ class FontOverlay extends Component {
             option({ value: 3 }, '×3'),
             option({ value: 4 }, '×4')
         ])
-    
+
         let fontDirectionButton = button({
             className: 'fill',
             onclick: () => setFontDirection((fontDirection === 'ltr' ? 'rtl' : 'ltr'))
@@ -316,7 +327,7 @@ class ResizeWorldOverlay extends Component {
         else if (worldResized)  resizedString = 'world'
         else if (roomResized)  resizedString = 'rooms'
         else if (spriteResized)  resizedString = 'sprites'
-        
+
         let resizeButton =
             button({
                 className: 'fill',
