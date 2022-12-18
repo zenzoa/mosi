@@ -132,7 +132,7 @@ let Sprite = {
         let roomList = that.state.roomList.slice()
         let sprite = spriteList[spriteIndex]
         let oldName = sprite.name
-        
+
         if (newName === '') {
             that.setState({
                 showErrorOverlay: true,
@@ -183,6 +183,30 @@ let Sprite = {
         if (oneTabMode) that.closeTab('sprite')
 
         that.setState({ spriteList, roomList, currentSpriteIndex })
+    },
+
+    convertToAvatar: (that, spriteIndex) => {
+        let roomList = that.state.roomList.slice()
+        let spriteList = that.state.spriteList.slice()
+        let sprite = spriteList[spriteIndex]
+        let oldAvatar = spriteList.find(sprite => sprite.isAvatar)
+
+        let spriteCount = 0
+        roomList.forEach((room, i) => {
+            room.tileList.forEach(tile => {
+                if (tile.spriteName === sprite.name) {
+                    spriteCount++
+                }
+            })
+        })
+
+        if (spriteCount > 1) {
+            that.setState({ showErrorOverlay: true, errorMessage: 'unable to convert to avatar - you can only have one avatar in the world' })
+        } else {
+            oldAvatar.isAvatar = false
+            sprite.isAvatar = true
+            that.setState({ spriteList })
+        }
     },
 
     addFrame: (that, spriteIndex, newFrame) => {
@@ -261,7 +285,7 @@ let Sprite = {
                 newFrame[y * width + x] = randomPixels[yA * width + xA]
             }
         }
-    
+
         return newFrame
     },
 
